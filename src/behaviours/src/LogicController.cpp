@@ -37,11 +37,15 @@ Result LogicController::DoWork() {
 
     if (init){
         cout << "COMPLETE: IN INIT STATE " << endl;
-        result = driveController.goToStartingPoint(roverName);
-
-        return result;
+     //   result = driveController.goToStartingPoint(roverName);
+        if (searchController.getStartingPoint()) {
+        result = searchController.goToStartingPoint(roverName);
+        } else {
+            init = false;
+        }
+     //   return result;
     }
-    else {
+   // else {
         //first a loop runs through all the controllers who have a priority of 0 or above witht he largest number being
         //most important. A priority of less than 0 is an ignored controller use -1 for standards sake.
         //if any controller needs and interrupt the logic state is changed to interrupt
@@ -190,7 +194,7 @@ Result LogicController::DoWork() {
         //give the ROSAdapter the final decision on how it should drive
         return result;
     }
-} // end of else
+//} // end of else
 
 void LogicController::UpdateData() 
 {

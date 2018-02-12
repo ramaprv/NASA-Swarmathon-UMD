@@ -33,7 +33,7 @@ void DriveController::setRoverName(string publishedName) {
 Result DriveController::goToStartingPoint(string publishedName) {
 
     if (publishedName == "achilles") {
-        cout << "TEST: ACHILLES STARTING POINT METHOD" << endl;
+        cout << "COMPLETE: ACHILLES STARTING POINT METHOD" << endl;
         result.b = noChange;
         result.type = waypoint;
         result.pd.left = 255;

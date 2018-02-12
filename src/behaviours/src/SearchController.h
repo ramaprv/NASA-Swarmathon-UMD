@@ -27,6 +27,9 @@ public:
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
 
+  Result goToStartingPoint(string publishedName); // sending rover to their starting location
+  bool getStartingPoint() {return startingPoint;}
+
 protected:
 
   void ProcessData();
@@ -38,8 +41,10 @@ private:
   Point centerLocation;
   Point searchLocation;
   int attemptCount = 0;
+
   //struct for returning data to ROS adapter
   Result result;
+  bool startingPoint = false; // true if reached starting point
 
   // Search state
   // Flag to allow special behaviour for the first waypoint
