@@ -20,9 +20,13 @@ public:
   void SetVelocityData(float linearVelocity,float angularVelocity);
   void SetCurrentLocation(Point currentLocation) {this->currentLocation = currentLocation;}
 
+  void setRoverName(string publishedName);
+  Result goToStartingPoint(string publishedName); // method that sends rover to their starting locations
+
 private:
 
   Result result;
+  string roverName = ""; //name of the rover
 
   //MAX PWM is 255
   //abridge currently limits MAX to 120 to prevent overcurrent draw

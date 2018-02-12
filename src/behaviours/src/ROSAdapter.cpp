@@ -274,13 +274,23 @@ void behaviourStateMachine(const ros::TimerEvent&)
     if (timerTimeElapsed > startDelayInSeconds)
     {
 
-      // initialization has run
-      initilized = true;
-      //TODO: this just sets center to 0 over and over and needs to change
-      Point centerOdom;
+        // initialization has run
+        initilized = true;
+        //TODO: this just sets center to 0 over and over and needs to change
+        Point centerOdom;
+
+      if (publishedName == "achilles") {
+
+          cout << "COMPLETE: SETTING " << publishedName << " center location! " << endl;
+          centerOdom.x = -1;
+          centerOdom.y = 0;
+          centerOdom.theta = 0;
+      } else {
       centerOdom.x = 1.3 * cos(currentLocation.theta);
       centerOdom.y = 1.3 * sin(currentLocation.theta);
       centerOdom.theta = centerLocation.theta;
+      }
+
       logicController.SetCenterLocationOdom(centerOdom);
       
       Point centerMap;
@@ -311,6 +321,9 @@ void behaviourStateMachine(const ros::TimerEvent&)
     
     humanTime();
     
+    // setting the rover's name
+    logicController.setRoverName(publishedName);
+
     //update the time used by all the controllers
     logicController.SetCurrentTimeInMilliSecs( getROSTimeInMilliSecs() );
     
@@ -419,6 +432,9 @@ void behaviourStateMachine(const ros::TimerEvent&)
 
 void sendDriveCommand(double left, double right)
 {
+
+    cout << "COMPLETE: IN THE DRIVE COMMAND" << endl;
+
   velocity.linear.x = left,
       velocity.angular.z = right;
   

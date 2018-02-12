@@ -25,6 +25,8 @@ void SearchController::Reset() {
  */
 Result SearchController::DoWork() {
 
+    cout << "TEST: IN DRIVE CONTROLLER" << endl;
+
   if (!result.wpts.waypoints.empty()) {
     if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.15) {
       attemptCount = 0;

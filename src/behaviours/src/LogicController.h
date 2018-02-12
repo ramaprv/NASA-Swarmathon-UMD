@@ -86,6 +86,8 @@ public:
   void setVirtualFenceOn( RangeShape* range );
   void setVirtualFenceOff( );
 
+  void setRoverName(string publishedName);
+
 protected:
   void ProcessData();
 
@@ -94,8 +96,8 @@ private:
   enum LogicState {
     LOGIC_STATE_INTERRUPT = 0,
     LOGIC_STATE_WAITING,
-    LOGIC_STATE_PRECISION_COMMAND
-  };
+    LOGIC_STATE_PRECISION_COMMAND,
+    };
 
   enum ProcessState {
     _FIRST = 0,
@@ -123,6 +125,10 @@ private:
   void controllerInterconnect();
 
   long int current_time = 0;
+
+  string roverName = ""; // name of the rover
+  bool init = true; // init boolean
+
 };
 
 #endif // LOGICCONTROLLER_H
