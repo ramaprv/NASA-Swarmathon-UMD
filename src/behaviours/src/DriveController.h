@@ -21,7 +21,6 @@ public:
   void SetCurrentLocation(Point currentLocation) {this->currentLocation = currentLocation;}
 
   void setRoverName(string publishedName);
-  Result goToStartingPoint(string publishedName); // method that sends rover to their starting locations
 
 private:
 

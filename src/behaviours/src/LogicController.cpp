@@ -37,12 +37,11 @@ Result LogicController::DoWork() {
 
     if (init){
         cout << "COMPLETE: IN INIT STATE " << endl;
-     //   result = driveController.goToStartingPoint(roverName);
-        if (searchController.getStartingPoint()) {
+     //   if (searchController.getStartingPoint()) {
         result = searchController.goToStartingPoint(roverName);
-        } else {
-            init = false;
-        }
+     //   } else {
+     //       init = false;
+     //   }
      //   return result;
     }
    // else {
