@@ -1,5 +1,6 @@
 #include "SearchController.h"
 #include <angles/angles.h>
+#include <math.h>
 
 SearchController::SearchController() {
     rng = new random_numbers::RandomNumberGenerator();
@@ -21,6 +22,22 @@ void SearchController::Reset() {
 }
 
 
+void SearchController::setRoverName(string publishedName) {
+    roverName = publishedName;
+}
+
+float getRadius(Point currentLocation) {
+
+    float x = pow(currentLocation.x, 2);
+    float y = pow(currentLocation.y, 2);
+    float radius = sqrt(x + y);
+
+    //    cout << "TEST: CURRENT X: " << currentLocation.x << endl;
+    //    cout << "TEST: CURRENT Y: " << currentLocation.y << endl;
+    //    cout << "TEST: CURRENT RADIUS: " << radius << endl;
+    return radius;
+
+}
 Result SearchController::goToStartingPoint(string publishedName) {
 
     // sending achilles to his starting location
@@ -29,28 +46,39 @@ Result SearchController::goToStartingPoint(string publishedName) {
 
         // checking if rover is within a meter of their starting location
         // if they are, send them back to the center
-        if (1==0) {
-       // if (abs(searchLocation.x - (-3)) < 1 && abs(searchLocation.y - 3) < 1){
-            cout << "TEST: ROVER REACHED STARTING LOCATION" << endl;
-            searchLocation.theta = -(2*M_PI)/3;
-            searchLocation.x = 0;
-            searchLocation.y = 0;
+
+        if (getRadius(currentLocation) >= 1.17){ // might want to lower
             startingPoint = true;
+
+            searchLocation.theta = 0;
+            searchLocation.x = currentLocation.x + 5 * cos(searchLocation.theta);
+            searchLocation.y = currentLocation.y + 5 * sin(searchLocation.theta);
+            result.pd.left = 100;
+            result.pd.right = 100;
+            result.b = noChange;
+            result.type = waypoint;
+            // clearing the waypoints, stopping the wheels
+//            result.wpts.waypoints.clear();
+//            result.pd.left = 0;
+//            result.pd.right = 0;
+//            result.b = wait;
+//            result.type = behavior;
         }
 
         // if rover isnt at their starting location, keep sending them there
-        else {
-          cout << "TEST: ROVER GOING TO STARTTING LOCATION" << endl;
-        searchLocation.theta = (2*M_PI)/3;
-        searchLocation.x = currentLocation.x + 5 * cos(searchLocation.theta);
-        searchLocation.y = currentLocation.y + 5 * sin(searchLocation.theta);
+        if (!startingPoint){
+            cout << "TEST: ROVER GOING TO STARTTING LOCATION" << endl;
+            searchLocation.theta = (2*M_PI)/3;
+            searchLocation.x = currentLocation.x + 5 * cos(searchLocation.theta);
+            searchLocation.y = currentLocation.y + 5 * sin(searchLocation.theta);
+
+            result.pd.left = 255; // go as fast as possible!!!!!
+            result.pd.right = 255; // !!!!!
+            result.b = noChange;
+            result.type = waypoint;
         }
     }
 
-    result.b = noChange;
-    result.type = waypoint;
-    result.pd.left = 100;
-    result.pd.right = 50;
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
 
@@ -60,6 +88,13 @@ Result SearchController::goToStartingPoint(string publishedName) {
  * This code implements a basic random walk search.
  */
 Result SearchController::DoWork() {
+
+    if (roverName == "achilles") {
+        cout << "TEST: ACHILLES IS TRYING TO SEARCH" << endl;
+
+
+
+    }
 
     cout << "TEST: IN DRIVE CONTROLLER" << endl;
 

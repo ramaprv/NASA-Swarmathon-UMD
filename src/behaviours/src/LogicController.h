@@ -128,6 +128,7 @@ private:
 
   string roverName = ""; // name of the rover
   bool init = true; // init boolean
+  int timeDelay = 0; // incremented to give rover time to stop
 
 };
 

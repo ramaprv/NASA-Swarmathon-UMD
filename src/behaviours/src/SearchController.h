@@ -28,7 +28,8 @@ public:
   void SetSuccesfullPickup();
 
   Result goToStartingPoint(string publishedName); // sending rover to their starting location
-  bool getStartingPoint() {return startingPoint;}
+  bool getStartingPoint() {return startingPoint;} // returns true if rover has reached their starting location
+  void setRoverName(string publishedName); // setting the rover name
 
 protected:
 
@@ -45,6 +46,7 @@ private:
   //struct for returning data to ROS adapter
   Result result;
   bool startingPoint = false; // true if reached starting point
+  string roverName = ""; // name of the rover
 
   // Search state
   // Flag to allow special behaviour for the first waypoint

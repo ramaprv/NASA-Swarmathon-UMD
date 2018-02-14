@@ -154,7 +154,7 @@ time_t timerStartTime;
 
 // An initial delay to allow the rover to gather enough position data to 
 // average its location.
-unsigned int startDelayInSeconds = 30;
+unsigned int startDelayInSeconds = 10;
 float timerTimeElapsed = 0;
 
 //Transforms

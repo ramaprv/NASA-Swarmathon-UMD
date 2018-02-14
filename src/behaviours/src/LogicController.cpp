@@ -26,6 +26,7 @@ void LogicController::Reset() {
 
 void LogicController::setRoverName(string publishedName) {
     roverName = publishedName;
+    searchController.setRoverName(roverName);
     cout << "COMPLETE: SET ROVER NAME: " << roverName << endl;
 }
 
@@ -35,15 +36,21 @@ void LogicController::setRoverName(string publishedName) {
 Result LogicController::DoWork() {
     Result result;
 
-    if (init){
-        cout << "COMPLETE: IN INIT STATE " << endl;
-     //   if (searchController.getStartingPoint()) {
+
+    // sending rover to their starting location
+    // when they're reached their starting location, they wait for their search behavior
+    if (init) {
+        if (!searchController.getStartingPoint()) {
         result = searchController.goToStartingPoint(roverName);
-     //   } else {
-     //       init = false;
-     //   }
-     //   return result;
+        } else {
+             result = searchController.goToStartingPoint(roverName);
+           cout << "TEST: ROVER REACHED STARTING LOCATION" << endl;
+           cout << "TEST: TIME DELAY " << timeDelay << endl;
+        //   init = false;
+        //   return result;
+        }
     }
+
    // else {
         //first a loop runs through all the controllers who have a priority of 0 or above witht he largest number being
         //most important. A priority of less than 0 is an ignored controller use -1 for standards sake.
