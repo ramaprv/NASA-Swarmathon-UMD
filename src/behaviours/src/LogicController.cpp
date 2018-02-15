@@ -45,7 +45,7 @@ Result LogicController::DoWork() {
         } else {
              result = searchController.goToStartingPoint(roverName);
            cout << "TEST: ROVER REACHED STARTING LOCATION" << endl;
-           cout << "TEST: TIME DELAY " << timeDelay << endl;
+
         //   init = false;
         //   return result;
         }

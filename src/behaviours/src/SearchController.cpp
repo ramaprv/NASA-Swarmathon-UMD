@@ -47,7 +47,7 @@ Result SearchController::goToStartingPoint(string publishedName) {
         // checking if rover is within a meter of their starting location
         // if they are, send them back to the center
 
-        if (getRadius(currentLocation) >= 2.17){ // might want to lower
+        if (getRadius(currentLocation) >= 2.50){ // might want to lower
             startingPoint = true;
 
             searchLocation.theta = 0;
@@ -57,18 +57,12 @@ Result SearchController::goToStartingPoint(string publishedName) {
             result.pd.right = 100;
             result.b = noChange;
             result.type = waypoint;
-            // clearing the waypoints, stopping the wheels
-//            result.wpts.waypoints.clear();
-//            result.pd.left = 0;
-//            result.pd.right = 0;
-//            result.b = wait;
-//            result.type = behavior;
         }
 
         // if rover isnt at their starting location, keep sending them there
         if (!startingPoint){
             cout << "TEST: ROVER GOING TO STARTTING LOCATION" << endl;
-            searchLocation.theta = (2*M_PI)/3;
+            searchLocation.theta = (2*M_PI)/3; // might alter this
             searchLocation.x = currentLocation.x + 1 * cos(searchLocation.theta);
             searchLocation.y = currentLocation.y + 1 * sin(searchLocation.theta);
 
