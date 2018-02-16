@@ -36,22 +36,6 @@ void LogicController::setRoverName(string publishedName) {
 Result LogicController::DoWork() {
     Result result;
 
-
-    // sending rover to their starting location
-    // when they're reached their starting location, they wait for their search behavior
-    if (init) {
-        if (!searchController.getStartingPoint()) {
-        result = searchController.goToStartingPoint(roverName);
-        } else {
-             result = searchController.goToStartingPoint(roverName);
-           cout << "TEST: ROVER REACHED STARTING LOCATION" << endl;
-
-        //   init = false;
-        //   return result;
-        }
-    }
-
-   // else {
         //first a loop runs through all the controllers who have a priority of 0 or above witht he largest number being
         //most important. A priority of less than 0 is an ignored controller use -1 for standards sake.
         //if any controller needs and interrupt the logic state is changed to interrupt
@@ -68,6 +52,9 @@ Result LogicController::DoWork() {
 
         //when an interrupt has been thorwn or there are no pending control_queue.top().actions logic controller is in this state.
         case LOGIC_STATE_INTERRUPT: {
+
+            cout << "TEST: IN INTERRUPT CASE " << endl;
+
             //Reset the control queue
             control_queue = priority_queue<PrioritizedController>();
 
@@ -95,6 +82,8 @@ Result LogicController::DoWork() {
             }
 
             //take the top member of the priority queue and run their do work function.
+            cout << "UM: TAKING THE TOP MEMEBER OF THE CONTROL QUEUE" << endl;
+
             result = control_queue.top().controller->DoWork();
 
             //anaylyze the result that was returned and do state changes accordingly
@@ -158,6 +147,9 @@ Result LogicController::DoWork() {
 
             //this case is primarly when logic controller is waiting for drive controller to reach its last waypoint
         case LOGIC_STATE_WAITING: {
+
+             cout << "TEST: IN WAITING CASE " << endl;
+
             //ask drive controller how to drive
             //commands to be passed the ROS Adapter as left and right wheel PWM values in the result struct are returned
             result = driveController.DoWork();
@@ -174,6 +166,8 @@ Result LogicController::DoWork() {
 
             //used for precision driving pass through
         case LOGIC_STATE_PRECISION_COMMAND: {
+
+             cout << "TEST: IN PRECISION COMMAND CASE " << endl;
 
             //unlike waypoints precision commands change every update tick so we ask the
             //controller for new commands on every update tick.
@@ -210,6 +204,8 @@ void LogicController::UpdateData()
 
 void LogicController::ProcessData() 
 {
+
+     cout << "TEST: IN PROCESS DATA " << endl;
 
     //this controller priority is used when searching
     if (processState == PROCCESS_STATE_SEARCHING)
