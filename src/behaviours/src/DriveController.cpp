@@ -26,6 +26,10 @@ void DriveController::Reset()
   }
 }
 
+void DriveController::setRoverName(string publishedName) {
+    roverName = publishedName;
+}
+
 Result DriveController::DoWork()
 {
   
