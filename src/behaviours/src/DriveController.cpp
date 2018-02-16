@@ -32,6 +32,7 @@ void DriveController::setRoverName(string publishedName) {
 
 Result DriveController::DoWork()
 {
+     cout << "TEST: IN DRIVE DO WORK " << endl;
   
   ///WARNING waypoint input must use FAST_PID at this point in time failure to set fast pid will result in no movment
 

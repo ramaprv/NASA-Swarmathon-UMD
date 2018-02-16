@@ -27,8 +27,9 @@ public:
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
 
-  Result goToStartingPoint(string publishedName); // sending rover to their starting location
+  Result goToStartingPoint(); // sending rover to their starting location
   bool getStartingPoint() {return startingPoint;} // returns true if rover has reached their starting location
+  Result searchBehaviour();
   void setRoverName(string publishedName); // setting the rover name
 
 protected:
@@ -47,6 +48,10 @@ private:
   Result result;
   bool startingPoint = false; // true if reached starting point
   string roverName = ""; // name of the rover
+  int choice = 0;
+  const int INCREASE = .2;
+  int distance = INCREASE;
+  int negation = 1;
 
   // Search state
   // Flag to allow special behaviour for the first waypoint

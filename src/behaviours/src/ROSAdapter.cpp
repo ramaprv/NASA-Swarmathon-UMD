@@ -279,7 +279,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
         //TODO: this just sets center to 0 over and over and needs to change
         Point centerOdom;
 
-      if (publishedName == "achilles") {
+      if (publishedName == "achi4lles") {
 
           cout << "COMPLETE: SETTING " << publishedName << " center location! " << endl;
           centerOdom.x = -1;
