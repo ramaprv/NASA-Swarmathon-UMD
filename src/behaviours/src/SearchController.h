@@ -35,6 +35,7 @@ public:
     float getTheta(string roverName) {
         if (roverName == "achilles") { return (2*M_PI)/3; }
         else if (roverName == "ajax") {return -M_PI/4; }
+        else if (roverName == "aeneas") { return M_PI/4; }
         else {return 0; }
     }
 
@@ -64,6 +65,9 @@ private:
     // Flag to allow special behaviour for the first waypoint
     bool first_waypoint = true;
     bool succesfullPickup = false;
+    int timeDelayInt = 0;
+    bool timeDelayBool = false;
+    int spiralCount = 0;
 };
 
 #endif /* SEARCH_CONTROLLER */
