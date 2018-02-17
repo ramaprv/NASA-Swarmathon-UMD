@@ -24,6 +24,18 @@ void SearchController::Reset() {
 
 void SearchController::setRoverName(string publishedName) {
     roverName = publishedName;
+
+    if (roverName == "achilles") {
+        THETA_1 = 0;
+        THETA_2 = M_PI/2;
+        THETA_3 = M_PI;
+        THETA_4 = (3*M_PI)/2;
+    } else if (roverName == "ajax") {
+        THETA_1 = M_PI;
+        THETA_2 = (3*M_PI)/2;
+        THETA_3 = 0;
+        THETA_4 = M_PI/2;
+    }
 }
 
 float getRadius(Point currentLocation) {
@@ -37,18 +49,19 @@ float getRadius(Point currentLocation) {
 Result SearchController::goToStartingPoint() {
 
     // sending achilles to his starting location
-    if (roverName == "achilles") {
+    if (roverName == "achilles" || roverName == "ajax") {
 
        // checking if rover is within a meter of their starting location
 
         if (getRadius(currentLocation) >= 2.50){ // might want to lower
             startingPoint = true;
+            cout << "TEST: GOT TO STARTING LOCATION " << endl;
         }
 
         // if rover isnt at their starting location, keep sending them there
         if (!startingPoint){
             cout << "TEST: ROVER GOING TO STARTING LOCATION" << endl;
-            searchLocation.theta = (2*M_PI)/3; // might alter this
+            searchLocation.theta = getTheta(roverName); // might alter this
             searchLocation.x = currentLocation.x + 1 * cos(searchLocation.theta);
             searchLocation.y = currentLocation.y + 1 * sin(searchLocation.theta);
 
@@ -70,26 +83,26 @@ Result SearchController::searchBehaviour() {
 
 
 
-    if (roverName == "achilles") {
+    if (roverName == "achilles" || roverName == "ajax") {
 
         if (choice == 0) {
-            searchLocation.theta = 0;
+            searchLocation.theta = THETA_1;
             searchLocation.x = currentLocation.x + ((horizD+distance) * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + ((horizD+distance) * sin(searchLocation.theta));
             distance += INCREASE; // increasing the distance the rover's drive
             choice = 1;
         } else if (choice == 1) {
-            searchLocation.theta = M_PI/2 * (negation);
+            searchLocation.theta = THETA_2 * (negation);
             searchLocation.x = currentLocation.x + (.5 * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + (.5 * sin(searchLocation.theta));
             choice = 2;
         } else if (choice == 2) {
-            searchLocation.theta = M_PI;
+            searchLocation.theta = THETA_3;
             searchLocation.x = currentLocation.x + ((horizD+distance) * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + ((horizD+distance) * sin(searchLocation.theta));
             choice = 3;
         } else if (choice == 3) {
-            searchLocation.theta = (3*M_PI)/2 * (negation);
+            searchLocation.theta = THETA_4 * (negation);
             searchLocation.x = currentLocation.x + ((verD+distance) * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + ((verD+distance) * sin(searchLocation.theta));
             choice = 0;
@@ -114,7 +127,6 @@ Result SearchController::searchBehaviour() {
 Result SearchController::DoWork() {
 
     cout << "SEARCH: IN DO WORK SEARCH CONTROLLER" << endl;
-    cout << "TEST: ATTEMPT COUNT IN SEARCH IS: " << attemptCount << endl;
 
     //        if (!result.wpts.waypoints.empty()) {
     //            if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.15) {
