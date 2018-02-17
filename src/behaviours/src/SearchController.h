@@ -44,14 +44,15 @@ private:
   Point searchLocation;
   int attemptCount = 0;
 
-  //struct for returning data to ROS adapter
-  Result result;
+
+  Result result; //struct for returning data to ROS adapter
   bool startingPoint = false; // true if reached starting point
   string roverName = ""; // name of the rover
   int choice = 0;
-  const int INCREASE = .2;
-  int distance = INCREASE;
-  int negation = 1;
+  const float INCREASE = .5; // constant added to the distance
+  float distance = 0; // will hold the increased distance rovers will go
+  float horizD = 2.5, verD = 5.5; // the horizontal and vertical distance
+  int negation = 1; // used when we want to negate radians to make rovers turn a different direction
 
   // Search state
   // Flag to allow special behaviour for the first waypoint

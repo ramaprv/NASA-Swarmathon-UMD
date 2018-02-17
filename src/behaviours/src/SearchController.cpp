@@ -39,9 +39,7 @@ Result SearchController::goToStartingPoint() {
     // sending achilles to his starting location
     if (roverName == "achilles") {
 
-        cout << "TEST: GO TO STARTING POINT SEARCH CONTROLLER" << endl;
-
-        // checking if rover is within a meter of their starting location
+       // checking if rover is within a meter of their starting location
 
         if (getRadius(currentLocation) >= 2.50){ // might want to lower
             startingPoint = true;
@@ -53,6 +51,7 @@ Result SearchController::goToStartingPoint() {
             searchLocation.theta = (2*M_PI)/3; // might alter this
             searchLocation.x = currentLocation.x + 1 * cos(searchLocation.theta);
             searchLocation.y = currentLocation.y + 1 * sin(searchLocation.theta);
+
         }
     } else {
         searchLocation.theta = rng->gaussian(currentLocation.theta, 0.785398); //45 degrees in radians
@@ -69,32 +68,31 @@ Result SearchController::goToStartingPoint() {
 
 Result SearchController::searchBehaviour() {
 
+
+
     if (roverName == "achilles") {
 
         if (choice == 0) {
             searchLocation.theta = 0;
-            searchLocation.x = currentLocation.x + ((2.5+distance) * cos(searchLocation.theta));
-            searchLocation.y = currentLocation.y + ((2.5+distance) * sin(searchLocation.theta));
+            searchLocation.x = currentLocation.x + ((horizD+distance) * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + ((horizD+distance) * sin(searchLocation.theta));
+            distance += INCREASE; // increasing the distance the rover's drive
             choice = 1;
-            distance += INCREASE;
         } else if (choice == 1) {
             searchLocation.theta = M_PI/2 * (negation);
-            searchLocation.x = currentLocation.x + (.75 * cos(searchLocation.theta));
-            searchLocation.y = currentLocation.y + (.75 * sin(searchLocation.theta));
+            searchLocation.x = currentLocation.x + (.5 * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + (.5 * sin(searchLocation.theta));
             choice = 2;
-          //  distance += INCREASE;
         } else if (choice == 2) {
             searchLocation.theta = M_PI;
-            searchLocation.x = currentLocation.x + ((2.8+distance) * cos(searchLocation.theta));
-            searchLocation.y = currentLocation.y + ((2.8+distance) * sin(searchLocation.theta));
+            searchLocation.x = currentLocation.x + ((horizD+distance) * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + ((horizD+distance) * sin(searchLocation.theta));
             choice = 3;
-           // distance += INCREASE;
         } else if (choice == 3) {
             searchLocation.theta = (3*M_PI)/2 * (negation);
-            searchLocation.x = currentLocation.x + ((5.5+distance) * cos(searchLocation.theta));
-            searchLocation.y = currentLocation.y + ((5.5+distance) * sin(searchLocation.theta));
+            searchLocation.x = currentLocation.x + ((verD+distance) * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + ((verD+distance) * sin(searchLocation.theta));
             choice = 0;
-       //     distance += INCREASE;
             negation *= -1;
         }
 
