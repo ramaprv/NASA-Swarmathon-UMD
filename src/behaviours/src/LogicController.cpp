@@ -53,7 +53,7 @@ Result LogicController::DoWork() {
         //when an interrupt has been thorwn or there are no pending control_queue.top().actions logic controller is in this state.
         case LOGIC_STATE_INTERRUPT: {
 
-            cout << "TEST: IN INTERRUPT CASE " << endl;
+           // cout << "TEST: IN INTERRUPT CASE " << endl;
 
             //Reset the control queue
             control_queue = priority_queue<PrioritizedController>();
@@ -148,7 +148,7 @@ Result LogicController::DoWork() {
             //this case is primarly when logic controller is waiting for drive controller to reach its last waypoint
         case LOGIC_STATE_WAITING: {
 
-             cout << "TEST: IN WAITING CASE " << endl;
+          //   cout << "TEST: IN WAITING CASE " << endl;
 
             //ask drive controller how to drive
             //commands to be passed the ROS Adapter as left and right wheel PWM values in the result struct are returned
@@ -167,7 +167,7 @@ Result LogicController::DoWork() {
             //used for precision driving pass through
         case LOGIC_STATE_PRECISION_COMMAND: {
 
-             cout << "TEST: IN PRECISION COMMAND CASE " << endl;
+             // cout << "TEST: IN PRECISION COMMAND CASE " << endl;
 
             //unlike waypoints precision commands change every update tick so we ask the
             //controller for new commands on every update tick.
