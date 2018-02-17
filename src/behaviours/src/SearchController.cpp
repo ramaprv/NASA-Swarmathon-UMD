@@ -51,7 +51,7 @@ Result SearchController::goToStartingPoint() {
     // sending achilles to his starting location
     if (roverName == "achilles" || roverName == "ajax") {
 
-       // checking if rover is within a meter of their starting location
+        // checking if rover is within a meter of their starting location
 
         if (getRadius(currentLocation) >= 2.50){ // might want to lower
             startingPoint = true;
@@ -67,11 +67,18 @@ Result SearchController::goToStartingPoint() {
 
         }
     } else {
-        searchLocation.theta = rng->gaussian(currentLocation.theta, 0.785398); //45 degrees in radians
-        searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
-        searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
-    }
 
+        if (timeDelayInt++ > 100) { // delaying rover from spirals so others can get out the way
+            timeDelayBool = true;
+        } if (getRadius(currentLocation) >= 1){ // might want to lower
+            startingPoint = true;
+        }  if (timeDelayBool && !startingPoint) {
+
+            searchLocation.theta = getTheta(roverName);
+            searchLocation.x = currentLocation.x + (.5 * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + (.5 * sin(searchLocation.theta));
+        }
+    }
     result.type = waypoint;
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
@@ -80,8 +87,6 @@ Result SearchController::goToStartingPoint() {
 }
 
 Result SearchController::searchBehaviour() {
-
-
 
     if (roverName == "achilles" || roverName == "ajax") {
 
@@ -110,9 +115,17 @@ Result SearchController::searchBehaviour() {
         }
 
     } else {
-        searchLocation.theta = rng->gaussian(currentLocation.theta, 0.785398); //45 degrees in radians
-        searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
-        searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
+        cout << "TEST: SEARCHING " << endl;
+
+        if (spiralCount == 6) {
+            distance += INCREASE;
+            spiralCount = 0;
+        }
+
+        searchLocation.theta = currentLocation.theta + M_PI/4;
+        searchLocation.x = currentLocation.x + ((1+distance) * cos(searchLocation.theta));
+        searchLocation.y = currentLocation.y + ((1+distance) * sin(searchLocation.theta));
+        spiralCount++;
     }
 
     result.wpts.waypoints.clear();
@@ -145,9 +158,11 @@ Result SearchController::DoWork() {
 
     // if rover hasn't reached their starting point, send them to it
     if (!startingPoint) {
+        cout << "TEST: NOT AT STARTING POINT" << endl;
         return goToStartingPoint();
     } else {
         // rover has reached their starting point, begin their normal search
+        cout << "TEST: GOT TO STARTING POINT" << endl;
         return searchBehaviour();
     }
 

@@ -30,6 +30,10 @@ void LogicController::setRoverName(string publishedName) {
     cout << "COMPLETE: SET ROVER NAME: " << roverName << endl;
 }
 
+bool LogicController::getStartingPoint() {
+    return searchController.getStartingPoint();
+}
+
 //***********************************************************************************************************************
 //This function is called every 1/10th second by the ROSAdapter
 //The logical flow if the behaviours is controlled here by using a interrupt, haswork, priority queue system.

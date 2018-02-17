@@ -86,7 +86,8 @@ public:
   void setVirtualFenceOn( RangeShape* range );
   void setVirtualFenceOff( );
 
-  void setRoverName(string publishedName);
+  void setRoverName(string publishedName); // sets the rover's name
+  bool getStartingPoint(); // returns true if the rover has reached their starting point
 
 protected:
   void ProcessData();
