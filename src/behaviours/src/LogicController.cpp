@@ -24,15 +24,15 @@ void LogicController::Reset() {
     control_queue = priority_queue<PrioritizedController>();
 }
 
-void LogicController::setRoverName(string publishedName) {
-    roverName = publishedName;
-    searchController.setRoverName(roverName);
-    cout << "COMPLETE: SET ROVER NAME: " << roverName << endl;
-}
+//void LogicController::setRoverName(string publishedName) {
+//    roverName = publishedName;
+//    searchController.setRoverName(roverName);
+//    cout << "COMPLETE: SET ROVER NAME: " << roverName << endl;
+//}
 
-bool LogicController::getStartingPoint() {
-    return searchController.getStartingPoint();
-}
+//bool LogicController::getStartingPoint() {
+//    return searchController.getStartingPoint();
+//}
 
 //***********************************************************************************************************************
 //This function is called every 1/10th second by the ROSAdapter
