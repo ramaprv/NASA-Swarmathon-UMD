@@ -46,11 +46,24 @@ float getCurrentRadius(Point currentLocation) {
     return radius;
 }
 
+// this method tells how far out the rovers should go
+// to get to their starting locations
 float SearchController::getStartingRadius() {
+
+    // preliminary round
     if (prelim) {
+
+        if (roverName == "aeneas" || roverName == "diomedes") {
+            return 1;
+        }
         return 2.5;
-    } else {
-        cout << "SEMI: ITS THE SEMI FINALS" << endl;
+    }
+
+    // for final rounds
+    else {
+        if (roverName == "aeneas" || roverName == "diomedes") {
+            return 2;
+        }
         return 4.5;
     }
 
@@ -79,17 +92,17 @@ Result SearchController::goToStartingPoint() {
     } else {
 
         // delaying rover from spirals so others can get out the way
-        if (timeDelayInt++ > 100) { timeDelayBool = true; }
+        if (timeDelayInt++ > 50) { timeDelayBool = true; }
 
         // for the first time, rover goes out until radius is greater than or equal to 1
-        if (getCurrentRadius(currentLocation) >= 1 && firstSpiral){ // might want to lower
+        if (getCurrentRadius(currentLocation) >= getStartingRadius() && firstSpiral){ // might want to lower
             startingPoint = true;
             firstSpiral = false;
         }
         // for sending rover back to the center after they've reached their boundary
-//        else if (getRadius(currentLocation) <= 1 && !firstSpiral) {
-//            startingPoint = true;
-//        }
+        //        else if (getRadius(currentLocation) <= 1 && !firstSpiral) {
+        //            startingPoint = true;
+        //        }
 
         // if rover's time delay has passed and they're not at the starting point, send them there !!!!
         if (timeDelayBool && !startingPoint) {
@@ -107,7 +120,7 @@ Result SearchController::goToStartingPoint() {
     return result;
 }
 
-Result SearchController::searchBehaviour() {
+Result SearchController::prelimSearchBehaviour() {
 
     if (roverName == "achilles" || roverName == "ajax") {
 
@@ -139,7 +152,7 @@ Result SearchController::searchBehaviour() {
         cout << "TEST: SEARCHING " << endl;
 
         // if rover goes out his boundary, send him back to his starting location
-       //      if (getRadius(currentLocation) >= 2) { startingPoint = false; }
+        //      if (getRadius(currentLocation) >= 2) { startingPoint = false; }
 
         if (spiralCount == 6) {
             distance += S_INCREASE;
@@ -151,6 +164,15 @@ Result SearchController::searchBehaviour() {
         searchLocation.y = currentLocation.y + ((.5+distance) * sin(searchLocation.theta));
         spiralCount++;
     }
+
+    result.wpts.waypoints.clear();
+    result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
+
+    return result;
+
+}
+
+Result SearchController::semiSearchBehaviour() {
 
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
@@ -182,12 +204,14 @@ Result SearchController::DoWork() {
 
     // if rover hasn't reached their starting point, send them to it
     if (!startingPoint) {
-        cout << "TEST: NOT AT STARTING POINT" << endl;
         return goToStartingPoint();
     } else {
         // rover has reached their starting point, begin their normal search
-        cout << "TEST: GOT TO STARTING POINT" << endl;
-        return searchBehaviour();
+        if (prelim) {
+            return prelimSearchBehaviour();
+        } else {
+            return semiSearchBehaviour();
+        }
     }
 
 

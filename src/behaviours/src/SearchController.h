@@ -29,7 +29,8 @@ public:
 
     Result goToStartingPoint(); // sending rover to their starting location
     bool getStartingPoint() {return startingPoint;} // returns true if rover has reached their starting location
-    Result searchBehaviour(); // where rover's normal search algo goes
+    Result prelimSearchBehaviour(); // where rover's normal search algo goes for prelim round
+    Result semiSearchBehaviour(); // rover's algo for semi-final rounds
     void setRoverName(string publishedName); // setting the rover name
     float getStartingRadius(); // radius rover is bounded by their starting location
     void setPrelim(bool flag) { prelim = flag; }
@@ -39,6 +40,7 @@ public:
         if (roverName == "achilles") { return (2*M_PI)/3; }
         else if (roverName == "ajax") {return -M_PI/4; }
         else if (roverName == "aeneas") { return M_PI/4; }
+           else if (roverName == "diomedes") { return (5*M_PI)/4; }
         else {return 0; }
     }
 
@@ -75,7 +77,7 @@ private:
     bool timeDelayBool = false;
     int spiralCount = 0;
     bool firstSpiral = true; // spiral going to starting location first time
-    bool prelim = true;
+    bool prelim = false;
 };
 
 #endif /* SEARCH_CONTROLLER */
