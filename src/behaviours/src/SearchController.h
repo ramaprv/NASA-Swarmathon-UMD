@@ -33,15 +33,16 @@ public:
     Result semiSearchBehaviour(); // rover's algo for semi-final rounds
     void setRoverName(string publishedName); // setting the rover name
     float getStartingRadius(); // radius rover is bounded by their starting location
-    void setPrelim(bool flag) { prelim = flag; }
 
     // starting theta each rover will have
     float getTheta(string roverName) {
         if (roverName == "achilles") { return (2*M_PI)/3; }
         else if (roverName == "ajax") {return -M_PI/4; }
         else if (roverName == "aeneas") { return M_PI/4; }
-           else if (roverName == "diomedes") { return (5*M_PI)/4; }
-        else {return 0; }
+        else if (roverName == "diomedes") { return (5*M_PI)/4; }
+        else if (roverName == "paris") { return (4*M_PI)/3; }
+        else if (roverName == "hector") { return M_PI/3; }
+        else { return 0; }
     }
 
 

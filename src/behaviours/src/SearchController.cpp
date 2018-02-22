@@ -92,7 +92,7 @@ Result SearchController::goToStartingPoint() {
     } else {
 
         // delaying rover from spirals so others can get out the way
-        if (timeDelayInt++ > 50) { timeDelayBool = true; }
+        if (timeDelayInt++ > 100) { timeDelayBool = true; }
 
         // for the first time, rover goes out until radius is greater than or equal to 1
         if (getCurrentRadius(currentLocation) >= getStartingRadius() && firstSpiral){ // might want to lower
@@ -122,6 +122,9 @@ Result SearchController::goToStartingPoint() {
 
 Result SearchController::prelimSearchBehaviour() {
 
+
+    cout << "SEARCH: IN PRELIM SEARCH BEHAVIOUR" << endl;
+
     if (roverName == "achilles" || roverName == "ajax") {
 
         if (choice == 0) {
@@ -149,7 +152,6 @@ Result SearchController::prelimSearchBehaviour() {
         }
 
     } else {
-        cout << "TEST: SEARCHING " << endl;
 
         // if rover goes out his boundary, send him back to his starting location
         //      if (getRadius(currentLocation) >= 2) { startingPoint = false; }
@@ -174,6 +176,7 @@ Result SearchController::prelimSearchBehaviour() {
 
 Result SearchController::semiSearchBehaviour() {
 
+    cout << "SEARCH: IN SEMI SEARCH BEHAVIOUR" << endl;
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
 
