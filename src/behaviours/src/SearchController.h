@@ -46,12 +46,18 @@ public:
         }
     }
 
+    // starting theta each rover will have
     float getTheta(string roverName) {
         if (roverName == "achilles") { return (2*M_PI)/3; }
         else if (roverName == "ajax") {return -M_PI/4; }
         else if (roverName == "aeneas") { return M_PI/4; }
-        else {return 0; }
+        else if (roverName == "diomedes") { return (5*M_PI)/4; }
+        else if (roverName == "paris") { return (4*M_PI)/3; }
+        else if (roverName == "hector") { return M_PI/3; }
+        else { return 0; }
     }
+
+
 
 protected:
 
@@ -69,20 +75,24 @@ private:
     Result result; //struct for returning data to ROS adapter
     bool startingPoint = false; // true if reached starting point
     string roverName = ""; // name of the rover
+
+    int choice = 0;
+    const float C_INCREASE = .5; // constant added to the distance for rover's doing C shapes
+    const float S_INCREASE = .2; // constant added to the distance for rover's doing spirls
     int turn = 0; // keeps track of which way rover should turn
     const float INCREASE = .5; // constant added to the distance
     float distance = 0; // will hold the increased distance rovers will go
     float horizD = 2.5, verD = 5.5; // the horizontal and vertical distance
     int negation = 1; // used when we want to negate radians to make rovers turn a different direction
     float THETA_1, THETA_2, THETA_3, THETA_4; // the different thetas the rovers have to turn
-    bool prelim = false; // Search state
+    bool prelim = true; // Search state
     bool first_waypoint = true; // Flag to allow special behaviour for the first waypoint
     int spiralCount = 0; // tracks how many turns the inner rovers have made
     float startRadiusOuter, startRadiusInner; // how farout the rover goes to get to their starting point
     bool succesfullPickup = false;
-    int timeDelayInt = 0;
-    bool timeDelayBool = false;
-
+    int timeDelayInt = 0; // delay for inner rovers
+    bool timeDelayBool = false; // turns tru if time delay has passed
+    bool firstSpiral = true; // spiral going to starting location first time
 };
 
 #endif /* SEARCH_CONTROLLER */
