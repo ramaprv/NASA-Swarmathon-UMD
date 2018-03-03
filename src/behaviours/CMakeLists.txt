@@ -12,15 +12,21 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   apriltags_ros
   swarmie_msgs
+  ghost_srv
   )
 
-catkin_package(
-  CATKIN_DEPENDS geometry_msgs swarmie_msgs roscpp sensor_msgs std_msgs random_numbers tf apriltags_ros
+catkin_package(CATKIN_DEPENDS 
+geometry_msgs
+swarmie_msgs
+roscpp sensor_msgs
+std_msgs
+random_numbers
+tf
+apriltags_ros
+ghost_srv
 )
 
-include_directories(
-  ${catkin_INCLUDE_DIRS}
-)
+include_directories(${catkin_INCLUDE_DIRS})
 
 add_executable(
   behaviours
@@ -37,10 +43,13 @@ add_executable(
   src/ManualWaypointController.cpp
 )
 
-add_dependencies(behaviours ${catkin_EXPORTED_TARGETS})
+add_dependencies(behaviours
+${catkin_EXPORTED_TARGETS}
+message_runtime
+)
+
 
 target_link_libraries(
   behaviours
   ${catkin_LIBRARIES}
 )
-

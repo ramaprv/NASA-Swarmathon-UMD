@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package>
+  <name>ghost_srv</name>
+  <version>0.2.0</version>
+  <description>holds the req/resp that gives information to all
+  rovers about the state of the search. also haunts them >:) </description>
+
+  <maintainer email="jabdullah982@gmail.com">Jalalah Abdullah</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>message_generation</build_depend>
+  <run_depend>message_runtime</run_depend>
+
+  <build_depend>std_msgs</build_depend>
+  <run_depend>std_msgs</run_depend>
+
+</package>
+
+
+

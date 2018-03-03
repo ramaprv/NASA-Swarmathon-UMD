@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>behaviours</name>
-  <version>0.2.0</version>
-  <description>Algorithmic implementation of random search as a finite state machine</description>
+<name>behaviours</name>
+<version>0.2.0</version>
+<description>Algorithmic implementation of random search as a finite state machine</description>
 
   <maintainer email="swarmathon@cs.unm.edu">NASA Swarmathon</maintainer>
 
@@ -17,7 +17,8 @@
   <build_depend>tf</build_depend>
   <build_depend>apriltags_ros</build_depend>
   <build_depend>swarmie_msgs</build_depend>
-  
+  <build_depend>ghost_srv</build_depend>
+
   <run_depend>geometry_msgs</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>sensor_msgs</run_depend>
@@ -26,8 +27,9 @@
   <run_depend>tf</run_depend>
   <run_depend>apriltags_ros</run_depend>
   <run_depend>swarmie_msgs</run_depend>
+  <run_depend>ghost_srv</run_depend>
 
   <export>
 
   </export>
-</package>
+  </package>
