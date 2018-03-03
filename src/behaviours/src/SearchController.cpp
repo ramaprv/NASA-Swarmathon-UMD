@@ -24,17 +24,39 @@ void SearchController::Reset() {
 
 void SearchController::setRoverName(string publishedName) {
     roverName = publishedName;
+}
 
-    if (roverName == "achilles") {
-        THETA_1 = 0;
-        THETA_2 = M_PI/2;
-        THETA_3 = M_PI;
-        THETA_4 = (3*M_PI)/2;
-    } else if (roverName == "ajax") {
-        THETA_1 = M_PI;
-        THETA_2 = (3*M_PI)/2;
-        THETA_3 = 0;
-        THETA_4 = M_PI/2;
+void SearchController::setVariables() {
+    if (prelim) {
+        longD = 2.5;
+        shortD = 5.5;
+        startRadiusOuter = 2.5;
+        startRadiusInner = 1;
+
+        if (roverName == "achilles") {
+            THETA_1 = 0;
+            THETA_2 = M_PI/2;
+            THETA_3 = M_PI;
+            THETA_4 = (3*M_PI)/2;
+        } else if (roverName == "ajax") {
+            THETA_1 = M_PI;
+            THETA_2 = (3*M_PI)/2;
+            THETA_3 = 0;
+            THETA_4 = M_PI/2;
+        }
+
+    } else {
+        longD = 2.25;
+        shortD = 2.25;
+        startRadiusOuter = 2.75;
+        startRadiusInner = 1;
+
+        if (roverName == "achilles") {
+            THETA_1 =   0;
+            THETA_2 =  THETA_6 = M_PI/2;
+            THETA_3 =THETA_5 =M_PI;
+            THETA_4 =  (3*M_PI)/2;
+        }
     }
 }
 
@@ -50,8 +72,7 @@ float getRadius(Point currentLocation) {
 Result SearchController::goToStartingPoint() {
 
     // for the outer rovers
-    if (roverName == "achilles" || roverName == "ajax"
-            || roverName == "hector" || roverName == "paris") {
+    if (roverName != "aeneas" && roverName != "diomedes") {
 
         // checking if rover is within a meter of their starting location
         if (getRadius(currentLocation) >= startRadiusOuter){ // might want to lower radius
@@ -101,29 +122,29 @@ Result SearchController::goToStartingPoint() {
 Result SearchController::searchBehaviourPrelim() {
 
     // algorithm for the two outter rovers
-    if (roverName == "achilles" || roverName == "ajax") {
+    if (roverName != "aeneas") {
 
-        if (turn == 0) {
+        if (turn == 1) {
             searchLocation.theta = THETA_1;
-            searchLocation.x = currentLocation.x + ((horizD+distance) * cos(searchLocation.theta));
-            searchLocation.y = currentLocation.y + ((horizD+distance) * sin(searchLocation.theta));
+            searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + ((longD+distance) * sin(searchLocation.theta));
             distance += C_INCREASE; // increasing the distance the rover's drive
-            turn = 1;
-        } else if (turn == 1) {
+            turn = 2;
+        } else if (turn == 2) {
             searchLocation.theta = THETA_2 * (negation);
             searchLocation.x = currentLocation.x + (.5 * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + (.5 * sin(searchLocation.theta));
-            turn = 2;
-        } else if (turn == 2) {
-            searchLocation.theta = THETA_3;
-            searchLocation.x = currentLocation.x + ((horizD+distance) * cos(searchLocation.theta));
-            searchLocation.y = currentLocation.y + ((horizD+distance) * sin(searchLocation.theta));
             turn = 3;
         } else if (turn == 3) {
+            searchLocation.theta = THETA_3;
+            searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + ((longD+distance) * sin(searchLocation.theta));
+            turn = 4;
+        } else if (turn == 4) {
             searchLocation.theta = THETA_4 * (negation);
-            searchLocation.x = currentLocation.x + ((verD+distance) * cos(searchLocation.theta));
-            searchLocation.y = currentLocation.y + ((verD+distance) * sin(searchLocation.theta));
-            turn = 0;
+            searchLocation.x = currentLocation.x + ((shortD+distance) * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + ((shortD+distance) * sin(searchLocation.theta));
+            turn = 1;
             negation *= -1;
         }
 
@@ -152,6 +173,42 @@ Result SearchController::searchBehaviourPrelim() {
 
 Result SearchController::searchBehaviourSemi() {
 
+    if (roverName == "achilles") {
+        if (turn == 1) {
+            searchLocation.theta = THETA_1;
+            searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + ((longD+distance) * sin(searchLocation.theta));
+            distance += C_INCREASE; // increasing the distance the rover's drive
+            turn = 2;
+        } else if (turn == 2) {
+            searchLocation.theta = THETA_2;
+            searchLocation.x = currentLocation.x + (.5 * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + (.5 * sin(searchLocation.theta));
+            turn = 3;
+        } else if (turn == 3) {
+            searchLocation.theta = THETA_3;
+            searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + ((longD+distance) * sin(searchLocation.theta));
+            turn = 4;
+        } else if (turn == 4) {
+            searchLocation.theta = THETA_4 ;
+            searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + ((longD+distance) * sin(searchLocation.theta));
+            turn = 5;
+        } else if (turn == 5) {
+            searchLocation.theta = THETA_5;
+            searchLocation.x = currentLocation.x + (.5 * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + (.5 * sin(searchLocation.theta));
+            turn = 6;
+        }  else if (turn == 6) {
+            searchLocation.theta = THETA_6 ;
+            searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
+            searchLocation.y = currentLocation.y + ((longD+distance) * sin(searchLocation.theta));
+            turn = 1;
+        }
+
+    }
+
 
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
@@ -169,7 +226,7 @@ Result SearchController::DoWork() {
 
     /* setting the distances the rovers shoud go */
     if (first_waypoint) {
-        setDistances();
+        setVariables();
         first_waypoint = false;
     }
 
