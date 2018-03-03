@@ -44,6 +44,7 @@ float getCurrentRadius(Point currentLocation) {
     float y = pow(currentLocation.y, 2);
     float radius = sqrt(x + y)
     return radius;
+
 }
 
 Result SearchController::goToStartingPoint() {
@@ -52,8 +53,8 @@ Result SearchController::goToStartingPoint() {
     if (roverName == "achilles" || roverName == "ajax") {
 
         // checking if rover is within a meter of their starting location
-
         if (getRadius(currentLocation) >= startRadiusOuter){ // might want to lower radius
+
             startingPoint = true;
             cout << "TEST: GOT TO STARTING LOCATION " << endl;
         }

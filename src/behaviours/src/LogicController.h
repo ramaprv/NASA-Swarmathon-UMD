@@ -90,13 +90,11 @@ public:
     void setRoverName(string publishedName) {
         roverName = publishedName;
         searchController.setRoverName(roverName);
-       // searchController.setPrelim(false);
-       }
+        }
 
 
     // asks if rover has reached their starting point
     bool getStartingPoint() { return searchController.getStartingPoint(); }
-
 
 protected:
     void ProcessData();

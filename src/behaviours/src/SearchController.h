@@ -79,10 +79,8 @@ private:
     int choice = 0;
     const float C_INCREASE = .5; // constant added to the distance for rover's doing C shapes
     const float S_INCREASE = .2; // constant added to the distance for rover's doing spirls
-
     int turn = 0; // keeps track of which way rover should turn
     const float INCREASE = .5; // constant added to the distance
-
     float distance = 0; // will hold the increased distance rovers will go
     float horizD = 2.5, verD = 5.5; // the horizontal and vertical distance
     int negation = 1; // used when we want to negate radians to make rovers turn a different direction
@@ -96,7 +94,6 @@ private:
     bool timeDelayBool = false;
     int spiralCount = 0;
     bool firstSpiral = true; // spiral going to starting location first time
-
 };
 
 #endif /* SEARCH_CONTROLLER */
