@@ -29,15 +29,20 @@ public:
 
     Result goToStartingPoint(); // sending rover to their starting location
     bool getStartingPoint() {return startingPoint;} // returns true if rover has reached their starting location
-    Result searchBehaviour();
+    Result searchBehaviour(); // where rover's normal search algo goes
     void setRoverName(string publishedName); // setting the rover name
+    float getStartingRadius(); // radius rover is bounded by their starting location
+    void setPrelim(bool flag) { prelim = flag; }
 
+    // starting theta each rover will have
     float getTheta(string roverName) {
         if (roverName == "achilles") { return (2*M_PI)/3; }
         else if (roverName == "ajax") {return -M_PI/4; }
         else if (roverName == "aeneas") { return M_PI/4; }
         else {return 0; }
     }
+
+
 
 protected:
 
@@ -56,7 +61,8 @@ private:
     bool startingPoint = false; // true if reached starting point
     string roverName = ""; // name of the rover
     int choice = 0;
-    const float INCREASE = .5; // constant added to the distance
+    const float C_INCREASE = .5; // constant added to the distance for rover's doing C shapes
+    const float S_INCREASE = .2; // constant added to the distance for rover's doing spirls
     float distance = 0; // will hold the increased distance rovers will go
     float horizD = 2.5, verD = 5.5; // the horizontal and vertical distance
     int negation = 1; // used when we want to negate radians to make rovers turn a different direction
@@ -68,6 +74,8 @@ private:
     int timeDelayInt = 0;
     bool timeDelayBool = false;
     int spiralCount = 0;
+    bool firstSpiral = true; // spiral going to starting location first time
+    bool prelim = true;
 };
 
 #endif /* SEARCH_CONTROLLER */

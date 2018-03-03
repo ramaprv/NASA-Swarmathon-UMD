@@ -38,14 +38,24 @@ void SearchController::setRoverName(string publishedName) {
     }
 }
 
-float getRadius(Point currentLocation) {
+float getCurrentRadius(Point currentLocation) {
 
     float x = pow(currentLocation.x, 2);
     float y = pow(currentLocation.y, 2);
     float radius = sqrt(x + y);
     return radius;
+}
+
+float SearchController::getStartingRadius() {
+    if (prelim) {
+        return 2.5;
+    } else {
+        cout << "SEMI: ITS THE SEMI FINALS" << endl;
+        return 4.5;
+    }
 
 }
+
 Result SearchController::goToStartingPoint() {
 
     // sending achilles to his starting location
@@ -53,7 +63,7 @@ Result SearchController::goToStartingPoint() {
 
         // checking if rover is within a meter of their starting location
 
-        if (getRadius(currentLocation) >= 2.50){ // might want to lower
+        if (getCurrentRadius(currentLocation) >= getStartingRadius()){ // might want to lower
             startingPoint = true;
             cout << "TEST: GOT TO STARTING LOCATION " << endl;
         }
@@ -68,13 +78,24 @@ Result SearchController::goToStartingPoint() {
         }
     } else {
 
-        if (timeDelayInt++ > 100) { // delaying rover from spirals so others can get out the way
-            timeDelayBool = true;
-        } if (getRadius(currentLocation) >= 1){ // might want to lower
-            startingPoint = true;
-        }  if (timeDelayBool && !startingPoint) {
+        // delaying rover from spirals so others can get out the way
+        if (timeDelayInt++ > 100) { timeDelayBool = true; }
 
-            searchLocation.theta = getTheta(roverName);
+        // for the first time, rover goes out until radius is greater than or equal to 1
+        if (getCurrentRadius(currentLocation) >= 1 && firstSpiral){ // might want to lower
+            startingPoint = true;
+            firstSpiral = false;
+        }
+        // for sending rover back to the center after they've reached their boundary
+//        else if (getRadius(currentLocation) <= 1 && !firstSpiral) {
+//            startingPoint = true;
+//        }
+
+        // if rover's time delay has passed and they're not at the starting point, send them there !!!!
+        if (timeDelayBool && !startingPoint) {
+
+            if (firstSpiral) { searchLocation.theta = getTheta(roverName); }
+            else { searchLocation.theta = 0; }
             searchLocation.x = currentLocation.x + (.5 * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + (.5 * sin(searchLocation.theta));
         }
@@ -94,7 +115,7 @@ Result SearchController::searchBehaviour() {
             searchLocation.theta = THETA_1;
             searchLocation.x = currentLocation.x + ((horizD+distance) * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + ((horizD+distance) * sin(searchLocation.theta));
-            distance += INCREASE; // increasing the distance the rover's drive
+            distance += C_INCREASE; // increasing the distance the rover's drive
             choice = 1;
         } else if (choice == 1) {
             searchLocation.theta = THETA_2 * (negation);
@@ -117,14 +138,17 @@ Result SearchController::searchBehaviour() {
     } else {
         cout << "TEST: SEARCHING " << endl;
 
+        // if rover goes out his boundary, send him back to his starting location
+       //      if (getRadius(currentLocation) >= 2) { startingPoint = false; }
+
         if (spiralCount == 6) {
-            distance += INCREASE;
+            distance += S_INCREASE;
             spiralCount = 0;
         }
 
-        searchLocation.theta = currentLocation.theta + M_PI/4;
-        searchLocation.x = currentLocation.x + ((1+distance) * cos(searchLocation.theta));
-        searchLocation.y = currentLocation.y + ((1+distance) * sin(searchLocation.theta));
+        searchLocation.theta = currentLocation.theta + M_PI/6;
+        searchLocation.x = currentLocation.x + ((.5+distance) * cos(searchLocation.theta));
+        searchLocation.y = currentLocation.y + ((.5+distance) * sin(searchLocation.theta));
         spiralCount++;
     }
 
