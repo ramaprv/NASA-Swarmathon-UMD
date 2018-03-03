@@ -38,11 +38,11 @@ void SearchController::setRoverName(string publishedName) {
     }
 }
 
-float getCurrentRadius(Point currentLocation) {
+float getRadius(Point currentLocation) {
 
     float x = pow(currentLocation.x, 2);
     float y = pow(currentLocation.y, 2);
-    float radius = sqrt(x + y)
+    float radius = sqrt(x + y);
     return radius;
 
 }
@@ -50,11 +50,11 @@ float getCurrentRadius(Point currentLocation) {
 Result SearchController::goToStartingPoint() {
 
     // for the outer rovers
-    if (roverName == "achilles" || roverName == "ajax") {
+    if (roverName == "achilles" || roverName == "ajax"
+            || roverName == "hector" || roverName == "paris") {
 
         // checking if rover is within a meter of their starting location
         if (getRadius(currentLocation) >= startRadiusOuter){ // might want to lower radius
-
             startingPoint = true;
             cout << "TEST: GOT TO STARTING LOCATION " << endl;
         }
@@ -203,16 +203,6 @@ Result SearchController::DoWork() {
     //        }
 
     // if rover hasn't reached their starting point, send them to it
-    if (!startingPoint) {
-        return goToStartingPoint();
-    } else {
-        // rover has reached their starting point, begin their normal search
-        if (prelim) {
-            return prelimSearchBehaviour();
-        } else {
-
-        }
-    }
 
 
 

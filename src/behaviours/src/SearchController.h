@@ -85,14 +85,13 @@ private:
     float horizD = 2.5, verD = 5.5; // the horizontal and vertical distance
     int negation = 1; // used when we want to negate radians to make rovers turn a different direction
     float THETA_1, THETA_2, THETA_3, THETA_4; // the different thetas the rovers have to turn
-    bool prelim = false; // Search state
+    bool prelim = true; // Search state
     bool first_waypoint = true; // Flag to allow special behaviour for the first waypoint
     int spiralCount = 0; // tracks how many turns the inner rovers have made
     float startRadiusOuter, startRadiusInner; // how farout the rover goes to get to their starting point
     bool succesfullPickup = false;
-    int timeDelayInt = 0;
-    bool timeDelayBool = false;
-    int spiralCount = 0;
+    int timeDelayInt = 0; // delay for inner rovers
+    bool timeDelayBool = false; // turns tru if time delay has passed
     bool firstSpiral = true; // spiral going to starting location first time
 };
 
