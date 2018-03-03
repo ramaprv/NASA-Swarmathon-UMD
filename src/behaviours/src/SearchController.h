@@ -30,7 +30,7 @@ public:
     Result goToStartingPoint(); // sending rover to their starting location
     bool getStartingPoint() {return startingPoint;} // returns true if rover has reached their starting location
     Result prelimSearchBehaviour(); // where rover's normal search algo goes for prelim round
-    Result semiSearchBehaviour(); // rover's algo for semi-final rounds
+
     void setRoverName(string publishedName); // setting the rover name
     float getStartingRadius(); // radius rover is bounded by their starting location
 

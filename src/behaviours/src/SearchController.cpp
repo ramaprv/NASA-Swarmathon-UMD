@@ -72,7 +72,8 @@ float SearchController::getStartingRadius() {
 Result SearchController::goToStartingPoint() {
 
     // sending achilles to his starting location
-    if (roverName == "achilles" || roverName == "ajax") {
+    if (roverName == "achilles" || roverName == "ajax"
+            || roverName == "paris" || roverName == "hector") {
 
         // checking if rover is within a meter of their starting location
 
@@ -174,15 +175,6 @@ Result SearchController::prelimSearchBehaviour() {
 
 }
 
-Result SearchController::semiSearchBehaviour() {
-
-    cout << "SEARCH: IN SEMI SEARCH BEHAVIOUR" << endl;
-    result.wpts.waypoints.clear();
-    result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
-
-    return result;
-
-}
 /**
  * This code implements a basic random walk search.
  */
@@ -213,7 +205,7 @@ Result SearchController::DoWork() {
         if (prelim) {
             return prelimSearchBehaviour();
         } else {
-            return semiSearchBehaviour();
+
         }
     }
 
