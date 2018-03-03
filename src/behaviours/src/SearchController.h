@@ -29,8 +29,22 @@ public:
 
     Result goToStartingPoint(); // sending rover to their starting location
     bool getStartingPoint() {return startingPoint;} // returns true if rover has reached their starting location
-    Result searchBehaviour();
+    Result searchBehaviourPrelim();
+    Result searchBehaviourSemi();
     void setRoverName(string publishedName); // setting the rover name
+    void setDistances() {
+        if (prelim) {
+            horizD = 2.5;
+            verD = 5.5;
+            startRadiusOuter = 2.5;
+            startRadiusInner = 1;
+        } else {
+            horizD = 4.5;
+            verD = 2.25;
+            startRadiusOuter = 4.5;
+            startRadiusInner = 1;
+        }
+    }
 
     float getTheta(string roverName) {
         if (roverName == "achilles") { return (2*M_PI)/3; }
@@ -55,19 +69,20 @@ private:
     Result result; //struct for returning data to ROS adapter
     bool startingPoint = false; // true if reached starting point
     string roverName = ""; // name of the rover
-    int choice = 0;
+    int turn = 0; // keeps track of which way rover should turn
     const float INCREASE = .5; // constant added to the distance
     float distance = 0; // will hold the increased distance rovers will go
     float horizD = 2.5, verD = 5.5; // the horizontal and vertical distance
     int negation = 1; // used when we want to negate radians to make rovers turn a different direction
-    float THETA_1, THETA_2, THETA_3, THETA_4;
-    // Search state
-    // Flag to allow special behaviour for the first waypoint
-    bool first_waypoint = true;
+    float THETA_1, THETA_2, THETA_3, THETA_4; // the different thetas the rovers have to turn
+    bool prelim = false; // Search state
+    bool first_waypoint = true; // Flag to allow special behaviour for the first waypoint
+    int spiralCount = 0; // tracks how many turns the inner rovers have made
+    float startRadiusOuter, startRadiusInner; // how farout the rover goes to get to their starting point
     bool succesfullPickup = false;
     int timeDelayInt = 0;
     bool timeDelayBool = false;
-    int spiralCount = 0;
+
 };
 
 #endif /* SEARCH_CONTROLLER */
