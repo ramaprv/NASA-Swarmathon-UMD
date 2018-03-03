@@ -73,6 +73,7 @@ private:
     float longD = 2.5, shortD = 5.5; // the horizontal and vertical distance
     int negation = 1; // used when we want to negate radians to make rovers turn a different direction
     float THETA_1, THETA_2, THETA_3, THETA_4, THETA_5, THETA_6; // the different thetas the rovers have to turn
+    float ADDED_THETA = 0;
     bool prelim = false; // Search state
     bool first_waypoint = true; // Flag to allow special behaviour for the first waypoint
     int spiralCount = 0; // tracks how many turns the inner rovers have made

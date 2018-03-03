@@ -48,14 +48,20 @@ void SearchController::setVariables() {
     } else {
         longD = 2.25;
         shortD = 2.25;
-        startRadiusOuter = 2.75;
+        startRadiusOuter = 4.75;
         startRadiusInner = 1;
 
-        if (roverName == "achilles") {
-            THETA_1 =   0;
-            THETA_2 =  THETA_6 = M_PI/2;
-            THETA_3 =THETA_5 =M_PI;
-            THETA_4 =  (3*M_PI)/2;
+        THETA_1 =  0;
+        THETA_2 =  THETA_6 = M_PI/2;
+        THETA_3 =THETA_5 =M_PI;
+        THETA_4 =  (3*M_PI)/2;
+
+        if (roverName == "ajax") {
+            ADDED_THETA = M_PI;
+        } else if (roverName == "paris") {
+            ADDED_THETA = M_PI/2;
+        } else if (roverName == "hector") {
+            ADDED_THETA = (3*M_PI)/2;
         }
     }
 }
@@ -91,12 +97,12 @@ Result SearchController::goToStartingPoint() {
     } else { // for the inner spiraling rovers
 
         // for the first time, rover goes out until radius is greater than or equal to 1
-      //  if (getCurrentRadius(currentLocation) >= getStartingRadius() && firstSpiral){ // might want to lower
+        //  if (getCurrentRadius(currentLocation) >= getStartingRadius() && firstSpiral){ // might want to lower
         if (timeDelayInt++ > 100) { // delaying rover from spirals so others can get out the way
             timeDelayBool = true;
         } if (getRadius(currentLocation) >= startRadiusInner){ // might want to lower
             startingPoint = true;
-          //  firstSpiral = false;
+            //  firstSpiral = false;
         }
         // for sending rover back to the center after they've reached their boundary
         //        else if (getRadius(currentLocation) <= 1 && !firstSpiral) {
@@ -122,6 +128,8 @@ Result SearchController::goToStartingPoint() {
 Result SearchController::searchBehaviourPrelim() {
 
     // algorithm for the two outter rovers
+    // Algorithm is accustmed for achilles behaviour, so we add a constant
+    // for each other rover to avoid rewriting the same code
     if (roverName != "aeneas") {
 
         if (turn == 1) {
@@ -173,41 +181,57 @@ Result SearchController::searchBehaviourPrelim() {
 
 Result SearchController::searchBehaviourSemi() {
 
-    if (roverName == "achilles") {
+    if (roverName != "aeneas" || roverName != "diemedes") {
         if (turn == 1) {
-            searchLocation.theta = THETA_1;
+            searchLocation.theta = THETA_1 + ADDED_THETA;
             searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + ((longD+distance) * sin(searchLocation.theta));
             distance += C_INCREASE; // increasing the distance the rover's drive
             turn = 2;
         } else if (turn == 2) {
-            searchLocation.theta = THETA_2;
+            searchLocation.theta = THETA_2 + ADDED_THETA;
             searchLocation.x = currentLocation.x + (.5 * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + (.5 * sin(searchLocation.theta));
             turn = 3;
         } else if (turn == 3) {
-            searchLocation.theta = THETA_3;
+            searchLocation.theta = THETA_3 + ADDED_THETA;
             searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + ((longD+distance) * sin(searchLocation.theta));
             turn = 4;
         } else if (turn == 4) {
-            searchLocation.theta = THETA_4 ;
+            searchLocation.theta = THETA_4 + ADDED_THETA;
             searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + ((longD+distance) * sin(searchLocation.theta));
             turn = 5;
         } else if (turn == 5) {
-            searchLocation.theta = THETA_5;
+            searchLocation.theta = THETA_5 + ADDED_THETA;
             searchLocation.x = currentLocation.x + (.5 * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + (.5 * sin(searchLocation.theta));
             turn = 6;
         }  else if (turn == 6) {
-            searchLocation.theta = THETA_6 ;
+            searchLocation.theta = THETA_6 + ADDED_THETA;
             searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
             searchLocation.y = currentLocation.y + ((longD+distance) * sin(searchLocation.theta));
             turn = 1;
         }
 
     }
+    else { // algorithm for the one spiraling rover
+        cout << "TEST: SEARCHING " << endl;
+
+        // Increasing distance once they're turned 6 times
+        // the 'spiral' is actually a hexagon:)
+        if (spiralCount == 6) {
+            distance += S_INCREASE;
+            spiralCount = 0;
+        }
+
+        searchLocation.theta = currentLocation.theta + M_PI/6;
+        searchLocation.x = currentLocation.x + ((.5+distance) * cos(searchLocation.theta));
+        searchLocation.y = currentLocation.y + ((.5+distance) * sin(searchLocation.theta));
+        spiralCount++;
+    }
+
 
 
     result.wpts.waypoints.clear();
@@ -240,6 +264,7 @@ Result SearchController::DoWork() {
         if (prelim) {
             return searchBehaviourPrelim();
         } else {
+
             return searchBehaviourSemi();
         }
     }
