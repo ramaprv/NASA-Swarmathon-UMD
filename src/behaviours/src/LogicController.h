@@ -90,14 +90,11 @@ public:
     void setRoverName(string publishedName) {
         roverName = publishedName;
         searchController.setRoverName(roverName);
-        if (roverName == "diomedes") { setPrelim(false); }
-    }
+        }
+
 
     // asks if rover has reached their starting point
     bool getStartingPoint() { return searchController.getStartingPoint(); }
-
-    // sets what round it is
-    void setPrelim(bool flag) { return searchController.setPrelim(flag); }
 
 protected:
     void ProcessData();
