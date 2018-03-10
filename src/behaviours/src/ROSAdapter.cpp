@@ -1,5 +1,10 @@
 #include <ros/ros.h>
 
+// For ghost server
+#include "ghost_srv/radius.h"
+#include "ghost_srv/prelim.h"
+#include "ghost_srv/roverCheckIn.h"
+
 // ROS libraries
 #include <angles/angles.h>
 #include <random_numbers/random_numbers.h>
@@ -179,6 +184,11 @@ void sonarHandler(const sensor_msgs::Range::ConstPtr& sonarLeft, const sensor_ms
 // Converts the time passed as reported by ROS (which takes Gazebo simulation rate into account) into milliseconds as an integer.
 long int getROSTimeInMilliSecs();
 
+// ghost servers
+ros::ServiceClient storeRadiusClient;
+ros::ServiceClient prelimClient;
+ros::ServiceClient roverCheckInClient;
+
 int main(int argc, char **argv) {
 
     gethostname(host, sizeof (host));
@@ -246,6 +256,11 @@ int main(int argc, char **argv) {
         logicController.SetModeManual();
     }
 
+    // Creating clients
+    storeRadiusClient = mNH.serviceClient<ghost_srv::radius>("storeRadius");
+    prelimClient = mNH.serviceClient<ghost_srv::prelim>("storePrelim");
+    roverCheckInClient = mNH.serviceClient<ghost_srv::roverCheckIn>("roverCheckIn");
+
     timerStartTime = time(0);
 
     ros::spin();
@@ -296,6 +311,21 @@ void behaviourStateMachine(const ros::TimerEvent&)
             centerLocationOdom.y = centerOdom.y;
 
             startTime = getROSTimeInMilliSecs();
+
+            // Checking in each rover
+            // if four or more rovers check in,
+            // they switch to semi final code
+            ghost_srv::roverCheckIn r_srv;
+            r_srv.request.roverName = publishedName;
+
+            if (roverCheckInClient.call(r_srv)) {
+                cout <<"SERVER: " << publishedName << " CHECKED IN" << endl;
+                ROS_ERROR_STREAM("ROVER CHECKED IN!!!!!!!!!!!!!!!!!!!!!!");
+            } else {
+                cout << "SERVER: " << publishedName << " FAILED TO CHECK IN" << endl;
+                 ROS_ERROR_STREAM("ROVER DIDNT CHECK IN!!!!!!!!!!!!!!!!!!!!!!");
+            }
+
         }
 
         else
@@ -310,6 +340,19 @@ void behaviourStateMachine(const ros::TimerEvent&)
     {
 
         humanTime();
+
+        ghost_srv::prelim p_srv;
+        p_srv.request.robotName = publishedName;
+        prelimClient.call(p_srv);
+        if (p_srv.response.prelim) {
+            ROS_ERROR_STREAM("ITS PRELIM ROUND!!!!!!!!!!!!!!!!!!!!!!");
+        }
+        else {
+            ROS_ERROR_STREAM("ITS NOOOOOOOOT PRELIM ROUND!!!!!!!!!!!!!!!!!!!!!!");
+        }
+
+        // letting the rovers know what round it is
+        logicController.setRound(p_srv.response.prelim);
 
         // setting the rover's name
         logicController.setRoverName(publishedName);

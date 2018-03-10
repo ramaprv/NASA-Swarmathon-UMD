@@ -232,8 +232,6 @@ Result SearchController::searchBehaviourSemi() {
         spiralCount++;
     }
 
-
-
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
 

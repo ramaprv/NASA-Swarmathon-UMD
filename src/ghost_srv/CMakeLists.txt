@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
  add_service_files(
  FILES
  radius.srv
+ prelim.srv
+ roverCheckIn.srv
 )
 
 # Generate added messages and services with any dependencies listed here

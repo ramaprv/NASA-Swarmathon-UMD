@@ -32,19 +32,9 @@ public:
     Result searchBehaviourPrelim();
     Result searchBehaviourSemi();
     void setRoverName(string publishedName); // setting the rover name
-    void setDistances() {
-        if (prelim) {
-            horizD = 2.5;
-            verD = 5.5;
-            startRadiusOuter = 2.5;
-            startRadiusInner = 1;
-        } else {
-            horizD = 4.5;
-            verD = 2.25;
-            startRadiusOuter = 4.5;
-            startRadiusInner = 1;
-        }
-    }
+    void setVariables();
+    void setRound(bool round) { prelim = round; }
+    bool getRound() { return prelim; }
 
     // starting theta each rover will have
     float getTheta(string roverName) {
@@ -79,12 +69,13 @@ private:
     int choice = 0;
     const float C_INCREASE = .5; // constant added to the distance for rover's doing C shapes
     const float S_INCREASE = .2; // constant added to the distance for rover's doing spirls
-    int turn = 0; // keeps track of which way rover should turn
+    int turn = 1; // keeps track of which way rover should turn
     const float INCREASE = .5; // constant added to the distance
     float distance = 0; // will hold the increased distance rovers will go
-    float horizD = 2.5, verD = 5.5; // the horizontal and vertical distance
+    float longD = 2.5, shortD = 5.5; // the horizontal and vertical distance
     int negation = 1; // used when we want to negate radians to make rovers turn a different direction
-    float THETA_1, THETA_2, THETA_3, THETA_4; // the different thetas the rovers have to turn
+    float THETA_1, THETA_2, THETA_3, THETA_4, THETA_5, THETA_6; // the different thetas the rovers have to turn
+    float ADDED_THETA = 0;
     bool prelim = true; // Search state
     bool first_waypoint = true; // Flag to allow special behaviour for the first waypoint
     int spiralCount = 0; // tracks how many turns the inner rovers have made
