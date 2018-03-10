@@ -37,7 +37,6 @@
 
 // To handle shutdown signals so the node quits
 // properly in response to "rosnode kill"
-#include <ros/ros.h>
 #include <signal.h>
 
 #include <exception> // For exception handling
@@ -189,6 +188,9 @@ ros::ServiceClient storeRadiusClient;
 ros::ServiceClient prelimClient;
 ros::ServiceClient roverCheckInClient;
 
+float offsetX = 0;
+float offsetY = 0;
+
 int main(int argc, char **argv) {
 
     gethostname(host, sizeof (host));
@@ -313,8 +315,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
             startTime = getROSTimeInMilliSecs();
 
             // Checking in each rover
-            // if four or more rovers check in,
-            // they switch to semi final code
+            // if four or more rovers check in, they switch to semi final code
             ghost_srv::roverCheckIn r_srv;
             r_srv.request.roverName = publishedName;
 

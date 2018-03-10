@@ -5,8 +5,7 @@
 #include "Controller.h"
 
 /**
- * This class implements the search control algorithm for the rovers. The code
- * here should be modified and enhanced to improve search performance.
+ * This class implements the search control algorithm for the rovers.
  */
 class SearchController : virtual Controller {
 
@@ -35,6 +34,9 @@ public:
     void setVariables();
     void setRound(bool round) { prelim = round; }
     bool getRound() { return prelim; }
+    bool setOffset();
+    float getOffsetX() { return offsetX; }
+    float getOffsetY() { return offsetY; }
 
     // starting theta each rover will have
     float getTheta(string roverName) {
@@ -70,20 +72,20 @@ private:
     const float C_INCREASE = .5; // constant added to the distance for rover's doing C shapes
     const float S_INCREASE = .2; // constant added to the distance for rover's doing spirls
     int turn = 1; // keeps track of which way rover should turn
-    const float INCREASE = .5; // constant added to the distance
     float distance = 0; // will hold the increased distance rovers will go
-    float longD = 2.5, shortD = 5.5; // the horizontal and vertical distance
-    int negation = 1; // used when we want to negate radians to make rovers turn a different direction
+    float longD = 2.5, shortD = 5.5; // long and short distance rovers travel
+    int negation = 1; // used when we want to negate radians to make rovers turn opposite direction
     float THETA_1, THETA_2, THETA_3, THETA_4, THETA_5, THETA_6; // the different thetas the rovers have to turn
-    float ADDED_THETA = 0;
+    float ADDED_THETA = 0; // used to make code reusable
     bool prelim = true; // Search state
     bool first_waypoint = true; // Flag to allow special behaviour for the first waypoint
     int spiralCount = 0; // tracks how many turns the inner rovers have made
     float startRadiusOuter, startRadiusInner; // how farout the rover goes to get to their starting point
     bool succesfullPickup = false;
     int timeDelayInt = 0; // delay for inner rovers
-    bool timeDelayBool = false; // turns tru if time delay has passed
-    bool firstSpiral = true; // spiral going to starting location first time
+    bool timeDelayBool = false; // turns truuuu if time delay has passed
+    bool firstSpiral = true; // true when rovers are on their first cycle of the spiral
+    float offsetX = 0, offsetY = 0; // this is the offset added to the rovers to fix their odom
 };
 
 #endif /* SEARCH_CONTROLLER */
