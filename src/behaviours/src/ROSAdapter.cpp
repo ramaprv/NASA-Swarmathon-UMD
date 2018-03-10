@@ -186,7 +186,7 @@ long int getROSTimeInMilliSecs();
 
 // ghost servers
 ros::ServiceClient storeRadiusClient;
-ros::ServiceClient storePrelimClient;
+ros::ServiceClient prelimClient;
 ros::ServiceClient roverCheckInClient;
 
 int main(int argc, char **argv) {
@@ -258,7 +258,7 @@ int main(int argc, char **argv) {
 
     // Creating clients
     storeRadiusClient = mNH.serviceClient<ghost_srv::radius>("storeRadius");
-    storePrelimClient = mNH.serviceClient<ghost_srv::prelim>("storePrelim");
+    prelimClient = mNH.serviceClient<ghost_srv::prelim>("storePrelim");
     roverCheckInClient = mNH.serviceClient<ghost_srv::roverCheckIn>("roverCheckIn");
 
     timerStartTime = time(0);
@@ -340,6 +340,19 @@ void behaviourStateMachine(const ros::TimerEvent&)
     {
 
         humanTime();
+
+        ghost_srv::prelim p_srv;
+        p_srv.request.robotName = publishedName;
+        prelimClient.call(p_srv);
+        if (p_srv.response.prelim) {
+            ROS_ERROR_STREAM("ITS PRELIM ROUND!!!!!!!!!!!!!!!!!!!!!!");
+        }
+        else {
+            ROS_ERROR_STREAM("ITS NOOOOOOOOT PRELIM ROUND!!!!!!!!!!!!!!!!!!!!!!");
+        }
+
+        // letting the rovers know what round it is
+        logicController.setRound(p_srv.response.prelim);
 
         // setting the rover's name
         logicController.setRoverName(publishedName);
