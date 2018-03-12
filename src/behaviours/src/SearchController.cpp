@@ -26,8 +26,16 @@ void SearchController::setRoverName(string publishedName) {
     roverName = publishedName;
 }
 
+bool SearchController::setOffset() {
+    cout << "SEARCH: SETTING THE OFFSET" << endl;
+        offsetX = 0 - currentLocation.x;
+        offsetY = 0 - currentLocation.y;
+        cout << "SEARCH: X OFFSET IS " << offsetX << endl;
+        cout << "SEARCH: Y OFFSET IS " << offsetY << endl;
+}
+
 void SearchController::setVariables() {
-    if (prelim) {
+    if (getRound()) {
         longD = 2.5;
         shortD = 5.5;
         startRadiusOuter = 2.5;
@@ -232,8 +240,6 @@ Result SearchController::searchBehaviourSemi() {
         spiralCount++;
     }
 
-
-
     result.wpts.waypoints.clear();
     result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
 
@@ -248,7 +254,7 @@ Result SearchController::DoWork() {
 
     cout << "SEARCH: IN DO WORK SEARCH CONTROLLER" << endl;
 
-    /* setting the distances the rovers shoud go */
+    /* setting the initial variables for the rovers */
     if (first_waypoint) {
         setVariables();
         first_waypoint = false;

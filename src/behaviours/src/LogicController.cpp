@@ -86,7 +86,6 @@ Result LogicController::DoWork() {
             }
 
             //take the top member of the priority queue and run their do work function.
-            cout << "UM: TAKING THE TOP MEMEBER OF THE CONTROL QUEUE" << endl;
 
             result = control_queue.top().controller->DoWork();
 
@@ -105,6 +104,9 @@ Result LogicController::DoWork() {
                 if(result.b == nextProcess) {
                     if (processState == _LAST - 1) {
                         processState = _FIRST;
+                        searchController.setOffset();
+                        dropOffController.setOffsets(searchController.getOffsetX(),
+                                                     searchController.getOffsetY());
                     }
                     else {
                         processState = (ProcessState)((int)processState + 1);

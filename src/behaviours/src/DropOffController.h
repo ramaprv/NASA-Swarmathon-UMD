@@ -25,6 +25,11 @@ public:
   void SetTargetData(vector<Tag> tags);
   bool HasTarget() {return targetHeld;}
 
+  void setOffsets(float x, float y) {
+      offsetX = 0 - x;
+      offsetY = 0 - y;
+  }
+
   float GetSpinner() {return spinner;}
 
   void UpdateData(vector<Tag> tags);
@@ -119,6 +124,8 @@ private:
   bool precisionInterrupt = false;
   bool finalInterrupt = false;
   bool first_center = true;
+
+  float offsetX = 0, offsetY = 0;
 
 };
 #endif // end header define
