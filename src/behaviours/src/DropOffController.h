@@ -25,6 +25,7 @@ public:
   void SetTargetData(vector<Tag> tags);
   bool HasTarget() {return targetHeld;}
 
+  // for more accuracy in telling the rover where to go
   void setOffsets(float x, float y) {
       offsetX = 0 - x;
       offsetY = 0 - y;
@@ -72,7 +73,6 @@ private:
   //Previous tag count
   int prevCount;
 
-
   /*
      *  Cached External Information
      */
@@ -92,8 +92,8 @@ private:
   float spinSizeIncrease;
 
   /*
-     *  Flags
-     */
+   *  Flags
+   */
 
   //Flag indicating that a target has been picked up and is held
   bool targetHeld;

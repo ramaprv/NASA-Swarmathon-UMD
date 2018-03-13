@@ -41,7 +41,7 @@ DropOffController::~DropOffController() {
 
 }
 
-Result DropOffController::DoWork() {
+Result DropOffController::DoWork()  {
 
   //cout << "8" << endl; //Debugging statement
   // Getting the total tag count from the left and the right side of the rover
@@ -158,7 +158,6 @@ Result DropOffController::DoWork() {
     //cout << "9" << endl; //Debugging statement
     centerSeen = true;
 
-
     if (first_center && isPrecisionDriving)
     {
       first_center = false;
@@ -167,9 +166,10 @@ Result DropOffController::DoWork() {
       result.b = nextProcess;
       return result;
     }
+
     isPrecisionDriving = true;
 
-    if (seenEnoughCenterTags) //if we have seen enough tags
+ /*   if (seenEnoughCenterTags) //if we have seen enough tags
     {
       if ((countLeft-5) > countRight) //and there are too many on the left
       {
@@ -180,11 +180,11 @@ Result DropOffController::DoWork() {
         left = false; //or left in this case
       }
     }
-
+*/
     float turnDirection = 1;
     //reverse tag rejection when we have seen enough tags that we are on a
     //trajectory in to the square we dont want to follow an edge.
-    if (seenEnoughCenterTags) turnDirection = -3;
+    if (seenEnoughCenterTags) {turnDirection = -3;}
 
     result.type = precisionDriving;
 
