@@ -92,15 +92,16 @@ Result DropOffController::DoWork() {
 
   // Calculates the shortest distance to the center location from the current location
   double distanceToCenter = hypot((this->centerLocation.x - this->currentLocation.x) + offsetX,
-                                  (this->centerLocation.y - this->currentLocation.y) + offsetY);
+                                    (this->centerLocation.y - this->currentLocation.y) + offsetY);
 
   //check to see if we are driving to the center location or if we need to drive in a circle and look.
   if (distanceToCenter > collectionPointVisualDistance && !circularCenterSearching && (count == 0)) {
+        cout << "DROP OFF: IM DRIVING STRAIGHT TO THE CENTER" << endl;
     // Sets driving mode to waypoint
     result.type = waypoint;
     // Clears all the waypoints in the vector
     result.wpts.waypoints.clear();
-    // Adds the current location's point into the waypoint vector
+    // Adds the center location's point into the waypoint vector
     result.wpts.waypoints.push_back(this->centerLocation);
     // Do not start following waypoints
     startWaypoint = false;
@@ -114,22 +115,25 @@ Result DropOffController::DoWork() {
   }
   else if (timerTimeElapsed >= 2)//spin search for center
   {
+      cout << "DROP OFF: IM IN SPIN SEARCH" << endl;
     Point nextSpinPoint;
 
     //sets a goal that is 60cm from the centerLocation and spinner
     //radians counterclockwise from being purly along the x-axis.
-    nextSpinPoint.x = centerLocation.x + (initialSpinSize + spinSizeIncrease) * cos(spinner);
-    nextSpinPoint.y = centerLocation.y + (initialSpinSize + spinSizeIncrease) * sin(spinner);
-    nextSpinPoint.theta = atan2(nextSpinPoint.y - currentLocation.y, nextSpinPoint.x - currentLocation.x);
+    nextSpinPoint.x = (centerLocation.x + offsetX) + ((initialSpinSize + spinSizeIncrease) * cos(spinner));
+    nextSpinPoint.y = (centerLocation.y + offsetY) + ((initialSpinSize + spinSizeIncrease) * sin(spinner));
+    nextSpinPoint.theta = atan2(nextSpinPoint.y - currentLocation.y,
+                                nextSpinPoint.x - currentLocation.x);
 
     result.type = waypoint;
     result.wpts.waypoints.clear();
     result.wpts.waypoints.push_back(nextSpinPoint);
 
-    spinner += 45*(M_PI/180); //add 45 degrees in radians to spinner.
+    spinner += M_PI/30; //add 45 degrees in radians to spinner.
     if (spinner > 2*M_PI) {
       spinner -= 2*M_PI;
     }
+
     spinSizeIncrease += spinSizeIncrement/8;
     circularCenterSearching = true;
     //safety flag to prevent us trying to drive back to the
@@ -157,7 +161,7 @@ Result DropOffController::DoWork() {
 
     //cout << "9" << endl; //Debugging statement
     centerSeen = true;
-
+  cout << "DROP OFF: I HAVE A TARGET AND CENTER IS LOCATION SO DRIVING TOWRADS IT" << endl;
 
     if (first_center && isPrecisionDriving)
     {
@@ -184,7 +188,7 @@ Result DropOffController::DoWork() {
     float turnDirection = 1;
     //reverse tag rejection when we have seen enough tags that we are on a
     //trajectory in to the square we dont want to follow an edge.
-    if (seenEnoughCenterTags) turnDirection = -3;
+    if (seenEnoughCenterTags) { turnDirection = -3; }
 
     result.type = precisionDriving;
 
@@ -235,7 +239,7 @@ Result DropOffController::DoWork() {
   //was on approach to center and did not seenEnoughCenterTags
   //for lostCenterCutoff seconds so reset.
   else if (centerApproach) {
-
+ cout << "DROP OFF: I AM IN CENTER APPROACH" << endl;
     long int elapsed = current_time - lastCenterTagThresholdTime;
     float timeSinceSeeingEnoughCenterTags = elapsed/1e3; // Convert from milliseconds to seconds
     if (timeSinceSeeingEnoughCenterTags > lostCenterCutoff)
@@ -247,6 +251,7 @@ Result DropOffController::DoWork() {
       centerApproach = false;
 
       result.type = waypoint;
+      // why dnt we clear the waypoints here?
       result.wpts.waypoints.push_back(this->centerLocation);
       if (isPrecisionDriving) {
         result.type = behavior;
@@ -263,6 +268,7 @@ Result DropOffController::DoWork() {
       result.pd.cmdAngularError = 0.0;
     }
 
+     cout << "DROP OFF: REACHED END OF FUNCTION !!!!" << endl;
     return result;
 
   }
