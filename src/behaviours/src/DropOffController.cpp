@@ -41,7 +41,7 @@ DropOffController::~DropOffController() {
 
 }
 
-Result DropOffController::DoWork()  {
+Result DropOffController::DoWork() {
 
   //cout << "8" << endl; //Debugging statement
   // Getting the total tag count from the left and the right side of the rover
@@ -92,7 +92,7 @@ Result DropOffController::DoWork()  {
 
   // Calculates the shortest distance to the center location from the current location
   double distanceToCenter = hypot((this->centerLocation.x - this->currentLocation.x) + offsetX,
-                                  (this->centerLocation.y - this->currentLocation.y) + offsetY);
+                                    (this->centerLocation.y - this->currentLocation.y) + offsetY);
 
   //check to see if we are driving to the center location or if we need to drive in a circle and look.
   if (distanceToCenter > collectionPointVisualDistance && !circularCenterSearching && (count == 0)) {
@@ -100,7 +100,7 @@ Result DropOffController::DoWork()  {
     result.type = waypoint;
     // Clears all the waypoints in the vector
     result.wpts.waypoints.clear();
-    // Adds the current location's point into the waypoint vector
+    // Adds the center location's point into the waypoint vector
     result.wpts.waypoints.push_back(this->centerLocation);
     // Do not start following waypoints
     startWaypoint = false;
@@ -158,6 +158,7 @@ Result DropOffController::DoWork()  {
     //cout << "9" << endl; //Debugging statement
     centerSeen = true;
 
+
     if (first_center && isPrecisionDriving)
     {
       first_center = false;
@@ -166,10 +167,9 @@ Result DropOffController::DoWork()  {
       result.b = nextProcess;
       return result;
     }
-
     isPrecisionDriving = true;
 
- /*   if (seenEnoughCenterTags) //if we have seen enough tags
+    if (seenEnoughCenterTags) //if we have seen enough tags
     {
       if ((countLeft-5) > countRight) //and there are too many on the left
       {
@@ -180,11 +180,11 @@ Result DropOffController::DoWork()  {
         left = false; //or left in this case
       }
     }
-*/
+
     float turnDirection = 1;
     //reverse tag rejection when we have seen enough tags that we are on a
     //trajectory in to the square we dont want to follow an edge.
-    if (seenEnoughCenterTags) {turnDirection = -3;}
+    if (seenEnoughCenterTags) turnDirection = -3;
 
     result.type = precisionDriving;
 
