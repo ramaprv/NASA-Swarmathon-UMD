@@ -1,4 +1,4 @@
-// This file deals with the rover's ability to drop off cubes to the center collection disk
+﻿// This file deals with the rover's ability to drop off cubes to the center collection disk
 // There are only two forms of driving: precision driving and waypoints
 // Precision Driving == any controller (drive, pickup, dropoff, obstacle)
 // continously feeding data into the feedback loop needed for drive controls
@@ -129,7 +129,7 @@ Result DropOffController::DoWork() {
     result.wpts.waypoints.clear();
     result.wpts.waypoints.push_back(nextSpinPoint);
 
-    spinner += M_PI/30; //add 45 degrees in radians to spinner.
+    spinner += M_PI/30; //add 30 degrees in radians to spinner.
     if (spinner > 2*M_PI) {
       spinner -= 2*M_PI;
     }
@@ -171,7 +171,9 @@ Result DropOffController::DoWork() {
       result.b = nextProcess;
       return result;
     }
-    isPrecisionDriving = true;
+    /*
+
+     isPrecisionDriving = true;
 
     if (seenEnoughCenterTags) //if we have seen enough tags
     {
@@ -194,23 +196,34 @@ Result DropOffController::DoWork() {
 
     //otherwise turn till tags on both sides of image then drive straight
     if (left && right) {
+        cout << "ERROR: left and right are both true " << endl;
       result.pd.cmdVel = searchVelocity;
       result.pd.cmdAngularError = 0.0;
     }
     else if (right) {
+         cout << "ERROR: RIGHT IS TRUE, TURNING LEFT " << endl;
       result.pd.cmdVel = -0.1 * turnDirection;
       result.pd.cmdAngularError = -centeringTurnRate*turnDirection;
     }
     else if (left){
+         cout << "ERROR: LEFT IS TRUE, TURNING RIGHT" << endl;
       result.pd.cmdVel = -0.1 * turnDirection;
       result.pd.cmdAngularError = centeringTurnRate*turnDirection;
     }
     else
-    {
+    { cout << "ERROR: DEFAULT ERROR, GO STRAIGHT " << endl;
       result.pd.cmdVel = searchVelocity;
       result.pd.cmdAngularError = 0.0;
     }
 
+   */
+
+    // switch to position driving and just got straight
+    result.type = precisionDriving;
+    result.pd.cmdVel = searchVelocity;
+    result.pd.cmdAngularError = 0.0;
+
+    /*
     //must see greater than this many tags before assuming we are driving into the center and not along an edge.
     if (count > centerTagThreshold)
     {
@@ -221,11 +234,16 @@ Result DropOffController::DoWork() {
     {
       lastCenterTagThresholdTime = current_time;
     }
+    */
     //time since we dropped below countGuard tags
     long int elapsed = current_time - lastCenterTagThresholdTime;
     float timeSinceSeeingEnoughCenterTags = elapsed/1e3; // Convert from milliseconds to seconds
 
     //we have driven far enough forward to have passed over the circle.
+    // setting this to true so  we enter it and just drop off the stupid cube
+
+    count = 0;
+    seenEnoughCenterTags = true;
     if (count < 1 && seenEnoughCenterTags && timeSinceSeeingEnoughCenterTags > dropDelay) {
       centerSeen = false;
     }
@@ -238,7 +256,8 @@ Result DropOffController::DoWork() {
 
   //was on approach to center and did not seenEnoughCenterTags
   //for lostCenterCutoff seconds so reset.
-  else if (centerApproach) {
+  if (centerApproach) {
+
  cout << "DROP OFF: I AM IN CENTER APPROACH" << endl;
     long int elapsed = current_time - lastCenterTagThresholdTime;
     float timeSinceSeeingEnoughCenterTags = elapsed/1e3; // Convert from milliseconds to seconds
@@ -246,12 +265,17 @@ Result DropOffController::DoWork() {
     {
       //cout << "4" << endl;
       //go back to drive to center base location instead of drop off attempt
-      reachedCollectionPoint = false;
+      reachedCollectionPoint = true; // changed this to true
       seenEnoughCenterTags = false;
       centerApproach = false;
 
       result.type = waypoint;
       // why dnt we clear the waypoints here?
+
+
+      // Setting the off set to the center location
+      centerLocation.x = centerLocation.x + offsetX;
+      centerLocation.y = centerLocation.y + offsetY;
       result.wpts.waypoints.push_back(this->centerLocation);
       if (isPrecisionDriving) {
         result.type = behavior;
@@ -268,18 +292,20 @@ Result DropOffController::DoWork() {
       result.pd.cmdAngularError = 0.0;
     }
 
-     cout << "DROP OFF: REACHED END OF FUNCTION !!!!" << endl;
-    return result;
+   return result;
 
   }
 
+  /*
   if (!centerSeen && seenEnoughCenterTags)
   {
     reachedCollectionPoint = true;
     centerApproach = false;
     returnTimer = current_time;
   }
+*/
 
+    cout << "DROP OFF: REACHED END OF FUNCTION !!!!" << endl;
   return result;
 }
 
