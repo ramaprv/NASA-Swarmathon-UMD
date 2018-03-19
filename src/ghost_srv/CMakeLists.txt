@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
  radius.srv
  prelim.srv
  roverCheckIn.srv
+ dropOff.srv
 )
 
 # Generate added messages and services with any dependencies listed here

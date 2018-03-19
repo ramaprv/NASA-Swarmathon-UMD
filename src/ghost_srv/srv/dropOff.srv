@@ -1,0 +1,5 @@
+string roverName
+float64 currX
+float64 currY
+---
+bool dropOff

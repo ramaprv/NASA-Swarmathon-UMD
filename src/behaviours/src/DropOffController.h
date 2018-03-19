@@ -5,6 +5,7 @@
 #include "Controller.h"
 #include "Tag.h"
 #include <math.h>
+#include <ros/ros.h>
 
 class DropOffController : virtual Controller
 {
@@ -36,6 +37,10 @@ public:
   void UpdateData(vector<Tag> tags);
 
   void SetCurrentTimeInMilliSecs( long int time );
+
+  void setDropOffClient(ros::ServiceClient dropOffClient) {
+      dropOff = dropOffClient;
+  }
 
 private:
 
@@ -125,7 +130,11 @@ private:
   bool finalInterrupt = false;
   bool first_center = true;
 
+  // for error correction in telling the roveres where to go
   float offsetX = 0, offsetY = 0;
+
+  // sevice client for queue to drop off
+  ros::ServiceClient dropOff;
 
 };
 #endif // end header define
