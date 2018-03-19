@@ -46,6 +46,9 @@ public:
         dropCheckIn = dropOffCheckInClient;
         dropQueue = dropOffQueueClient;
     }
+    void setRoverName(string publishedName) {
+        roverName = publishedName;
+    }
 
 private:
 
@@ -135,11 +138,13 @@ private:
     bool finalInterrupt = false;
     bool first_center = true;
 
+    string roverName;
+    int roverNum;
     // if the rover has let the server know they're dropping off
     bool checkedIn = false;
     // for error correction in telling the roveres where to go
     float offsetX = 0, offsetY = 0;
-    ghost_srv::dropOff d_srv; // server
+    ghost_srv::dropOffCheckIn checkIn_srv; // server
     // sevice client for queue to drop off
     ros::ServiceClient dropCheckIn, dropQueue;
 };

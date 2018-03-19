@@ -59,7 +59,8 @@ Result DropOffController::DoWork() {
 //    // rover letting the server know they are dropping off
        if (!checkedIn) {
            checkIn_srv.request.roverName = roverName;
-
+            
+           if (dropCheckIn.call(checkIn_srv))
            // getting the rover number associated with drop off
            checkIn_srv.response.dropOffNum = roverNum;
 

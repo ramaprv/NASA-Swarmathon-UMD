@@ -95,6 +95,7 @@ public:
     void setRoverName(string publishedName) {
         roverName = publishedName;
         searchController.setRoverName(roverName);
+        dropOffController.setRoverName(roverName);
         }
 
 
