@@ -56,18 +56,18 @@ Result DropOffController::DoWork() {
         timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
     }
 
-    // rover letting the server know they are dropping off
-    //   if (!checkedIn) {
-    d_srv.request.currX = currentLocation.x;
-    d_srv.request.currY = currentLocation.y;
-    dropOff.call(d_srv);
-    //  checkedIn = true;
-    // }
-    if (d_srv.response.dropOff) {
-        cout << "SERVER: ROVER IS ALLOWED TO GO TO THE CENTER" << endl;
-    } else {
-        cout << "SERVER: ROVER IS NOOOOOOOOT ALLOWED IN CENTER" << endl;
-    }
+//    // rover letting the server know they are dropping off
+//       if (!checkedIn) {
+//    d_srv.request.currX = currentLocation.x;
+//    d_srv.request.currY = currentLocation.y;
+//    dropOff.call(d_srv);
+//     checkedIn = true;
+//     }
+//    if (d_srv.response.dropOff) {
+//        cout << "SERVER: ROVER IS ALLOWED TO GO TO THE CENTER" << endl;
+//    } else {
+//        cout << "SERVER: ROVER IS NOOOOOOOOT ALLOWED IN CENTER" << endl;
+//    }
 
     //if we are in the routine for exiting the circle once we have dropped a block off and reseting all our flags
     //to resart our search.

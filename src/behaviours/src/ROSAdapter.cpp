@@ -5,6 +5,8 @@
 #include "ghost_srv/prelim.h"
 #include "ghost_srv/roverCheckIn.h"
 #include "ghost_srv/dropOff.h"
+#include "ghost_srv/dropOffCheckIn.h"
+#include "ghost_srv/dropOffQueue.h"
 
 // ROS libraries
 #include <angles/angles.h>
@@ -181,6 +183,8 @@ ros::ServiceClient storeRadiusClient;
 ros::ServiceClient prelimClient;
 ros::ServiceClient roverCheckInClient;
 ros::ServiceClient dropOffClient;
+ros::ServiceClient dropOffCheckInClient;
+ros::ServiceClient dropOffQueueClient;
 
 // for error correcting in telling the rovers where to go
 float offsetX = 0;
@@ -349,7 +353,8 @@ void behaviourStateMachine(const ros::TimerEvent&)
         }
 
         // sending the drop off client to the DropOffController
-        logicController.sendDropOffClient(dropOffClient);
+        logicController.sendDropOffClient(dropOffCheckInClient,
+                                          dropOffQueueClient);
 
         // letting the rovers know what round it is
         logicController.setRound(p_srv.response.prelim);

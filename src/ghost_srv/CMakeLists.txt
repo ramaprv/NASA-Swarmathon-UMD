@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
  prelim.srv
  roverCheckIn.srv
  dropOff.srv
+ dropOffCheckIn.srv
+ dropOffQueue.srv
 )
 
 # Generate added messages and services with any dependencies listed here

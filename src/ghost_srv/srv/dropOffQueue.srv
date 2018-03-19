@@ -1,0 +1,5 @@
+int32 dropOffNum
+float64 currX
+float64 currY
+---
+bool dropOff

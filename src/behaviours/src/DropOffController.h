@@ -7,6 +7,8 @@
 #include <math.h>
 #include <ros/ros.h>
 #include <ghost_srv/dropOff.h>
+#include <ghost_srv/dropOffCheckIn.h>
+#include <ghost_srv/dropOffQueue.h>
 
 class DropOffController : virtual Controller
 {
@@ -39,8 +41,10 @@ public:
 
     void SetCurrentTimeInMilliSecs( long int time );
 
-    void setDropOffClient(ros::ServiceClient dropOffClient) {
-        dropOff = dropOffClient;
+    void setDropOffClient(ros::ServiceClient dropOffCheckInClient,
+                          ros::ServiceClient dropOffQueueClient) {
+        dropCheckIn = dropOffCheckInClient;
+        dropQueue = dropOffQueueClient;
     }
 
 private:
@@ -137,6 +141,6 @@ private:
     float offsetX = 0, offsetY = 0;
     ghost_srv::dropOff d_srv; // server
     // sevice client for queue to drop off
-    ros::ServiceClient dropOff;
+    ros::ServiceClient dropCheckIn, dropQueue;
 };
 #endif // end header define

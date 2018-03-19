@@ -47,8 +47,10 @@ public:
     void SetCenterLocationOdom(Point centerLocationOdom);
     void SetCenterLocationMap(Point centerLocationMap);
     void setRound(bool round) { searchController.setRound(round); }
-    void sendDropOffClient(ros::ServiceClient dropOffClient) {
-        dropOffController.setDropOffClient(dropOffClient);
+    void sendDropOffClient(ros::ServiceClient dropOffCheckInClient,
+                           ros::ServiceClient dropOffQueueClient) {
+        dropOffController.setDropOffClient(dropOffCheckInClient,
+                                          dropOffQueueClient);
     }
 
     // Passthrough for providing new waypoints to the
