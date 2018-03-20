@@ -47,6 +47,11 @@ public:
     void SetCenterLocationOdom(Point centerLocationOdom);
     void SetCenterLocationMap(Point centerLocationMap);
     void setRound(bool round) { searchController.setRound(round); }
+    void sendDropOffClient(ros::ServiceClient dropOffCheckInClient,
+                           ros::ServiceClient dropOffQueueClient) {
+        dropOffController.setDropOffClient(dropOffCheckInClient,
+                                          dropOffQueueClient);
+    }
 
     // Passthrough for providing new waypoints to the
     // ManualWaypointController.
@@ -89,7 +94,8 @@ public:
     // sets the rover's name
     void setRoverName(string publishedName) {
         roverName = publishedName;
-        searchController.setRoverName(roverName);
+        searchController.setRoverName(publishedName);
+        dropOffController.setRoverName(publishedName);
         }
 
 

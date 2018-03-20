@@ -1,9 +1,11 @@
 #include <ros/ros.h>
 
 // For ghost server
-#include "ghost_srv/radius.h"
 #include "ghost_srv/prelim.h"
 #include "ghost_srv/roverCheckIn.h"
+#include "ghost_srv/dropOffCheckIn.h"
+#include "ghost_srv/dropOffQueue.h"
+
 
 // ROS libraries
 #include <angles/angles.h>
@@ -74,12 +76,6 @@ void humanTime();
 
 // Behaviours Logic Functions
 void sendDriveCommand(double linearVel, double angularVel);
-void openFingers(); // Open fingers to 90 degrees
-void closeFingers();// Close fingers to 0 degrees
-void raiseWrist();  // Return wrist back to 0 degrees
-void lowerWrist();  // Lower wrist to 50 degrees
-void resultHandler();
-
 
 Point updateCenterLocation();
 void transformMapCentertoOdom();
@@ -144,8 +140,6 @@ ros::Subscriber targetSubscriber;
 ros::Subscriber odometrySubscriber;
 ros::Subscriber mapSubscriber;
 ros::Subscriber virtualFenceSubscriber;
-// manualWaypointSubscriber listens on "/<robot>/waypoints/cmd" for
-// swarmie_msgs::Waypoint messages.
 ros::Subscriber manualWaypointSubscriber;
 
 // Timers
@@ -158,7 +152,7 @@ time_t timerStartTime;
 
 // An initial delay to allow the rover to gather enough position data to 
 // average its location.
-unsigned int startDelayInSeconds = 10;
+unsigned int startDelayInSeconds = 15;
 float timerTimeElapsed = 0;
 
 //Transforms
@@ -187,7 +181,10 @@ long int getROSTimeInMilliSecs();
 ros::ServiceClient storeRadiusClient;
 ros::ServiceClient prelimClient;
 ros::ServiceClient roverCheckInClient;
+ros::ServiceClient dropOffCheckInClient;
+ros::ServiceClient dropOffQueueClient;
 
+// for error correcting in telling the rovers where to go
 float offsetX = 0;
 float offsetY = 0;
 
@@ -259,9 +256,10 @@ int main(int argc, char **argv) {
     }
 
     // Creating clients
-    storeRadiusClient = mNH.serviceClient<ghost_srv::radius>("storeRadius");
     prelimClient = mNH.serviceClient<ghost_srv::prelim>("storePrelim");
     roverCheckInClient = mNH.serviceClient<ghost_srv::roverCheckIn>("roverCheckIn");
+    dropOffCheckInClient = mNH.serviceClient<ghost_srv::dropOffCheckIn>("dropOffCheckIn");
+    dropOffQueueClient = mNH.serviceClient<ghost_srv::dropOffQueue>("dropOffQueue");
 
     timerStartTime = time(0);
 
@@ -321,10 +319,8 @@ void behaviourStateMachine(const ros::TimerEvent&)
 
             if (roverCheckInClient.call(r_srv)) {
                 cout <<"SERVER: " << publishedName << " CHECKED IN" << endl;
-                ROS_ERROR_STREAM("ROVER CHECKED IN!!!!!!!!!!!!!!!!!!!!!!");
             } else {
                 cout << "SERVER: " << publishedName << " FAILED TO CHECK IN" << endl;
-                 ROS_ERROR_STREAM("ROVER DIDNT CHECK IN!!!!!!!!!!!!!!!!!!!!!!");
             }
 
         }
@@ -342,6 +338,9 @@ void behaviourStateMachine(const ros::TimerEvent&)
 
         humanTime();
 
+        // checking every tick if it's prelim round or not
+        // some unneeded code, can just create the server and
+        // call for a response, but this helped with debugging
         ghost_srv::prelim p_srv;
         p_srv.request.robotName = publishedName;
         prelimClient.call(p_srv);
@@ -351,6 +350,10 @@ void behaviourStateMachine(const ros::TimerEvent&)
         else {
             ROS_ERROR_STREAM("ITS NOOOOOOOOT PRELIM ROUND!!!!!!!!!!!!!!!!!!!!!!");
         }
+
+        // sending the drop off client to the DropOffController
+        logicController.sendDropOffClient(dropOffCheckInClient,
+                                          dropOffQueueClient);
 
         // letting the rovers know what round it is
         logicController.setRound(p_srv.response.prelim);

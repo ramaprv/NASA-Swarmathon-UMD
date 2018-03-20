@@ -1,5 +1,5 @@
-string roverName
+int32 dropOffNum
 float64 currX
 float64 currY
 ---
-bool radius
+bool dropOff

@@ -56,8 +56,8 @@ void SearchController::setVariables() {
     } else {
         longD = 2.25;
         shortD = 2.25;
-        startRadiusOuter = 4.75;
-        startRadiusInner = 1;
+        startRadiusOuter = 3.75;
+        startRadiusInner = 5;
 
         THETA_1 =  0;
         THETA_2 =  THETA_6 = M_PI/2;
@@ -189,7 +189,7 @@ Result SearchController::searchBehaviourPrelim() {
 
 Result SearchController::searchBehaviourSemi() {
 
-    if (roverName != "aeneas" || roverName != "diemedes") {
+    if (roverName != "aeneas" || roverName != "diomedes") {
         if (turn == 1) {
             searchLocation.theta = THETA_1 + ADDED_THETA;
             searchLocation.x = currentLocation.x + ((longD+distance) * cos(searchLocation.theta));
@@ -234,7 +234,7 @@ Result SearchController::searchBehaviourSemi() {
             spiralCount = 0;
         }
 
-        searchLocation.theta = currentLocation.theta + M_PI/6;
+        searchLocation.theta = currentLocation.theta + M_PI/3;
         searchLocation.x = currentLocation.x + ((.5+distance) * cos(searchLocation.theta));
         searchLocation.y = currentLocation.y + ((.5+distance) * sin(searchLocation.theta));
         spiralCount++;
