@@ -42,21 +42,9 @@ DropOffController::~DropOffController() {
 
 Result DropOffController::DoWork() {
 
-    cout << "TIMER: " << timerTimeElapsed << endl;
-
-    //cout << "8" << endl; //Debugging statement
-    // Getting the total tag count from the left and the right side of the rover
-    int count = countLeft + countRight;
-
-    // If the timer has started
-    if(timerTimeElapsed > -1) {
-        // Calcuate the elapsed time from the current time and the time since
-        // it dropped a target (cube) to the center collection disk
-        long int elapsed = current_time - returnTimer;
-        timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
-    }
-
     // rover letting the server know they are dropping off
+    // here they get their drop off number that they keep
+    // throughout the entire process of each simulation
     if (!checkedIn) {
         ghost_srv::dropOffCheckIn checkIn_srv; // server
         checkIn_srv.request.roverName = roverName;
@@ -69,6 +57,20 @@ Result DropOffController::DoWork() {
         } else {
             cout << "SERVER: DID NOT PROCESS DROP OFF CHECK IN" << endl;
         }
+    }
+
+    cout << "TIMER: " << timerTimeElapsed << endl;
+
+    //cout << "8" << endl; //Debugging statement
+    // Getting the total tag count from the left and the right side of the rover
+    int count = countLeft + countRight;
+
+    // If the timer has started
+    if(timerTimeElapsed > -1) {
+        // Calcuate the elapsed time from the current time and the time since
+        // it dropped a target (cube) to the center collection disk
+        long int elapsed = current_time - returnTimer;
+        timerTimeElapsed = elapsed/1e3; // Convert from milliseconds to seconds
     }
 
     //if we are in the routine for exiting the circle once we have dropped a block off and reseting all our flags

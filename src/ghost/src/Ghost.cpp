@@ -4,6 +4,7 @@
 #include "ghost_srv/roverCheckIn.h"
 #include "ghost_srv/dropOffCheckIn.h"
 #include "ghost_srv/dropOffQueue.h"
+#include "ghost_srv/droppingOff.h"
 
 /* keeping track of lowest radius */
 float lowestRadius= 0;
@@ -21,6 +22,9 @@ int roverDropOff = 0;
  * index they check into*/
 float allRadii[6];
 
+/* true if a rover is currently dropping off to the center*/
+bool centerDrop = false;
+
 
 // Call back handlers
 bool storePrelim(ghost_srv::prelim::Request &req, ghost_srv::prelim::Response &res);
@@ -28,6 +32,8 @@ bool roverCheckIn(ghost_srv::roverCheckIn::Request &req, ghost_srv::roverCheckIn
 bool dropOffCheckIn(ghost_srv::dropOffCheckIn::Request &req,
                     ghost_srv::dropOffCheckIn::Response &res);
 bool dropOffQueue(ghost_srv::dropOffQueue::Request &req,
+                  ghost_srv::dropOffQueue::Response &res);
+bool droppingOff(ghost_srv::dropOffQueue::Request &req,
                   ghost_srv::dropOffQueue::Response &res);
 
 using namespace std;
@@ -50,6 +56,9 @@ int main(int argc, char **argv){
 
     // queue that lets one rover at a time go to the center
     ros::ServiceServer dropQueue = nH.advertiseService("dropOffQueue", dropOffQueue);
+
+    // is true if a rover is currently dropping off
+    ros::ServiceServer dropOff = nH.advertiseService("droppingOff", droppingOff);
 
     // idk why this is necesarry but google told me it was
     ros::spin();
@@ -112,6 +121,22 @@ bool dropOffQueue(ghost_srv::dropOffQueue::Request &req,
     } else {
         res.dropOff = false;
     }
+
+    return true;
+}
+
+bool droppingOff(ghost_srv::dropOffQueue::Request &req,
+                  ghost_srv::dropOffQueue::Response &res) {
+
+    // if a negative number is passed in, that means the rover
+    // has dropped off the cube and another one can drop off now
+    if (req.dropOffNum < 0) {
+    centerDrop = false;
+    } else {
+        centerDrop = true;
+    }
+
+    res.dropOff = centerDrop;
 
     return true;
 }
