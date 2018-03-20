@@ -42,7 +42,10 @@ public:
     float getTheta(string roverName) {
         if (roverName == "achilles") { return (2*M_PI)/3; }
         else if (roverName == "ajax") {return -M_PI/4; }
-        else if (roverName == "aeneas") { return -M_PI/2; }
+        else if (roverName == "aeneas") {
+            if (prelim) { return M_PI/4; }
+            return -M_PI/2;
+        }
         else if (roverName == "diomedes") { return M_PI/2; }
         else if (roverName == "paris") { return (4*M_PI)/3; }
         else if (roverName == "hector") { return M_PI/3; }
