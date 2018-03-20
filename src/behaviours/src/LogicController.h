@@ -94,8 +94,8 @@ public:
     // sets the rover's name
     void setRoverName(string publishedName) {
         roverName = publishedName;
-        searchController.setRoverName(roverName);
-        dropOffController.setRoverName(roverName);
+        searchController.setRoverName(publishedName);
+        dropOffController.setRoverName(publishedName);
         }
 
 

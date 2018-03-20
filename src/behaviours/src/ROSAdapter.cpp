@@ -180,7 +180,6 @@ long int getROSTimeInMilliSecs();
 ros::ServiceClient storeRadiusClient;
 ros::ServiceClient prelimClient;
 ros::ServiceClient roverCheckInClient;
-ros::ServiceClient dropOffClient;
 ros::ServiceClient dropOffCheckInClient;
 ros::ServiceClient dropOffQueueClient;
 
@@ -258,6 +257,8 @@ int main(int argc, char **argv) {
     // Creating clients
     prelimClient = mNH.serviceClient<ghost_srv::prelim>("storePrelim");
     roverCheckInClient = mNH.serviceClient<ghost_srv::roverCheckIn>("roverCheckIn");
+    dropOffCheckInClient = mNH.serviceClient<ghost_srv::dropOffCheckIn>("dropOffCheckIn");
+    dropOffQueueClient = mNH.serviceClient<ghost_srv::dropOffQueue>("dropOffQueue");
 
     timerStartTime = time(0);
 
@@ -317,10 +318,8 @@ void behaviourStateMachine(const ros::TimerEvent&)
 
             if (roverCheckInClient.call(r_srv)) {
                 cout <<"SERVER: " << publishedName << " CHECKED IN" << endl;
-                ROS_ERROR_STREAM("ROVER CHECKED IN!!!!!!!!!!!!!!!!!!!!!!");
             } else {
                 cout << "SERVER: " << publishedName << " FAILED TO CHECK IN" << endl;
-                 ROS_ERROR_STREAM("ROVER DIDNT CHECK IN!!!!!!!!!!!!!!!!!!!!!!");
             }
 
         }

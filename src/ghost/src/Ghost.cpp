@@ -28,8 +28,9 @@ bool roverCheckIn(ghost_srv::roverCheckIn::Request &req, ghost_srv::roverCheckIn
 bool dropOffCheckIn(ghost_srv::dropOffCheckIn::Request &req,
                     ghost_srv::dropOffCheckIn::Response &res);
 bool dropOffQueue(ghost_srv::dropOffQueue::Request &req,
-                    ghost_srv::dropOffQueue::Response &res);
+                  ghost_srv::dropOffQueue::Response &res);
 
+using namespace std;
 int main(int argc, char **argv){
 
     // initalizing the server
@@ -79,8 +80,12 @@ bool roverCheckIn(ghost_srv::roverCheckIn::Request &req,
 }
 
 // a check in for rovers to keep track of whose dropping off
+// a rover is assigned a drop off number ONCE and that is their
+// number throughout the process of that particular simulation
 bool dropOffCheckIn(ghost_srv::dropOffCheckIn::Request &req,
                     ghost_srv::dropOffCheckIn::Response &res) {
+
+    cout << "SERVER: ROver drop off number is " << roverDropOff << endl;
 
     res.dropOffNum = roverDropOff++;
 
@@ -89,7 +94,7 @@ bool dropOffCheckIn(ghost_srv::dropOffCheckIn::Request &req,
 
 // makeshift queue for rovers dropping off to the center
 bool dropOffQueue(ghost_srv::dropOffQueue::Request &req,
-                    ghost_srv::dropOffQueue::Response &res) {
+                  ghost_srv::dropOffQueue::Response &res) {
 
     // getting the distance to the center
     float tempRadius = sqrt(pow(req.currX, 2) + pow(req.currY, 2));

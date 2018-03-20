@@ -11,7 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
 # Service files will be added here
  add_service_files(
  FILES
- radius.srv
  prelim.srv
  roverCheckIn.srv
  dropOffCheckIn.srv

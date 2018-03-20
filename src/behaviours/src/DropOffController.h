@@ -6,8 +6,8 @@
 #include "Tag.h"
 #include <math.h>
 #include <ros/ros.h>
-#include <ghost_srv/dropOffCheckIn.h>
-#include <ghost_srv/dropOffQueue.h>
+#include "ghost_srv/dropOffCheckIn.h"
+#include "ghost_srv/dropOffQueue.h"
 
 class DropOffController : virtual Controller
 {
@@ -143,8 +143,8 @@ private:
     bool checkedIn = false;
     // for error correction in telling the roveres where to go
     float offsetX = 0, offsetY = 0;
-    ghost_srv::dropOffCheckIn checkIn_srv; // server
-    // sevice client for queue to drop off
+
+    // sevice client for queue and check in
     ros::ServiceClient dropCheckIn, dropQueue;
 };
 #endif // end header define
