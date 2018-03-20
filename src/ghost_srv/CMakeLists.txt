@@ -14,7 +14,6 @@ find_package(catkin REQUIRED COMPONENTS
  radius.srv
  prelim.srv
  roverCheckIn.srv
- dropOff.srv
  dropOffCheckIn.srv
  dropOffQueue.srv
 )

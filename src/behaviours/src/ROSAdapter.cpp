@@ -1,10 +1,8 @@
 #include <ros/ros.h>
 
 // For ghost server
-#include "ghost_srv/radius.h"
 #include "ghost_srv/prelim.h"
 #include "ghost_srv/roverCheckIn.h"
-#include "ghost_srv/dropOff.h"
 #include "ghost_srv/dropOffCheckIn.h"
 #include "ghost_srv/dropOffQueue.h"
 
@@ -258,10 +256,8 @@ int main(int argc, char **argv) {
     }
 
     // Creating clients
-    storeRadiusClient = mNH.serviceClient<ghost_srv::radius>("storeRadius");
     prelimClient = mNH.serviceClient<ghost_srv::prelim>("storePrelim");
     roverCheckInClient = mNH.serviceClient<ghost_srv::roverCheckIn>("roverCheckIn");
-    dropOffClient = mNH.serviceClient<ghost_srv::dropOff>("dropOff");
 
     timerStartTime = time(0);
 
@@ -342,6 +338,9 @@ void behaviourStateMachine(const ros::TimerEvent&)
 
         humanTime();
 
+        // checking every tick if it's prelim round or not
+        // some unneeded code, can just create the server and
+        // call for a response, but this helped with debugging
         ghost_srv::prelim p_srv;
         p_srv.request.robotName = publishedName;
         prelimClient.call(p_srv);

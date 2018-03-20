@@ -6,7 +6,6 @@
 #include "Tag.h"
 #include <math.h>
 #include <ros/ros.h>
-#include <ghost_srv/dropOff.h>
 #include <ghost_srv/dropOffCheckIn.h>
 #include <ghost_srv/dropOffQueue.h>
 
