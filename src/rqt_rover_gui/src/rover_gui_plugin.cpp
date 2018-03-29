@@ -1451,9 +1451,9 @@ void RoverGUIPlugin::allAutonomousButtonEventHandler()
                                                  QString::number(floor(getSeconds(timer_stop_time_in_seconds))) + " seconds</font>");
             ui.simulation_timer_combobox->setEnabled(false);
             ui.simulation_timer_combobox->setStyleSheet("color: grey; border:2px solid grey;");
-        } else if (ui.simulation_timer_combobox->currentText() == "60 min (Final)") {
+        } else if (ui.simulation_timer_combobox->currentText() == "40 min (Final)") {
             timer_start_time_in_seconds = current_simulated_time_in_seconds;
-            timer_stop_time_in_seconds = timer_start_time_in_seconds + 3600.0;
+            timer_stop_time_in_seconds = timer_start_time_in_seconds + 2400.0;
             is_timer_on = true;
             emit sendInfoLogMessage("\nSetting experiment timer to start at: " +
                                     QString::number(getHours(timer_start_time_in_seconds)) + " hours, " +

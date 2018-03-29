@@ -1128,7 +1128,7 @@ padding: 1px 0px 1px 3px; /*This makes text colour work*/
       </item>
       <item>
        <property name="text">
-        <string>60 min (Final)</string>
+        <string>40 min (Final)</string>
        </property>
       </item>
      </widget>
