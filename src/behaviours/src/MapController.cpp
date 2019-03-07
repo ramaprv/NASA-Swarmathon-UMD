@@ -20,24 +20,35 @@ void MapController::Reset() {
   result.reset = false;
 }
 
+/**
 static bool MapController::CheckIfPointInMap(MapPoint p) {
-  return ((p.location.x == this->currentLocation.x) && (p.location.y == this->currentLocation.y));
+  return ((p.location.x == currentLocation.x) && (p.location.y == currentLocation.y));
 }
+*/
+
 
 /**
  * This code implements a basic random walk search.
  */
 Result MapController::DoWork() {
-  auto index = std::find_if(mapObj.begin(), mapObj.end(), MapController::CheckIfPointInMap);
-  if (!(index == mapObj.end())) {
+  bool updateFlag = true;
+  for (auto p : mapObj) {
+    updateFlag = (p.location.x == currentLocation.x) && (p.location.y == currentLocation.y);
+  }
+  if (updateFlag) {
     MapPoint currPoint;
     currPoint.location.x = currentLocation.x;
     currPoint.location.y = currentLocation.y;
     currPoint.id = 0;
     currPoint.occType = EMPTY;
+    mapObj.push_back(currPoint);
   }
 
-  std::cout << "X: " << currentLocation.x << "Y: " << currentLocation.y << std::endl;
+  // std::cout << "X: " << currentLocation.x << "Y: " << currentLocation.y << std::endl;
+  std::cout << "size : " << mapObj.size();
+  for (auto i : mapObj) {
+    std::cout << "(" << i.location.x << "," << i.location.y << ")";
+  }
   result.b = wait;
   return (result);
 }

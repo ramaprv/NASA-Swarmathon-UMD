@@ -319,7 +319,6 @@ ChannelFloat32	arduino/libraries/ros_lib/sensor_msgs/ChannelFloat32.h	/^  class 
 Char	arduino/libraries/ros_lib/std_msgs/Char.h	/^    Char():$/;"	f	class:std_msgs::Char
 Char	arduino/libraries/ros_lib/std_msgs/Char.h	/^  class Char : public ros::Msg$/;"	c	namespace:std_msgs
 Check	misc/deploy.sh	/^Check()$/;"	f
-CheckIfPointInMap	src/behaviours/src/MapController.cpp	/^static bool MapController::CheckIfPointInMap(MapPoint p) {$/;"	f	class:MapController
 Class	src/ublox/ublox_msgs/include/ublox_msgs/ublox_msgs.h	/^namespace Class {$/;"	n	namespace:ublox_msgs
 Clock	arduino/libraries/ros_lib/rosgraph_msgs/Clock.h	/^    Clock():$/;"	f	class:rosgraph_msgs::Clock
 Clock	arduino/libraries/ros_lib/rosgraph_msgs/Clock.h	/^  class Clock : public ros::Msg$/;"	c	namespace:rosgraph_msgs

@@ -42,6 +42,7 @@ public:
   void SetCenterLocation(Point centerLocation);
   static bool CheckIfPointInMap(MapPoint p);
   std::vector<MapPoint> mapObj;
+  Point currentLocation;
 
 protected:
 
@@ -50,7 +51,6 @@ protected:
 private:
 
   random_numbers::RandomNumberGenerator* rng;
-  Point currentLocation;
   Point centerLocation;
   Point searchLocation;
   int attemptCount = 0;
