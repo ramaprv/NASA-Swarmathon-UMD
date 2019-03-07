@@ -171,6 +171,7 @@ Result LogicController::DoWork()
     // passed to the ROS Adapter such as left and right wheel PWM values in the
     // result struct.
     result = driveController.DoWork();
+    auto _result = mapController.DoWork();
 
     // When out of waypoints, the drive controller will throw an interrupt.
     // However, unlike other controllers, drive controller is not on the
@@ -306,7 +307,7 @@ int LogicController::getCollisionCalls()
 		//cout<<"ObstacleState: get one obstacle avoidance call..."<<endl;
 		return 1;
 		}
-		
+
 	return 0;
 }
 
@@ -362,6 +363,7 @@ void LogicController::SetPositionData(Point currentLocation)
   obstacleController.setCurrentLocation(currentLocation);
   driveController.SetCurrentLocation(currentLocation);
   manualWaypointController.SetCurrentLocation(currentLocation);
+  mapController.SetCurrentLocation(currentLocation);
 }
 
 // Recieves position in the world frame with global data (GPS).
@@ -405,6 +407,7 @@ void LogicController::SetCenterLocationOdom(Point centerLocationOdom)
 {
   searchController.SetCenterLocation(centerLocationOdom);
   dropOffController.SetCenterLocation(centerLocationOdom);
+  mapController.SetCenterLocation(centerLocationOdom);
 }
 
 void LogicController::AddManualWaypoint(Point manualWaypoint, int waypoint_id)

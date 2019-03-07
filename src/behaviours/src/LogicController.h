@@ -127,6 +127,7 @@ private:
   DriveController driveController;
   RangeController range_controller;
   ManualWaypointController manualWaypointController;
+  MapController mapController;
 
   std::vector<PrioritizedController> prioritizedControllers;
   priority_queue<PrioritizedController> control_queue;
