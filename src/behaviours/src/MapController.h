@@ -3,6 +3,8 @@
 
 #include <random_numbers/random_numbers.h>
 #include "Controller.h"
+#include <algorithm>
+#include <iostream>
 
 enum gridType {
   EMPTY = 0,
@@ -38,7 +40,7 @@ public:
   //void UpdateData(geometry_msgs::Pose2D currentLocation, geometry_msgs::Pose2D centerLocation);
   void SetCurrentLocation(Point currentLocation);
   void SetCenterLocation(Point centerLocation);
-  bool CheckIfPointInMap(MapPoint p);
+  static bool CheckIfPointInMap(MapPoint p);
   std::vector<MapPoint> mapObj;
 
 protected:

@@ -9,6 +9,7 @@
 #include "DriveController.h"
 #include "RangeController.h"
 #include "ManualWaypointController.h"
+#include "MapController.h"
 
 #include <vector>
 #include <queue>
