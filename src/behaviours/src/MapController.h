@@ -54,6 +54,7 @@ private:
   Point centerLocation;
   Point searchLocation;
   int attemptCount = 0;
+  // Grid Size
   const double gridSize = 0.3;
   //struct for returning data to ROS adapter
   Result result;
@@ -62,6 +63,11 @@ private:
   // Flag to allow special behaviour for the first waypoint
   bool first_waypoint = true;
   bool succesfullPickup = false;
+
+  // Convert to discrete grid point
+  Point toGridPoint(Point currentLocation);
+  // Check if grid point corresponding to current point exists in map object
+  bool currLocFound(Point currentLocation);
 };
 
 #endif /* SEARCH_CONTROLLER */

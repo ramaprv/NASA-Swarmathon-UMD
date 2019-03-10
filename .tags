@@ -4850,6 +4850,7 @@ createPopoutWindow	src/rqt_rover_gui/src/MapFrame.cpp	/^void MapFrame::createPop
 createQuaternionFromYaw	arduino/libraries/ros_lib/tf/tf.h	/^static inline geometry_msgs::Quaternion createQuaternionFromYaw(double yaw)$/;"	f	namespace:tf
 createSavableWorldCheckboxToggledEventHandler	src/rqt_rover_gui/src/rover_gui_plugin.cpp	/^void RoverGUIPlugin::createSavableWorldCheckboxToggledEventHandler(bool checked)$/;"	f	class:rqt_rover_gui::RoverGUIPlugin
 cube	src/rqt_rover_gui/src/IMUFrame.h	/^    tuple<float, float, float> cube[8];$/;"	m	class:rqt_rover_gui::IMUFrame
+currLocFound	src/behaviours/src/MapController.cpp	/^bool MapController::currLocFound(Point _currentLocation) {$/;"	f	class:MapController
 current	arduino/libraries/ros_lib/sensor_msgs/BatteryState.h	/^      _current_type current;$/;"	m	class:sensor_msgs::BatteryState
 currentLocation	src/behaviours/src/DriveController.h	/^  Point currentLocation;$/;"	m	class:DriveController
 currentLocation	src/behaviours/src/DropOffController.h	/^  Point currentLocation;$/;"	m	class:DropOffController
@@ -9791,6 +9792,7 @@ timestamp	arduino/libraries/ros_lib/controller_manager_msgs/ControllerStatistics
 timestamp	src/rqt_rover_gui/src/rover_gui_plugin.h	/^    ros::Time timestamp;$/;"	m	struct:RoverStatus
 timestep	arduino/libraries/ros_lib/control_msgs/PidState.h	/^      _timestep_type timestep;$/;"	m	class:control_msgs::PidState
 title	arduino/libraries/ros_lib/visualization_msgs/MenuEntry.h	/^      _title_type title;$/;"	m	class:visualization_msgs::MenuEntry
+toGridPoint	src/behaviours/src/MapController.cpp	/^Point MapController::toGridPoint(Point _currentLocation) {$/;"	f	class:MapController
 toNsec	arduino/libraries/ros_lib/ros/time.h	/^  uint32_t toNsec()$/;"	f	class:ros::Time
 toSec	arduino/libraries/ros_lib/ros/duration.h	/^  double toSec() const$/;"	f	class:ros::Duration
 toSec	arduino/libraries/ros_lib/ros/time.h	/^  double toSec() const$/;"	f	class:ros::Time
