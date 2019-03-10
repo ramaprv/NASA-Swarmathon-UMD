@@ -1,6 +1,10 @@
 #include "MapController.h"
 #include <angles/angles.h>
 #include <cmath>
+#include <math.h>
+#include <string>
+
+#define PI 3.14159265
 
 MapController::MapController() {
   rng = new random_numbers::RandomNumberGenerator();
@@ -47,6 +51,48 @@ void MapController::SetSonarData(float left, float center, float right) {
   sonarRight = right;
 }
 
+void MapController::GetObjectPos(Point _currentLocation) {
+  MapPoint mapPoint;
+  if(sonarLeft < 3) {
+    Point obsPoint;
+    obsPoint.x = (centerLocation.x - _currentLocation.x) + (sonarLeft * std::cos((PI / 4) + _currentLocation.theta));
+    obsPoint.y = (centerLocation.y - _currentLocation.y) + (sonarLeft * std::sin((PI / 4) + _currentLocation.theta));
+    if (!currLocFound(obsPoint)) {
+      Point gridPoint = toGridPoint(obsPoint);
+      mapPoint.location.x = gridPoint.x;
+      mapPoint.location.y = gridPoint.y;
+      mapPoint.id = 0;
+      mapPoint.occType = OBSTACLE;
+      mapObj.push_back(mapPoint);
+    }
+  }
+  if(sonarCenter < 3) {
+    Point obsPoint;
+    obsPoint.x = (centerLocation.x - _currentLocation.x) + (sonarCenter * std::cos(_currentLocation.theta));
+    obsPoint.y = (centerLocation.y - _currentLocation.y) + (sonarCenter * std::sin(_currentLocation.theta));
+    if (!currLocFound(obsPoint)) {
+      Point gridPoint = toGridPoint(obsPoint);
+      mapPoint.location.x = gridPoint.x;
+      mapPoint.location.y = gridPoint.y;
+      mapPoint.id = 0;
+      mapPoint.occType = OBSTACLE;
+      mapObj.push_back(mapPoint);
+    }
+  }
+  if(sonarRight < 3) {
+    Point obsPoint;
+    obsPoint.x = (centerLocation.x - _currentLocation.x) + (sonarRight * std::cos(-(PI / 4) + _currentLocation.theta));
+    obsPoint.y = (centerLocation.y - _currentLocation.y) + (sonarRight * std::sin(-(PI / 4) + _currentLocation.theta));
+    if (!currLocFound(obsPoint)) {
+      Point gridPoint = toGridPoint(obsPoint);
+      mapPoint.location.x = gridPoint.x;
+      mapPoint.location.y = gridPoint.y;
+      mapPoint.id = 0;
+      mapPoint.occType = OBSTACLE;
+      mapObj.push_back(mapPoint);
+    }
+  }
+}
 
 
 /**
@@ -62,9 +108,8 @@ Result MapController::DoWork() {
     mapPoint.occType = EMPTY;
     mapObj.push_back(mapPoint);
   }
-  std::cout << "X: " << currentLocation.x << "Y: " << currentLocation.y << std::endl;
-  std::cout << "size : " << mapObj.size();
-
+  GetObjectPos(currentLocation);
+  visuvalization();
   result.b = wait;
   return (result);
 }
@@ -92,4 +137,19 @@ bool MapController::ShouldInterrupt(){
 
 bool MapController::HasWork() {
   return true;
+}
+
+void MapController::visuvalization() {
+  int mapDisp[20][20] = {0};
+  for (auto p : mapObj) {
+    mapDisp[(int)p.location.x][(int)p.location.y] = 1;
+  }
+  std::cout << "size : " << mapObj.size()<< std::endl;
+  for(int i =0 ; i < 20 ; i++) {
+    std::string row = {};
+    for(int j=0 ; j < 20 ; j++) {
+      row  = row + " " + std::to_string(mapDisp[i][j]);
+    }
+    std::cout << row <<std::endl;
+  }
 }

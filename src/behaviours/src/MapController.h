@@ -72,6 +72,8 @@ private:
   Point toGridPoint(Point currentLocation);
   // Check if grid point corresponding to current point exists in map object
   bool currLocFound(Point currentLocation);
+  void GetObjectPos(Point _currentLocation);
+  void visuvalization();
 };
 
 #endif /* SEARCH_CONTROLLER */
