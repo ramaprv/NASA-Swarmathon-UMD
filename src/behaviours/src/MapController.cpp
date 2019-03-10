@@ -41,6 +41,14 @@ bool MapController::currLocFound(Point _currentLocation) {
   return updateFlag;
 }
 
+void MapController::SetSonarData(float left, float center, float right) {
+  sonarLeft = left;
+  sonarCenter = center;
+  sonarRight = right;
+}
+
+
+
 /**
  * This code adds new grid points to map object vector
  */

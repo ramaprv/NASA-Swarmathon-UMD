@@ -40,6 +40,7 @@ public:
   //void UpdateDatas(geometry_msgs::Pose2D currentLocation, geometry_msgs::Pose2D centerLocation);
   void SetCurrentLocation(Point currentLocation);
   void SetCenterLocation(Point centerLocation);
+  void SetSonarData(float left, float center, float right);
   static bool CheckIfPointInMap(MapPoint p);
   std::vector<MapPoint> mapObj;
   Point currentLocation;
@@ -54,6 +55,9 @@ private:
   Point centerLocation;
   Point searchLocation;
   int attemptCount = 0;
+  float sonarLeft = 3;
+  float sonarRight = 3;
+  float sonarCenter = 3;
   // Grid Size
   const double gridSize = 0.3;
   //struct for returning data to ROS adapter

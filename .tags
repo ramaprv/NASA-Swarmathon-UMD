@@ -2192,6 +2192,7 @@ SetPoseResponse	arduino/libraries/ros_lib/robot_localization/SetPose.h	/^  class
 SetPositionData	src/behaviours/src/LogicController.cpp	/^void LogicController::SetPositionData(Point currentLocation)$/;"	f	class:LogicController
 SetResultData	src/behaviours/src/DriveController.h	/^  void SetResultData(Result result) {this->result = result;}$/;"	f	class:DriveController
 SetSonarData	src/behaviours/src/LogicController.cpp	/^void LogicController::SetSonarData(float left, float center, float right)$/;"	f	class:LogicController
+SetSonarData	src/behaviours/src/MapController.cpp	/^void MapController::SetSonarData(float left, float center, float right) {$/;"	f	class:MapController
 SetSonarData	src/behaviours/src/PickUpController.cpp	/^bool PickUpController::SetSonarData(float rangeCenter)$/;"	f	class:PickUpController
 SetSuccesfullPickup	src/behaviours/src/SearchController.cpp	/^void SearchController::SetSuccesfullPickup() {$/;"	f	class:SearchController
 SetTagData	src/behaviours/src/PickUpController.cpp	/^void PickUpController::SetTagData(vector<Tag> tags)$/;"	f	class:PickUpController
@@ -9220,15 +9221,18 @@ slowYawPID	src/behaviours/src/DriveController.h	/^  PID slowYawPID;$/;"	m	class:
 smach_msgs	arduino/libraries/ros_lib/smach_msgs/SmachContainerInitialStatusCmd.h	/^namespace smach_msgs$/;"	n
 smach_msgs	arduino/libraries/ros_lib/smach_msgs/SmachContainerStatus.h	/^namespace smach_msgs$/;"	n
 smach_msgs	arduino/libraries/ros_lib/smach_msgs/SmachContainerStructure.h	/^namespace smach_msgs$/;"	n
+sonarCenter	src/behaviours/src/MapController.h	/^  float sonarCenter = 3;$/;"	m	class:MapController
 sonarCenterConnected	src/diagnostics/src/Diagnostics.h	/^  bool sonarCenterConnected = false;$/;"	m	class:Diagnostics
 sonarCenterSubscribe	src/diagnostics/src/Diagnostics.h	/^  ros::Subscriber sonarCenterSubscribe;$/;"	m	class:Diagnostics
 sonarCenterTimestamp	src/diagnostics/src/Diagnostics.h	/^  ros::Time sonarCenterTimestamp;$/;"	m	class:Diagnostics
 sonarCenterTimestampUpdate	src/diagnostics/src/Diagnostics.cpp	/^void Diagnostics::sonarCenterTimestampUpdate(const sensor_msgs::Range::ConstPtr& message) {$/;"	f	class:Diagnostics
 sonarHandler	src/behaviours/src/ROSAdapter.cpp	/^void sonarHandler(const sensor_msgs::Range::ConstPtr& sonarLeft, const sensor_msgs::Range::ConstPtr& sonarCenter, const sensor_msgs::Range::ConstPtr& sonarRight) {$/;"	f
+sonarLeft	src/behaviours/src/MapController.h	/^  float sonarLeft = 3;$/;"	m	class:MapController
 sonarLeftConnected	src/diagnostics/src/Diagnostics.h	/^  bool sonarLeftConnected = false;$/;"	m	class:Diagnostics
 sonarLeftSubscribe	src/diagnostics/src/Diagnostics.h	/^  ros::Subscriber sonarLeftSubscribe;$/;"	m	class:Diagnostics
 sonarLeftTimestamp	src/diagnostics/src/Diagnostics.h	/^  ros::Time sonarLeftTimestamp;$/;"	m	class:Diagnostics
 sonarLeftTimestampUpdate	src/diagnostics/src/Diagnostics.cpp	/^void Diagnostics::sonarLeftTimestampUpdate(const sensor_msgs::Range::ConstPtr& message) {$/;"	f	class:Diagnostics
+sonarRight	src/behaviours/src/MapController.h	/^  float sonarRight = 3;$/;"	m	class:MapController
 sonarRightConnected	src/diagnostics/src/Diagnostics.h	/^  bool sonarRightConnected = false;$/;"	m	class:Diagnostics
 sonarRightSubscribe	src/diagnostics/src/Diagnostics.h	/^  ros::Subscriber sonarRightSubscribe;$/;"	m	class:Diagnostics
 sonarRightTimestamp	src/diagnostics/src/Diagnostics.h	/^  ros::Time sonarRightTimestamp;$/;"	m	class:Diagnostics

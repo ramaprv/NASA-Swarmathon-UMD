@@ -398,8 +398,8 @@ void LogicController::SetSonarData(float left, float center, float right)
   // The pickUpController only needs the center data in order to tell if
   // an april tag cube has been picked up correctly.
   pickUpController.SetSonarData(center);
-
   obstacleController.setSonarData(left,center,right);
+  mapController.SetSonarData(left,center,right);
 }
 
 // Called once by RosAdapter in guarded init.
