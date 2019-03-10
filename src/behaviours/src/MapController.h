@@ -37,7 +37,7 @@ public:
   bool HasWork() override;
 
   // sets the value of the current location
-  //void UpdateData(geometry_msgs::Pose2D currentLocation, geometry_msgs::Pose2D centerLocation);
+  //void UpdateDatas(geometry_msgs::Pose2D currentLocation, geometry_msgs::Pose2D centerLocation);
   void SetCurrentLocation(Point currentLocation);
   void SetCenterLocation(Point centerLocation);
   static bool CheckIfPointInMap(MapPoint p);

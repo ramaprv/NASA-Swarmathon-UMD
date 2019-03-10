@@ -21,19 +21,13 @@ void MapController::Reset() {
 }
 
 /**
-static bool MapController::CheckIfPointInMap(MapPoint p) {
-  return ((p.location.x == currentLocation.x) && (p.location.y == currentLocation.y));
-}
-*/
-
-
-/**
- * This code implements a basic random walk search.
+ * This code adds new grid points to map object vector
  */
 Result MapController::DoWork() {
   bool updateFlag = true;
   for (auto p : mapObj) {
-    updateFlag = (p.location.x == currentLocation.x) && (p.location.y == currentLocation.y);
+    updateFlag = !((p.location.x == currentLocation.x) && (p.location.y == currentLocation.y));
+    if (updateFlag) break;
   }
   if (updateFlag) {
     MapPoint currPoint;
@@ -41,13 +35,14 @@ Result MapController::DoWork() {
     currPoint.location.y = currentLocation.y;
     currPoint.id = 0;
     currPoint.occType = EMPTY;
+    std::cout<< "push back";
     mapObj.push_back(currPoint);
   }
 
-  // std::cout << "X: " << currentLocation.x << "Y: " << currentLocation.y << std::endl;
+  std::cout << "X: " << currentLocation.x << "Y: " << currentLocation.y << std::endl;
   std::cout << "size : " << mapObj.size();
   for (auto i : mapObj) {
-    std::cout << "(" << i.location.x << "," << i.location.y << ")";
+    // std::cout << "(" << i.location.x << "," << i.location.y << ")";
   }
   result.b = wait;
   return (result);
@@ -58,13 +53,6 @@ void MapController::SetCenterLocation(Point centerLocation) {
   float diffX = this->centerLocation.x - centerLocation.x;
   float diffY = this->centerLocation.y - centerLocation.y;
   this->centerLocation = centerLocation;
-
-  if (!result.wpts.waypoints.empty())
-  {
-  result.wpts.waypoints.back().x -= diffX;
-  result.wpts.waypoints.back().y -= diffY;
-  }
-
 }
 
 void MapController::SetCurrentLocation(Point currentLocation) {
