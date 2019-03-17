@@ -48,11 +48,9 @@ private:
   // Flag to allow special behaviour for the first waypoint
   bool first_waypoint = true;
   bool succesfullPickup = false;
-<<<<<<< HEAD
-  bool wayPointsCompleted = true;
-=======
+  long int pointIndex = 0;
   std::vector<Point> hilbertWaypoints ;
->>>>>>> 02fff48ced29659fcf44d7b63c223925056ca9a3
+
 };
 
 #endif /* SEARCH_CONTROLLER */
