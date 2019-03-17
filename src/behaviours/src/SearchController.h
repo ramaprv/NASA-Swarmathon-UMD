@@ -27,6 +27,8 @@ public:
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
   void setRecruitmentLocation(Point p);
+  void generateHilbertPoints(unsigned int degree);
+
 
 protected:
 
@@ -46,6 +48,7 @@ private:
   // Flag to allow special behaviour for the first waypoint
   bool first_waypoint = true;
   bool succesfullPickup = false;
+  std::vector<Point> hilbertWaypoints ;
 };
 
 #endif /* SEARCH_CONTROLLER */

@@ -36,6 +36,7 @@ add_executable(
   src/LogicController.cpp
   src/ManualWaypointController.cpp
   src/PositionPublisher.cpp
+  src/hilbert_curve.cpp
 )
 
 add_dependencies(behaviours ${catkin_EXPORTED_TARGETS})
