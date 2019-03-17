@@ -16,7 +16,12 @@ LogicController::~LogicController() {}
 void LogicController::Reset() {
 
   std::cout << "LogicController.Reset()" << std::endl;
+<<<<<<< HEAD
   std::cout << "I am here" << std::endl;
+=======
+  std::cout << "Generating Hilbert Motion" << std::endl;
+  searchController.generateHilbertPoints(4);
+>>>>>>> 02fff48ced29659fcf44d7b63c223925056ca9a3
   logicState = LOGIC_STATE_INTERRUPT;
   processState = PROCESS_STATE_SEARCHING;
 
