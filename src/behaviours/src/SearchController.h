@@ -46,6 +46,7 @@ private:
   // Flag to allow special behaviour for the first waypoint
   bool first_waypoint = true;
   bool succesfullPickup = false;
+  bool wayPointsCompleted = true;
 };
 
 #endif /* SEARCH_CONTROLLER */

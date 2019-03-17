@@ -119,7 +119,7 @@ Result DriveController::DoWork()
       //cout << "Waypoint x : " << waypoints.back().x << " y : " << waypoints.back().y << endl; //DEBUGGING CODE
       //fall through on purpose
     }
-  }
+  } // @suppress("No break at end of case")
 
   case STATE_MACHINE_ROTATE:
   {

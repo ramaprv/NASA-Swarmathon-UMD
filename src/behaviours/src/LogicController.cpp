@@ -16,6 +16,7 @@ LogicController::~LogicController() {}
 void LogicController::Reset() {
 
   std::cout << "LogicController.Reset()" << std::endl;
+  std::cout << "I am here" << std::endl;
   logicState = LOGIC_STATE_INTERRUPT;
   processState = PROCESS_STATE_SEARCHING;
 
