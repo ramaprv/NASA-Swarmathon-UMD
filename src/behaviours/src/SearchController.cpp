@@ -28,26 +28,7 @@ void SearchController::Reset() {
  */
 Result SearchController::DoWork() {
   std::cout << "I am in Do Work" << std::endl;
-  if (!result.wpts.waypoints.empty()) {
-    if (hypot(result.wpts.waypoints[0].x-currentLocation.x, result.wpts.waypoints[0].y-currentLocation.y) < 0.15) {
-      attemptCount = 0;
-    }
-  }
 
-  if (attemptCount > 0 && attemptCount < 5) {
-    attemptCount++;
-    if (succesfullPickup) {
-      succesfullPickup = false;
-      attemptCount = 1;
-    }
-     return result;
-  }
-  else if (attemptCount >= 5 || attemptCount == 0)
-  {
-    attemptCount = 1;
-
-
-    result.type = waypoint;
     Point  searchLocation;
 	Point tmpLocation ;
 
@@ -55,32 +36,23 @@ Result SearchController::DoWork() {
     if (first_waypoint)
     {
       first_waypoint = false;
-      searchLocation.theta = currentLocation.theta + M_PI/2;
-      searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
-      searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
     }
     else
     {
-      //select new heading from Gaussian distribution around current heading
-      tmpLocation  = hilbertWaypoints[pointIndex];
-      pointIndex++;
-	  hilbertWaypoints.erase(hilbertWaypoints.begin());
-	  searchLocation.x = 1 + tmpLocation.x*(0.5);
-	  searchLocation.y = 1 + tmpLocation.y*(0.5);
-	  //searchLocation.theta = currentLocation.theta;
-	  std::cout << "Next Waypoint" << std::endl ;
-	  std::cout << "X" << searchLocation.x << "Y" << searchLocation.y << "PointIndex" << pointIndex << std::endl;
-      //searchLocation.theta = rng->gaussian(currentLocation.theta, 0.785398); //45 degrees in radians
-      //searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
-      //searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
+    	result.type = waypoint;
+		tmpLocation  = hilbertWaypoints[pointIndex];
+		pointIndex++;
+		hilbertWaypoints.erase(hilbertWaypoints.begin());
+		searchLocation.x = 1 + tmpLocation.x*(0.2);
+		searchLocation.y = 1 + tmpLocation.y*(0.2);
+		//searchLocation.theta = currentLocation.theta;
+		std::cout << "Next Waypoint" << std::endl ;
+		std::cout << "X" << searchLocation.x << ",Y" << searchLocation.y << ",PointIndex" << pointIndex << std::endl;
+		result.wpts.waypoints.clear();
+		result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
     }
-
-    result.wpts.waypoints.clear();
-    result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
-    
     return result;
   }
-}
 
 void SearchController::SetCenterLocation(Point centerLocation) {
 
