@@ -40,9 +40,9 @@ Result SearchController::DoWork() {
       succesfullPickup = false;
       attemptCount = 1;
     }
-    return result;
+     return result;
   }
-  else if (attemptCount >= 5 || attemptCount == 0) 
+  else if (attemptCount >= 5 || attemptCount == 0)
   {
     attemptCount = 1;
 
@@ -55,7 +55,7 @@ Result SearchController::DoWork() {
     if (first_waypoint)
     {
       first_waypoint = false;
-      searchLocation.theta = currentLocation.theta + M_PI;
+      searchLocation.theta = currentLocation.theta + M_PI/2;
       searchLocation.x = currentLocation.x + (0.5 * cos(searchLocation.theta));
       searchLocation.y = currentLocation.y + (0.5 * sin(searchLocation.theta));
     }
@@ -65,8 +65,8 @@ Result SearchController::DoWork() {
       tmpLocation  = hilbertWaypoints[pointIndex];
       pointIndex++;
 	  hilbertWaypoints.erase(hilbertWaypoints.begin());
-	  searchLocation.x = currentLocation.x + tmpLocation.x*(0.15);
-	  searchLocation.y = currentLocation.y + tmpLocation.y*(0.15);
+	  searchLocation.x = 1 + tmpLocation.x*(0.5);
+	  searchLocation.y = 1 + tmpLocation.y*(0.5);
 	  //searchLocation.theta = currentLocation.theta;
 	  std::cout << "Next Waypoint" << std::endl ;
 	  std::cout << "X" << searchLocation.x << "Y" << searchLocation.y << "PointIndex" << pointIndex << std::endl;
