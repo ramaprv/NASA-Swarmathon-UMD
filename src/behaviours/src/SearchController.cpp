@@ -17,6 +17,9 @@ SearchController::SearchController() {
 
   result.fingerAngle = M_PI/2;
   result.wristAngle = M_PI/4;
+
+  std::cout << "Generating Hilbert Motion" << std::endl;
+  generateHilbertPoints(2);
 }
 
 void SearchController::Reset() {
