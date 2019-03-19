@@ -471,5 +471,5 @@ void LogicController::SetModeManual()
   }
 }
 void LogicController::setRoverName(string publishedName){
-
+	searchController.setRoverName(publishedName);
 }
