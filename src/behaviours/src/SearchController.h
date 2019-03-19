@@ -28,6 +28,7 @@ public:
   void SetSuccesfullPickup();
   void setRecruitmentLocation(Point p);
   void generateHilbertPoints(unsigned int degree);
+  void setRoverName(string publishedName);
 
 
 protected:
@@ -48,6 +49,7 @@ private:
   // Flag to allow special behaviour for the first waypoint
   bool first_waypoint = true;
   bool succesfullPickup = false;
+  string roverName;
   long int pointIndex = 0;
   double hilbert2dScale = 0.4375;
   int botIndex = 0;

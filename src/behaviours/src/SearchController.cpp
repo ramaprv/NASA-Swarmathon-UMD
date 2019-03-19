@@ -27,7 +27,7 @@ void SearchController::Reset() {
  * This code implements a basic random walk search.
  */
 Result SearchController::DoWork() {
-  std::cout << "I am in Do Work" << std::endl;
+
 
     Point  searchLocation;
 	Point tmpLocation ;
@@ -45,11 +45,11 @@ Result SearchController::DoWork() {
     else
     {
     	result.type = waypoint;
-		tmpLocation  = hilbertWaypoints[pointIndex];
+		tmpLocation  = hilbertWaypoints[botIndex + pointIndex];
 		//hilbertWaypoints.erase(hilbertWaypoints.begin());
         pointIndex++;
-		searchLocation.x = -6 + tmpLocation.x*(0.8);
-		searchLocation.y = -6 + tmpLocation.y*(0.8);
+		searchLocation.x = -6 + tmpLocation.x*hilbert2dScale;
+		searchLocation.y = -6 + tmpLocation.y*hilbert2dScale;
 		//searchLocation.theta = currentLocation.theta;
 		std::cout << "Next Waypoint" << std::endl ;
 		std::cout << "X" << searchLocation.x << ",Y" << searchLocation.y << ",PointIndex" << pointIndex << std::endl;
@@ -100,7 +100,9 @@ bool SearchController::HasWork() {
 void SearchController::SetSuccesfullPickup() {
   succesfullPickup = true;
 }
-
+void SearchController::setRoverName(string publishedName){
+	roverName = publishedName;
+}
 
 void SearchController::generateHilbertPoints(unsigned int degree )
 {
