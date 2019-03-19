@@ -103,7 +103,8 @@ const float status_publish_interval = 1;	//time between publishes
 const float heartbeat_publish_interval = 2;	//time between heartbeat publishes
 const float waypointTolerance = 0.1; 		//10 cm tolerance.
 std::string swarmList;
-bool visited = false;
+bool visited = false; // flag to check if the getString subscriber is visited atleast once
+int check = 0;        // flag to check if the name of swarmie is already appened in the swarmiesList topic
 // used for calling code once but not in main
 bool initilized = false;	//switched to true after running through state machine the first time, initializes base values
 
@@ -333,20 +334,13 @@ void behaviourStateMachine(const ros::TimerEvent&)
       centerLocationOdom.y = centerOdom.y;
 
       startTime = getROSTimeInMilliSecs();
-      int check = 0;
+      
       std::string str2 = ",";
       if (visited == false) {
         msg1.data = publishedName;
         swarmiesPub.publish(msg1);
       }
       else {
-        std::vector<std::string> list;
-        list = split(swarmList, ",");
-        for (auto& i : list) {
-            if (i == publishedName) {
-              check = 1;
-            }
-        }
         if (check == 0) {
           swarmList.append(str2);
           swarmList.append(publishedName);
@@ -534,8 +528,20 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
 }
 // Callback for the swarmie name list
 void getString(const std_msgs::String::ConstPtr& message) {
- swarmList = message->data.c_str();
- visited = true;
+swarmList = message->data.c_str();
+std::vector<std::string> list;
+int rank =0;
+ list = split(swarmList, ",");
+
+ for (auto& i : list) {
+   if (i == publishedName) {
+      check = 1;
+      rank++;
+   }
+ }
+        
+logicController.setRoverCount_Rank(list.size(),rank);
+visited = true;
 }
 
 void modeHandler(const std_msgs::UInt8::ConstPtr& message) {
