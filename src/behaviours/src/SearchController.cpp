@@ -19,7 +19,8 @@ SearchController::SearchController() {
   result.wristAngle = M_PI/4;
 
   std::cout << "Generating Hilbert Motion" << std::endl;
-  generateHilbertPoints(2);
+  generateHilbertPoints(5);
+
 }
 
 void SearchController::Reset() {
@@ -47,16 +48,19 @@ Result SearchController::DoWork() {
     }
     else
     {
+    	if (not ranOnce){
+    		updateCurrentPathPoints(roverName);
+    	}
     	result.type = waypoint;
-		tmpLocation  = hilbertWaypoints[botIndex + pointIndex];
+		tmpLocation  = currentPathPoints[botIndex + pointIndex];
 		//hilbertWaypoints.erase(hilbertWaypoints.begin());
         pointIndex++;
-		searchLocation.x = -6 + tmpLocation.x*hilbert2dScale;
-		searchLocation.y = -6 + tmpLocation.y*hilbert2dScale;
+		searchLocation.x = -6.5 + tmpLocation.x*hilbert2dScale;
+		searchLocation.y = -6.5 + tmpLocation.y*hilbert2dScale;
 		//searchLocation.theta = currentLocation.theta;
 		std::cout << "Next Waypoint" << std::endl ;
 		std::cout << "X" << searchLocation.x << ",Y" << searchLocation.y << ",PointIndex" << pointIndex << std::endl;
-    std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pointIndex << std::endl;
+        std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pointIndex << std::endl;
 		result.wpts.waypoints.clear();
 		result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
     }
@@ -142,5 +146,21 @@ void SearchController::generateHilbertPoints(unsigned int degree )
 }
 
 void SearchController::updateCurrentPathPoints(string roverName){
-
+	int start = 0;
+		std::cout << "Rover:" << roverName <<std::endl;
+		if (roverName == "achilles"){
+			start = 0;
+			std::cout << "isAchilles" <<std::endl;
+		}
+		else if (roverName == "aeneas"){
+			start = 1;
+		}
+		else{ // for ajax
+			start = 2;
+		}
+		int totalPoints = hilbertWaypoints.size();
+		int startIndex = int(floor(start*totalPoints/3));
+		int endIndex = int(ceil((start+1)*totalPoints/3));
+		std::cout<< currentPathPoints.size() << "," << startIndex<<"," <<endIndex << std::endl;
+		currentPathPoints.insert(currentPathPoints.begin(),hilbertWaypoints.begin()+startIndex,hilbertWaypoints.begin()+endIndex);
 }

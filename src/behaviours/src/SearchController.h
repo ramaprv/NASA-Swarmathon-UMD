@@ -52,11 +52,12 @@ private:
   bool succesfullPickup = false;
   string roverName;
   long int pointIndex = 0;
-  double hilbert2dScale = 0.4375;
+  double hilbert2dScale = 0.406;
   int botIndex = 0;
   std::vector<Point> hilbertWaypoints ;
   std::vector<Point> currentPathPoints;
   void updateCurrentPathPoints(string roverName);
+  bool ranOnce = false;
 
 };
 
