@@ -470,3 +470,6 @@ void LogicController::SetModeManual()
     driveController.Reset();
   }
 }
+void LogicController::setRoverName(string publishedName){
+
+}

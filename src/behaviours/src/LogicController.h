@@ -57,6 +57,7 @@ public:
   void SetCenterLocationOdom(Point centerLocationOdom);
   void SetCenterLocationMap(Point centerLocationMap);
   void gotRecruitmentMessage(Point p);
+  void setRoverName(string publishedName);
 
   int getCollisionCalls();
   // Passthrough for providing new waypoints to the
