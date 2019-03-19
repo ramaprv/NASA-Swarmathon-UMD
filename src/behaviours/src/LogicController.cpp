@@ -18,7 +18,7 @@ void LogicController::Reset() {
   std::cout << "LogicController.Reset()" << std::endl;
   std::cout << "I am here" << std::endl;
   std::cout << "Generating Hilbert Motion" << std::endl;
-  searchController.generateHilbertPoints(4);
+  searchController.generateHilbertPoints(2);
   logicState = LOGIC_STATE_INTERRUPT;
   processState = PROCESS_STATE_SEARCHING;
 
@@ -309,7 +309,7 @@ int LogicController::getCollisionCalls()
 		//cout<<"ObstacleState: get one obstacle avoidance call..."<<endl;
 		return 1;
 		}
-		
+
 	return 0;
 }
 

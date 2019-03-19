@@ -32,7 +32,12 @@ Result SearchController::DoWork() {
     Point  searchLocation;
 	Point tmpLocation ;
 
-    //select new position 50 cm from current location
+	if (succesfullPickup) {
+	      succesfullPickup = false;
+	      return result;
+	    }
+
+
     if (first_waypoint)
     {
       first_waypoint = false;
@@ -41,13 +46,14 @@ Result SearchController::DoWork() {
     {
     	result.type = waypoint;
 		tmpLocation  = hilbertWaypoints[pointIndex];
-		pointIndex++;
-		hilbertWaypoints.erase(hilbertWaypoints.begin());
-		searchLocation.x = 1 + tmpLocation.x*(0.2);
-		searchLocation.y = 1 + tmpLocation.y*(0.2);
+		//hilbertWaypoints.erase(hilbertWaypoints.begin());
+        pointIndex++;
+		searchLocation.x = -6 + tmpLocation.x*(0.8);
+		searchLocation.y = -6 + tmpLocation.y*(0.8);
 		//searchLocation.theta = currentLocation.theta;
 		std::cout << "Next Waypoint" << std::endl ;
 		std::cout << "X" << searchLocation.x << ",Y" << searchLocation.y << ",PointIndex" << pointIndex << std::endl;
+    std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pointIndex << std::endl;
 		result.wpts.waypoints.clear();
 		result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
     }
@@ -122,10 +128,10 @@ void SearchController::generateHilbertPoints(unsigned int degree )
     //cout << "  " << setw(3) << d
       //   << "  " << setw(3) << x
         // << "  " << setw(3) << y << "\n";
-	tmpPoint.theta = 0 ; 
+	tmpPoint.theta = 0 ;
 	tmpPoint.x = x;
 	tmpPoint.y = y ;
 	hilbertWaypoints.push_back(tmpPoint);
+  std::cout<< x << "," << y<< std::endl;
   }
 }
-
