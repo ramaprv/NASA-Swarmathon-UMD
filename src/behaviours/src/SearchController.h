@@ -57,8 +57,8 @@ private:
   std::vector<Point> currentPathPoints;
   void updateCurrentPathPoints(string roverName);
   bool ranOnce = false;
-  int totalRovers = 0;
-  int myRoverIndex = -1;
+  int totalRovers = 1;
+  int myRoverIndex = 1;
 
 };
 

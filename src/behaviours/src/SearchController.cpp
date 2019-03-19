@@ -27,12 +27,9 @@ void SearchController::Reset() {
   result.reset = false;
 }
 
-/**
- * This code implements a basic random walk search.
- */
+
 Result SearchController::DoWork() {
-
-
+	std::cout<< "SearchController Do work"<< std::endl;
     Point  searchLocation;
 	Point tmpLocation ;
 
@@ -51,13 +48,24 @@ Result SearchController::DoWork() {
     	//if (not ranOnce){
     	//	updateCurrentPathPoints(roverName);
     	//}
-    	result.type = waypoint;
-		tmpLocation  = currentPathPoints[botIndex + pathPointIndex];
 
-		pathPointIndex++;
+		tmpLocation  = currentPathPoints[botIndex + pathPointIndex];
+		// if ((pathPointIndex +1)<=currentPathPoints.size()){
+			pathPointIndex++;
+		// }
+		// else{
+		// 	return result;
+		// }
 		searchLocation.x = -6.5 + tmpLocation.x*hilbert2dScale;
 		searchLocation.y = -6.5 + tmpLocation.y*hilbert2dScale;
-		//searchLocation.theta = currentLocation.theta;
+
+		// Not inserting points in the collection area
+		if (fabs(searchLocation.x) < 0.6 && fabs(searchLocation.y)<0.6){
+			pathPointIndex++;
+			return result;
+		}
+
+		result.type = waypoint;
 		std::cout << "Next Waypoint" << std::endl ;
 		std::cout << "X" << searchLocation.x << ",Y" << searchLocation.y << ",PointIndex" << pathPointIndex << std::endl;
         std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pathPointIndex << std::endl;
@@ -146,18 +154,22 @@ void SearchController::generateHilbertPoints(unsigned int degree )
 }
 
 void SearchController::updateCurrentPathPoints(string roverName){
-		int startFactor = myRoverIndex;
+	std::cout<< "Updating CurrentPath"<< std::endl;
+	std::cout<< "Rank ="<<myRoverIndex <<", NumberRovers "<<totalRovers<< std::endl;
+		int startFactor = myRoverIndex-1;
 		int totalPoints = hilbertWaypoints.size();
 		int startIndex = int(floor(startFactor*totalPoints/totalRovers));
 		int endIndex = int(ceil((startFactor+1)*totalPoints/totalRovers));
-		std::cout<< currentPathPoints.size() << "," << startIndex<<"," <<endIndex << std::endl;
+		// std::cout<< currentPathPoints.size() << "," << startIndex<<"," <<endIndex << std::endl;
 		currentPathPoints.insert(currentPathPoints.begin(),hilbertWaypoints.begin()+startIndex,hilbertWaypoints.begin()+endIndex);
 		// Resetting the pathPoints every time a new rover is detected
 		pathPointIndex = 0;
+		std::cout<< "Finished Updating CurrentPath"<< std::endl;
 }
 
 void SearchController::setRoverCount_Rank(int noOfRovers,int rank){
 	totalRovers = noOfRovers;
 	myRoverIndex = rank;
-
+	std::cout<< "Search controller update count and rank"<< std::endl;
+	updateCurrentPathPoints(roverName);
 }

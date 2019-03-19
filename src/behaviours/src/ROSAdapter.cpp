@@ -530,17 +530,20 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
 void getString(const std_msgs::String::ConstPtr& message) {
 swarmList = message->data.c_str();
 std::vector<std::string> list;
-int rank =0;
+int rank =1;
+int count =0;
  list = split(swarmList, ",");
 
  for (auto& i : list) {
-   if (i == publishedName) {
+	 count++;
+	 if (i == publishedName) {
       check = 1;
-      rank++;
+      rank = count;
    }
  }
         
 logicController.setRoverCount_Rank(list.size(),rank);
+std::cout<< "RosAdapter:size = "<<list.size()<<", Rank="<<rank<< std::endl;
 visited = true;
 }
 
