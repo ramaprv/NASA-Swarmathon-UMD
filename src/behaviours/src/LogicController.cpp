@@ -470,3 +470,7 @@ void LogicController::SetModeManual()
 void LogicController::setRoverName(string publishedName){
 	searchController.setRoverName(publishedName);
 }
+
+void LogicController::setRoverCount_Rank(int noOfRovers,int rank){
+	searchController.setRoverCount_Rank(noOfRovers,rank);
+}
