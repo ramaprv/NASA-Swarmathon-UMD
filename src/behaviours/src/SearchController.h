@@ -31,6 +31,7 @@ public:
   void setRoverName(string publishedName);
 
 
+
 protected:
 
   void ProcessData();
@@ -54,6 +55,8 @@ private:
   double hilbert2dScale = 0.4375;
   int botIndex = 0;
   std::vector<Point> hilbertWaypoints ;
+  std::vector<Point> currentPathPoints;
+  void updateCurrentPathPoints(string roverName);
 
 };
 

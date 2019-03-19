@@ -140,3 +140,7 @@ void SearchController::generateHilbertPoints(unsigned int degree )
   std::cout<< x << "," << y<< std::endl;
   }
 }
+
+void SearchController::updateCurrentPathPoints(string roverName){
+
+}
