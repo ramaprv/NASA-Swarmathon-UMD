@@ -164,3 +164,9 @@ void SearchController::updateCurrentPathPoints(string roverName){
 		std::cout<< currentPathPoints.size() << "," << startIndex<<"," <<endIndex << std::endl;
 		currentPathPoints.insert(currentPathPoints.begin(),hilbertWaypoints.begin()+startIndex,hilbertWaypoints.begin()+endIndex);
 }
+
+void SearchController::setRoverCount_Rank(int noOfRovers,int rank){
+	totalRovers = noOfRovers;
+	myRoverIndex = rank;
+
+}

@@ -29,8 +29,7 @@ public:
   void setRecruitmentLocation(Point p);
   void generateHilbertPoints(unsigned int degree);
   void setRoverName(string publishedName);
-
-
+  void setRoverCount_Rank(int noOfRovers,int rank);
 
 protected:
 
@@ -58,6 +57,8 @@ private:
   std::vector<Point> currentPathPoints;
   void updateCurrentPathPoints(string roverName);
   bool ranOnce = false;
+  int totalRovers = 0;
+  int myRoverIndex = -1;
 
 };
 
