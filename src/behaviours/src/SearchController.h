@@ -50,7 +50,7 @@ private:
   bool first_waypoint = true;
   bool succesfullPickup = false;
   string roverName;
-  long int pointIndex = 0;
+  long int pathPointIndex = 0;
   double hilbert2dScale = 0.406;
   int botIndex = 0;
   std::vector<Point> hilbertWaypoints ;
