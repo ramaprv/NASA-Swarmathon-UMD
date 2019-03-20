@@ -59,6 +59,7 @@ private:
   bool ranOnce = false;
   int totalRovers = 1;
   int myRoverIndex = 1;
+  double lowerLeftHilbertPt = -6.5;
 
 };
 
