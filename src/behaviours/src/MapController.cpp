@@ -3,6 +3,7 @@
 #include <cmath>
 #include <math.h>
 #include <string>
+#include "Tag.h"
 
 #define PI 3.14159265
 
@@ -139,16 +140,69 @@ bool MapController::HasWork() {
   return true;
 }
 
-void MapController::visuvalization() {
-  int mapDisp[20][20] = {0};
-  for (auto p : mapObj) {
-    mapDisp[(int)p.location.x][(int)p.location.y] = 1;
+void MapController::setTagData(vector<Tag> tags){
+  MapPoint mapPoint;
+  Point cubePoint;
+  for (auto tag : tags) {
+    std::tuple<float, float, float> position = tag.getPosition();
+    std::tuple<float, float, float> orientation = tag.calcRollPitchYaw();
+    cubePoint.x = (centerLocation.x - currentLocation.x) + get<0>(position);
+    cubePoint.y = (centerLocation.y - currentLocation.y) + get<1>(position);
+    if (!currLocFound(cubePoint)) {
+      Point gridPoint = toGridPoint(cubePoint);
+      mapPoint.location.x = gridPoint.x;
+      mapPoint.location.y = gridPoint.y;
+      mapPoint.location.theta = get<1>(orientation);
+      mapPoint.id = 0;
+      switch((int)tag.getID()){
+        case 1:
+          mapPoint.occType = BOUNDARY;
+          break;
+        case 256:
+          mapPoint.occType = COLLECTIONCENTER;
+          break;
+        default:
+          mapPoint.occType = CUBE;
+          break;
+      }
+      mapObj.push_back(mapPoint);
+    }
   }
+}
+
+void MapController::visuvalization() {
+  char mapDisp[30][30] = {' '};
+  for (auto p : mapObj) {
+    switch(p.occType){
+      case EMPTY:
+        mapDisp[(int)p.location.x + 15][(int)p.location.y + 15] = ' ';
+        break;
+      case OBSTACLE:
+        mapDisp[(int)p.location.x + 15][(int)p.location.y + 15] = 'o';
+        break;
+      case CUBE:
+        mapDisp[(int)p.location.x + 15][(int)p.location.y + 15] = 'c';
+        break;
+      case BOUNDARY:
+        mapDisp[(int)p.location.x + 15][(int)p.location.y + 15] = 'b';
+        break;
+      case COLLECTIONCENTER:
+        mapDisp[(int)p.location.x + 15][(int)p.location.y + 15] = '.';
+        break;
+    }
+  }
+
+  Point curLoc;
+  curLoc.x = (centerLocation.x - currentLocation.x);
+  curLoc.y = (centerLocation.y - currentLocation.y);
+  Point gridPoint = toGridPoint(curLoc);
+  mapDisp[(int)(gridPoint.x + 15)][(int)(gridPoint.y + 15)] = '*';
+
   std::cout << "size : " << mapObj.size()<< std::endl;
   for(int i =0 ; i < 20 ; i++) {
     std::string row = {};
     for(int j=0 ; j < 20 ; j++) {
-      row  = row + " " + std::to_string(mapDisp[i][j]);
+      row  = row + " " + mapDisp[i][j];
     }
     std::cout << row <<std::endl;
   }

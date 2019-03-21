@@ -5,11 +5,14 @@
 #include "Controller.h"
 #include <algorithm>
 #include <iostream>
+#include "Tag.h"
 
 enum gridType {
   EMPTY = 0,
   OBSTACLE,
-  CUBE
+  CUBE,
+  COLLECTIONCENTER,
+  BOUNDARY
 };
 
 
@@ -74,6 +77,7 @@ private:
   bool currLocFound(Point currentLocation);
   void GetObjectPos(Point _currentLocation);
   void visuvalization();
+  void setTagData(vector<Tag> tags);
 };
 
 #endif /* SEARCH_CONTROLLER */
