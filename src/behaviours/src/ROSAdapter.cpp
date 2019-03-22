@@ -1,4 +1,5 @@
 #include <ros/ros.h>
+#include <string>
 
 // ROS libraries
 #include <angles/angles.h>
@@ -101,7 +102,9 @@ const float behaviourLoopTimeStep = 0.1; 	//time between the behaviour loop call
 const float status_publish_interval = 1;	//time between publishes
 const float heartbeat_publish_interval = 2;	//time between heartbeat publishes
 const float waypointTolerance = 0.1; 		//10 cm tolerance.
-
+std::string swarmList;
+bool visited = false; // flag to check if the getString subscriber is visited atleast once
+int check = 0;        // flag to check if the name of swarmie is already appened in the swarmiesList topic
 // used for calling code once but not in main
 bool initilized = false;	//switched to true after running through state machine the first time, initializes base values
 
@@ -119,6 +122,7 @@ float drift_tolerance = 0.5; // the perceived difference between ODOM and GPS va
 Result result;		//result struct for passing and storing values to drive robot
 
 std_msgs::String msg;	//used for passing messages to the GUI
+std_msgs::String msg1; //used for passing messages to the GUI
 
 
 char host[128];		//rovers hostname
@@ -134,6 +138,7 @@ ros::Publisher infoLogPublisher;		//publishes a message to the infolog box on GU
 ros::Publisher driveControlPublish;		//publishes motor commands to the motors
 ros::Publisher heartbeatPublisher;		//publishes ROSAdapters status via its "heartbeat"
 ros::Publisher obstaclePublisher;
+ros::Publisher swarmiesPub;
 // Publishes swarmie_msgs::Waypoint messages on "/<robot>/waypooints"
 // to indicate when waypoints have been reached.
 ros::Publisher waypointFeedbackPublisher;	//publishes a waypoint to travel to if the rover is given a waypoint in manual mode
@@ -149,6 +154,7 @@ ros::Subscriber virtualFenceSubscriber;		//receives data for vitrual boundaries
 // swarmie_msgs::Waypoint messages.
 ros::Subscriber manualWaypointSubscriber; 	//receives manual waypoints given from GUI
 ros::Subscriber recruitmentSubscriber;
+ros::Subscriber checkSwarmies;
 
 // Timers
 ros::Timer stateMachineTimer;
@@ -182,7 +188,7 @@ void publishStatusTimerEventHandler(const ros::TimerEvent& event);			//Publishes
 void publishHeartBeatTimerEventHandler(const ros::TimerEvent& event);
 void sonarHandler(const sensor_msgs::Range::ConstPtr& sonarLeft, const sensor_msgs::Range::ConstPtr& sonarCenter, const sensor_msgs::Range::ConstPtr& sonarRight);	//handles ultrasound data and stores data
 void recruitmentHandler(const swarmie_msgs::Recruitment& msg);
-
+void getString(const std_msgs::String::ConstPtr& message);
 // Converts the time passed as reported by ROS (which takes Gazebo simulation rate into account) into milliseconds as an integer.
 long int getROSTimeInMilliSecs();
 
@@ -212,8 +218,12 @@ int main(int argc, char **argv) {
   joySubscriber = mNH.subscribe((publishedName + "/joystick"), 10, joyCmdHandler);					//receives joystick information
   modeSubscriber = mNH.subscribe((publishedName + "/mode"), 1, modeHandler);						//receives mode from GUI
   targetSubscriber = mNH.subscribe((publishedName + "/targets"), 10, targetHandler);					//receives tag data
+<<<<<<< HEAD
   // odometrySubscriber = mNH.subscribe((publishedName + "/odom/filtered"), 10, odometryHandler);				//receives ODOM data
   odometrySubscriber = mNH.subscribe((publishedName + "/odom"), 10, odometryHandler);
+=======
+  odometrySubscriber = mNH.subscribe((publishedName + "/odom"), 10, odometryHandler);				//receives ODOM data
+>>>>>>> 140d1ab1aa27a7fb80b38e60b5e530b530cbe377
   mapSubscriber = mNH.subscribe((publishedName + "/odom/ekf"), 10, mapHandler);						//receives GPS data
   virtualFenceSubscriber = mNH.subscribe(("/virtualFence"), 10, virtualFenceHandler);					//receives data for vitrual boundaries
   manualWaypointSubscriber = mNH.subscribe((publishedName + "/waypoints/cmd"), 10, manualWaypointHandler);		//receives manual waypoints given from GUI
@@ -221,6 +231,7 @@ int main(int argc, char **argv) {
   message_filters::Subscriber<sensor_msgs::Range> sonarCenterSubscriber(mNH, (publishedName + "/sonarCenter"), 10);
   message_filters::Subscriber<sensor_msgs::Range> sonarRightSubscriber(mNH, (publishedName + "/sonarRight"), 10);
   recruitmentSubscriber = mNH.subscribe("/detectionLocations", 10, recruitmentHandler);
+  checkSwarmies = mNH.subscribe("/swarmiesList", 10, getString);
 
   //publishers
   status_publisher = mNH.advertise<std_msgs::String>((publishedName + "/swarmie_status"), 1, true);			//publishes rover status
@@ -232,11 +243,16 @@ int main(int argc, char **argv) {
   driveControlPublish = mNH.advertise<swarmie_msgs::Skid>((publishedName + "/driveControl"), 10);			//publishes motor commands to the motors
   heartbeatPublisher = mNH.advertise<std_msgs::String>((publishedName + "/behaviour/heartbeat"), 1, true);		//publishes ROSAdapters status via its "heartbeat"
   waypointFeedbackPublisher = mNH.advertise<swarmie_msgs::Waypoint>((publishedName + "/waypoints"), 1, true);		//publishes a waypoint to travel to if the rover is given a waypoint in manual mode
-
+  swarmiesPub = mNH.advertise<std_msgs::String>("/swarmiesList", 1000, true);
   //timers
   publish_status_timer = mNH.createTimer(ros::Duration(status_publish_interval), publishStatusTimerEventHandler);
   stateMachineTimer = mNH.createTimer(ros::Duration(behaviourLoopTimeStep), behaviourStateMachine);
 
+<<<<<<< HEAD
+=======
+  logicController.setRoverName(publishedName);
+
+>>>>>>> 140d1ab1aa27a7fb80b38e60b5e530b530cbe377
   publish_heartbeat_timer = mNH.createTimer(ros::Duration(heartbeat_publish_interval), publishHeartBeatTimerEventHandler);
 
   typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Range, sensor_msgs::Range, sensor_msgs::Range> sonarSyncPolicy;
@@ -268,6 +284,21 @@ int main(int argc, char **argv) {
   return EXIT_SUCCESS;
 }
 
+std::vector<std::string> split(std::string str, std::string token){
+    std::vector<std::string>result;
+    while(str.size()){
+        int index = str.find(token);
+        if(index!=std::string::npos){
+            result.push_back(str.substr(0,index));
+            str = str.substr(index+token.size());
+            if(str.size()==0)result.push_back(str);
+        }else{
+            result.push_back(str);
+            str = "";
+        }
+    }
+    return result;
+}
 
 // This is the top-most logic control block organised as a state machine.
 // This function calls the dropOff, pickUp, and search controllers.
@@ -311,6 +342,21 @@ void behaviourStateMachine(const ros::TimerEvent&)
       centerLocationOdom.y = centerOdom.y;
 
       startTime = getROSTimeInMilliSecs();
+      
+      std::string str2 = ",";
+      if (visited == false) {
+        msg1.data = publishedName;
+        swarmiesPub.publish(msg1);
+      }
+      else {
+        if (check == 0) {
+          swarmList.append(str2);
+          swarmList.append(publishedName);
+          msg1.data = swarmList;
+          swarmiesPub.publish(msg1);
+        }
+      }
+
     }
 
     else
@@ -388,7 +434,11 @@ void behaviourStateMachine(const ros::TimerEvent&)
 
 
     //adds a blank space between sets of debugging data to easily tell one tick from the next
+<<<<<<< HEAD
     cout << endl;
+=======
+    //cout << endl;
+>>>>>>> 140d1ab1aa27a7fb80b38e60b5e530b530cbe377
 
   }
 
@@ -487,6 +537,29 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
     logicController.SetAprilTags(tags);
   }
 
+<<<<<<< HEAD
+=======
+}
+// Callback for the swarmie name list
+void getString(const std_msgs::String::ConstPtr& message) {
+swarmList = message->data.c_str();
+std::vector<std::string> list;
+int rank =1;
+int count =0;
+ list = split(swarmList, ",");
+
+ for (auto& i : list) {
+	 count++;
+	 if (i == publishedName) {
+      check = 1;
+      rank = count;
+   }
+ }
+        
+logicController.setRoverCount_Rank(list.size(),rank);
+std::cout<< "RosAdapter:size = "<<list.size()<<", Rank="<<rank<< std::endl;
+visited = true;
+>>>>>>> 140d1ab1aa27a7fb80b38e60b5e530b530cbe377
 }
 
 void modeHandler(const std_msgs::UInt8::ConstPtr& message) {
