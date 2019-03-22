@@ -218,12 +218,8 @@ int main(int argc, char **argv) {
   joySubscriber = mNH.subscribe((publishedName + "/joystick"), 10, joyCmdHandler);					//receives joystick information
   modeSubscriber = mNH.subscribe((publishedName + "/mode"), 1, modeHandler);						//receives mode from GUI
   targetSubscriber = mNH.subscribe((publishedName + "/targets"), 10, targetHandler);					//receives tag data
-<<<<<<< HEAD
   // odometrySubscriber = mNH.subscribe((publishedName + "/odom/filtered"), 10, odometryHandler);				//receives ODOM data
-  odometrySubscriber = mNH.subscribe((publishedName + "/odom"), 10, odometryHandler);
-=======
   odometrySubscriber = mNH.subscribe((publishedName + "/odom"), 10, odometryHandler);				//receives ODOM data
->>>>>>> 140d1ab1aa27a7fb80b38e60b5e530b530cbe377
   mapSubscriber = mNH.subscribe((publishedName + "/odom/ekf"), 10, mapHandler);						//receives GPS data
   virtualFenceSubscriber = mNH.subscribe(("/virtualFence"), 10, virtualFenceHandler);					//receives data for vitrual boundaries
   manualWaypointSubscriber = mNH.subscribe((publishedName + "/waypoints/cmd"), 10, manualWaypointHandler);		//receives manual waypoints given from GUI
@@ -248,11 +244,7 @@ int main(int argc, char **argv) {
   publish_status_timer = mNH.createTimer(ros::Duration(status_publish_interval), publishStatusTimerEventHandler);
   stateMachineTimer = mNH.createTimer(ros::Duration(behaviourLoopTimeStep), behaviourStateMachine);
 
-<<<<<<< HEAD
-=======
   logicController.setRoverName(publishedName);
-
->>>>>>> 140d1ab1aa27a7fb80b38e60b5e530b530cbe377
   publish_heartbeat_timer = mNH.createTimer(ros::Duration(heartbeat_publish_interval), publishHeartBeatTimerEventHandler);
 
   typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Range, sensor_msgs::Range, sensor_msgs::Range> sonarSyncPolicy;
@@ -431,15 +423,8 @@ void behaviourStateMachine(const ros::TimerEvent&)
   obstaclePublisher.publish(collision_msg);
     //publishHandeling here
     //logicController.getPublishData(); //Not Currently Implemented, used to get data from logic controller and publish to the appropriate ROS Topic; Suggested
-
-
     //adds a blank space between sets of debugging data to easily tell one tick from the next
-<<<<<<< HEAD
-    cout << endl;
-=======
     //cout << endl;
->>>>>>> 140d1ab1aa27a7fb80b38e60b5e530b530cbe377
-
   }
 
   // mode is NOT auto
@@ -537,8 +522,6 @@ void targetHandler(const apriltags_ros::AprilTagDetectionArray::ConstPtr& messag
     logicController.SetAprilTags(tags);
   }
 
-<<<<<<< HEAD
-=======
 }
 // Callback for the swarmie name list
 void getString(const std_msgs::String::ConstPtr& message) {
@@ -559,7 +542,6 @@ int count =0;
 logicController.setRoverCount_Rank(list.size(),rank);
 std::cout<< "RosAdapter:size = "<<list.size()<<", Rank="<<rank<< std::endl;
 visited = true;
->>>>>>> 140d1ab1aa27a7fb80b38e60b5e530b530cbe377
 }
 
 void modeHandler(const std_msgs::UInt8::ConstPtr& message) {
