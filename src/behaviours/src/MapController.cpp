@@ -171,38 +171,51 @@ void MapController::setTagData(vector<Tag> tags){
 }
 
 void MapController::visuvalization() {
-  char mapDisp[30][30] = {' '};
+  const int mapSize  = 30;
+  const int offset = (int)mapSize/2;
+  char mapDisp[mapSize][mapSize];
+
+  for(int i =0 ; i < mapSize ; i++) {
+    for(int j=0 ; j < mapSize ; j++) {
+      mapDisp[i][j] = ' ';
+    }
+  }
+
   for (auto p : mapObj) {
+    std::cout << "point x : " << p.location.x << " y : " << p.location.y << " type : " << p.occType << endl;
     switch(p.occType){
       case EMPTY:
-        mapDisp[(int)p.location.x + 15][(int)p.location.y + 15] = ' ';
+        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = '.';
         break;
       case OBSTACLE:
-        mapDisp[(int)p.location.x + 15][(int)p.location.y + 15] = 'o';
+        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = 'o';
         break;
       case CUBE:
-        mapDisp[(int)p.location.x + 15][(int)p.location.y + 15] = 'c';
+        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = 'c';
         break;
       case BOUNDARY:
-        mapDisp[(int)p.location.x + 15][(int)p.location.y + 15] = 'b';
+        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = 'b';
         break;
       case COLLECTIONCENTER:
-        mapDisp[(int)p.location.x + 15][(int)p.location.y + 15] = '.';
+        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = '#';
+        break;
+      default:
+        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = '_';
         break;
     }
   }
 
   Point curLoc;
-  curLoc.x = (centerLocation.x - currentLocation.x);
-  curLoc.y = (centerLocation.y - currentLocation.y);
+  curLoc.x = (currentLocation.x - centerLocation.x);
+  curLoc.y = (currentLocation.y - centerLocation.y);
   Point gridPoint = toGridPoint(curLoc);
-  mapDisp[(int)(gridPoint.x + 15)][(int)(gridPoint.y + 15)] = '*';
+  mapDisp[(int)(gridPoint.x + offset)][(int)(gridPoint.y + offset)] = '*';
 
   std::cout << "size : " << mapObj.size()<< std::endl;
-  for(int i =0 ; i < 20 ; i++) {
-    std::string row = {};
-    for(int j=0 ; j < 20 ; j++) {
-      row  = row + " " + mapDisp[i][j];
+  for(int i =0 ; i < mapSize ; i++) {
+    std::string row = "";
+    for(int j=0 ; j < mapSize ; j++) {
+      row  = row + mapDisp[i][j];
     }
     std::cout << row <<std::endl;
   }

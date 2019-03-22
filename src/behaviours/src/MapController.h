@@ -45,6 +45,7 @@ public:
   void SetCenterLocation(Point centerLocation);
   void SetSonarData(float left, float center, float right);
   static bool CheckIfPointInMap(MapPoint p);
+  void setTagData(vector<Tag> tags);
   std::vector<MapPoint> mapObj;
   Point currentLocation;
 
@@ -77,7 +78,6 @@ private:
   bool currLocFound(Point currentLocation);
   void GetObjectPos(Point _currentLocation);
   void visuvalization();
-  void setTagData(vector<Tag> tags);
 };
 
 #endif /* SEARCH_CONTROLLER */
