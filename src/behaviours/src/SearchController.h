@@ -27,6 +27,9 @@ public:
   void SetCenterLocation(Point centerLocation);
   void SetSuccesfullPickup();
   void setRecruitmentLocation(Point p);
+  void generateHilbertPoints(unsigned int degree);
+  void setRoverName(string publishedName);
+  void setRoverCount_Rank(int noOfRovers,int rank);
 
 protected:
 
@@ -46,6 +49,18 @@ private:
   // Flag to allow special behaviour for the first waypoint
   bool first_waypoint = true;
   bool succesfullPickup = false;
+  string roverName;
+  long int pathPointIndex = 0;
+  double hilbert2dScale = 0.406;
+  int botIndex = 0;
+  std::vector<Point> hilbertWaypoints ;
+  std::vector<Point> currentPathPoints;
+  void updateCurrentPathPoints(string roverName);
+  bool ranOnce = false;
+  int totalRovers = 1;
+  int myRoverIndex = 1;
+  double lowerLeftHilbertPt = -6.5;
+
 };
 
 #endif /* SEARCH_CONTROLLER */

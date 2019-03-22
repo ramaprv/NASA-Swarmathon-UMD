@@ -471,3 +471,11 @@ void LogicController::SetModeManual()
     driveController.Reset();
   }
 }
+void LogicController::setRoverName(string publishedName){
+	searchController.setRoverName(publishedName);
+}
+
+void LogicController::setRoverCount_Rank(int noOfRovers,int rank){
+	std::cout<< "LogicController Updating CurrentPath"<< std::endl;
+	searchController.setRoverCount_Rank(noOfRovers,rank);
+}
