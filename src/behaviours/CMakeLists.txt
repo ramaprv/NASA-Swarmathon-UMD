@@ -37,7 +37,7 @@ add_executable(
   src/ManualWaypointController.cpp
   src/PositionPublisher.cpp
   src/MapController.cpp
-  src/hilbert_curve.cpp7
+  src/hilbert_curve.cpp
 )
 
 add_dependencies(behaviours ${catkin_EXPORTED_TARGETS})

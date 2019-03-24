@@ -120,6 +120,7 @@ void MapController::SetCenterLocation(Point centerLocation) {
   float diffX = this->centerLocation.x - centerLocation.x;
   float diffY = this->centerLocation.y - centerLocation.y;
   this->centerLocation = centerLocation;
+  std::cout << "center loc x :" << centerLocation.x << "y: " << centerLocation.y << std::endl;
 }
 
 void MapController::SetCurrentLocation(Point currentLocation) {
@@ -171,7 +172,7 @@ void MapController::setTagData(vector<Tag> tags){
 }
 
 void MapController::visuvalization() {
-  const int mapSize  = 30;
+  const int mapSize  = 50;
   const int offset = (int)mapSize/2;
   char mapDisp[mapSize][mapSize];
 
@@ -183,6 +184,7 @@ void MapController::visuvalization() {
 
   for (auto p : mapObj) {
     std::cout << "point x : " << p.location.x << " y : " << p.location.y << " type : " << p.occType << endl;
+
     switch(p.occType){
       case EMPTY:
         mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = '.';
@@ -203,6 +205,7 @@ void MapController::visuvalization() {
         mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = '_';
         break;
     }
+
   }
 
   Point curLoc;
@@ -219,4 +222,5 @@ void MapController::visuvalization() {
     }
     std::cout << row <<std::endl;
   }
+
 }
