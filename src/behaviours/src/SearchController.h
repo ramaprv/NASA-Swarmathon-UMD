@@ -60,6 +60,7 @@ private:
   int totalRovers = 1;
   int myRoverIndex = 1;
   double lowerLeftHilbertPt = -6.5;
+  bool pathUpdated = false;
 
 };
 

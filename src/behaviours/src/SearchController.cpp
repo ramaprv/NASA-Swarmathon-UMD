@@ -3,6 +3,7 @@
 #include <iomanip>
 #include "hilbert_curve.hpp"
 #include <ros/ros.h>
+#include <algorithm>
 
 SearchController::SearchController() {
   rng = new random_numbers::RandomNumberGenerator();
@@ -45,9 +46,6 @@ Result SearchController::DoWork() {
     }
     else
     {
-    	//if (not ranOnce){
-    	//	updateCurrentPathPoints(roverName);
-    	//}
 
 		tmpLocation  = currentPathPoints[botIndex + pathPointIndex];
 		if ((pathPointIndex +1)<=currentPathPoints.size()){
@@ -83,8 +81,8 @@ void SearchController::SetCenterLocation(Point centerLocation) {
 
   if (!result.wpts.waypoints.empty())
   {
-  result.wpts.waypoints.back().x -= diffX;
-  result.wpts.waypoints.back().y -= diffY;
+   result.wpts.waypoints.back().x -= diffX;
+   result.wpts.waypoints.back().y -= diffY;
   }
 
 }
@@ -168,6 +166,25 @@ void SearchController::updateCurrentPathPoints(string roverName){
 		std::cout<< currentPathPoints.size()<<std::endl;
 		// Resetting the pathPoints every time a new rover is detected
 		pathPointIndex = 0;
+		pathUpdated = true;
+
+		Point  finalLocation;
+		Point tmpLocation1  = currentPathPoints.back();
+		finalLocation.x = lowerLeftHilbertPt + tmpLocation1.x*hilbert2dScale;
+		finalLocation.y = lowerLeftHilbertPt + tmpLocation1.y*hilbert2dScale;
+		float dist2final = hypot(finalLocation.x, finalLocation.y);
+
+		Point  startLocation;
+		Point tmpLocation2  = currentPathPoints.back();
+		startLocation.x = lowerLeftHilbertPt + tmpLocation2.x*hilbert2dScale;
+		startLocation.y = lowerLeftHilbertPt + tmpLocation2.y*hilbert2dScale;
+		float dist2start = hypot(startLocation.x, startLocation.y);
+
+		if (true){
+			// if (dist2final<dist2start){
+			std::reverse(currentPathPoints.begin(),currentPathPoints.end());
+			std::cout << "path Reversed" << std::endl;
+		}
 		std::cout<< "Finished Updating CurrentPath"<< std::endl;
 }
 
