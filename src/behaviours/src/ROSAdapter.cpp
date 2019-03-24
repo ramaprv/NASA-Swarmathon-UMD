@@ -218,8 +218,8 @@ int main(int argc, char **argv) {
   joySubscriber = mNH.subscribe((publishedName + "/joystick"), 10, joyCmdHandler);					//receives joystick information
   modeSubscriber = mNH.subscribe((publishedName + "/mode"), 1, modeHandler);						//receives mode from GUI
   targetSubscriber = mNH.subscribe((publishedName + "/targets"), 10, targetHandler);					//receives tag data
-  // odometrySubscriber = mNH.subscribe((publishedName + "/odom/filtered"), 10, odometryHandler);				//receives ODOM data
-  odometrySubscriber = mNH.subscribe((publishedName + "/odom"), 10, odometryHandler);				//receives ODOM data
+  odometrySubscriber = mNH.subscribe((publishedName + "/odom/filtered"), 10, odometryHandler);				//receives ODOM data
+  // odometrySubscriber = mNH.subscribe((publishedName + "/odom"), 10, odometryHandler);				//receives ODOM data
   mapSubscriber = mNH.subscribe((publishedName + "/odom/ekf"), 10, mapHandler);						//receives GPS data
   virtualFenceSubscriber = mNH.subscribe(("/virtualFence"), 10, virtualFenceHandler);					//receives data for vitrual boundaries
   manualWaypointSubscriber = mNH.subscribe((publishedName + "/waypoints/cmd"), 10, manualWaypointHandler);		//receives manual waypoints given from GUI
@@ -334,7 +334,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
       centerLocationOdom.y = centerOdom.y;
 
       startTime = getROSTimeInMilliSecs();
-      
+
       std::string str2 = ",";
       if (visited == false) {
         msg1.data = publishedName;
@@ -538,7 +538,7 @@ int count =0;
       rank = count;
    }
  }
-        
+
 logicController.setRoverCount_Rank(list.size(),rank);
 std::cout<< "RosAdapter:size = "<<list.size()<<", Rank="<<rank<< std::endl;
 visited = true;

@@ -181,7 +181,7 @@ void MapController::visuvalization() {
       mapDisp[i][j] = ' ';
     }
   }
-
+  /*
   for (auto p : mapObj) {
     std::cout << "point x : " << p.location.x << " y : " << p.location.y << " type : " << p.occType << endl;
 
@@ -222,5 +222,5 @@ void MapController::visuvalization() {
     }
     std::cout << row <<std::endl;
   }
-
+  */*
 }
