@@ -30,7 +30,7 @@ public:
   void generateHilbertPoints(unsigned int degree);
   void setRoverName(string publishedName);
   void setRoverCount_Rank(int noOfRovers,int rank);
-
+  void decrementPathIndex();
 protected:
 
   void ProcessData();
@@ -52,7 +52,6 @@ private:
   string roverName;
   long int pathPointIndex = 0;
   double hilbert2dScale = 0.406;
-  int botIndex = 0;
   std::vector<Point> hilbertWaypoints ;
   std::vector<Point> currentPathPoints;
   void updateCurrentPathPoints(string roverName);

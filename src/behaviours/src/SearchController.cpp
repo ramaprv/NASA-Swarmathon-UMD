@@ -31,7 +31,7 @@ void SearchController::Reset() {
 
 Result SearchController::DoWork() {
 	std::cout<< "SearchController Do work"<< std::endl;
-    Point  searchLocation;
+  Point  searchLocation;
 	Point tmpLocation ;
 
 	if (succesfullPickup) {
@@ -47,7 +47,7 @@ Result SearchController::DoWork() {
     else
     {
 
-		tmpLocation  = currentPathPoints[botIndex + pathPointIndex];
+		tmpLocation  = currentPathPoints[pathPointIndex];
 		if ((pathPointIndex +1)<=currentPathPoints.size()){
 			pathPointIndex++;
 		 }
@@ -64,9 +64,10 @@ Result SearchController::DoWork() {
 		}
 
 		result.type = waypoint;
-		std::cout << "Next Waypoint" << std::endl ;
-		std::cout << "X" << searchLocation.x << ",Y" << searchLocation.y << ",PointIndex" << pathPointIndex<<"/"<<currentPathPoints.size() << std::endl;
-        std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pathPointIndex <<"/"<<currentPathPoints.size() << std::endl;
+		// std::cout << "Next Waypoint" << std::endl ;
+		std::cout << "Xs" << searchLocation.x << ",Ys" << searchLocation.y << ",PointIndex" << pathPointIndex<<"/"<<currentPathPoints.size() << std::endl;
+        // std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pathPointIndex <<"/"<<currentPathPoints.size() << std::endl;
+		std::cout << "Xc" << currentLocation.x << ",Yc" << currentLocation.y << std::endl;
 		result.wpts.waypoints.clear();
 		result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
     }
@@ -111,6 +112,15 @@ bool SearchController::HasWork() {
 }
 
 void SearchController::SetSuccesfullPickup() {
+  // decrement the index when pickup activates and picks up a block
+  // so that it return to the previous path and views the area again for cluster
+  /* std::cout << "Search Controller PathIndex decrement" << std::endl;
+  if (pathPointIndex-3 >=0){
+	  pathPointIndex = pathPointIndex-3;
+  }else{
+	  pathPointIndex =0;
+  }
+  */
   succesfullPickup = true;
 }
 void SearchController::setRoverName(string publishedName){
@@ -148,9 +158,9 @@ void SearchController::generateHilbertPoints(unsigned int degree )
 	tmpPoint.x = x;
 	tmpPoint.y = y ;
 	hilbertWaypoints.push_back(tmpPoint);
-  std::cout<< x << "," << y<< std::endl;
+  //std::cout<< x << "," << y<< std::endl;
   }
-  std::cout<< hilbertWaypoints.size()<< std::endl;
+  std::cout<< "Hilbert Size"<<hilbertWaypoints.size()<< std::endl;
 }
 
 void SearchController::updateCurrentPathPoints(string roverName){
@@ -193,4 +203,23 @@ void SearchController::setRoverCount_Rank(int noOfRovers,int rank){
 	myRoverIndex = rank;
 	std::cout<< "Search controller update count and rank"<< std::endl;
 	updateCurrentPathPoints(roverName);
+}
+
+void SearchController::decrementPathIndex(){
+	// decrement the index when pickup activates and picks up a block
+	// so that it return to the previous path and views the area again for cluster
+	Point tmpLocation;
+	tmpLocation  = currentPathPoints[pathPointIndex-1];
+	searchLocation.x = lowerLeftHilbertPt + tmpLocation.x*hilbert2dScale;
+	searchLocation.y = lowerLeftHilbertPt + tmpLocation.y*hilbert2dScale;
+	// if in range when search state changes to picked up state then decrement
+	if (fabs(hypot(searchLocation.x-currentLocation.x, searchLocation.y-currentLocation.y))<2*hilbert2dScale){
+		std::cout << "Search Controller PathIndex decrement" << std::endl;
+		if (pathPointIndex-4 >=0){
+		  pathPointIndex = pathPointIndex-4;
+		}else{
+		  pathPointIndex =0;
+		}
+	}
+
 }
