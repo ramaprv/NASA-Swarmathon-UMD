@@ -195,7 +195,7 @@ bool PickUpController::ShouldInterrupt(){
 
 Result PickUpController::DoWork()
 {
-
+  std::cout<<"PickUp Controller DoWork" << std::endl;
   has_control = true;
 
   if (!targetHeld)
