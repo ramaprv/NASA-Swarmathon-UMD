@@ -114,6 +114,8 @@ Result LogicController::DoWork()
         }
         else {
           processState = (ProcessState)((int)processState + 1);
+          std::cout << "Process State Change to: " << processState << std::endl;
+          updateProcessChange2Controllers(processState);
         }
       }
       // Ask for the procces state to change to the previouse state or loop around to the end.
@@ -123,6 +125,7 @@ Result LogicController::DoWork()
         }
         else {
           processState = (ProcessState)((int)processState - 1);
+          std::cout << "Process State Change to: " << processState << std::endl;
         }
       }
 
@@ -474,4 +477,12 @@ void LogicController::setRoverName(string publishedName){
 void LogicController::setRoverCount_Rank(int noOfRovers,int rank){
 	std::cout<< "LogicController Updating CurrentPath"<< std::endl;
 	searchController.setRoverCount_Rank(noOfRovers,rank);
+}
+
+void LogicController::updateProcessChange2Controllers(int p){
+	// if controller picks up then decrement the search path
+	// so that it can come back and search the same place for cluster
+	  if (p ==1){
+		  searchController.decrementPathIndex();
+	  }
 }
