@@ -46,7 +46,49 @@ Result SearchController::DoWork() {
     }
     else
     {
+		// Initial move to go to required quadrant
+		if (pathPointIndex == 0){
+			bool isvalid = false;
+			int index =-1;
+					do{
+						index++;
+						tmpLocation  = currentPathPoints[index];
+						searchLocation.x = lowerLeftHilbertPt + tmpLocation.x*hilbert2dScale;
+						searchLocation.y = lowerLeftHilbertPt + tmpLocation.y*hilbert2dScale;
 
+						// Not inserting points in the collection area
+						if (fabs(searchLocation.x) < 0.9 && fabs(searchLocation.y)< 0.9){
+							isvalid = false;
+						}else{
+							isvalid = true;
+						}
+					}while(!isvalid);
+			int targetQuad =getQuadrant(searchLocation);
+			int roverQuad =getQuadrant(currentLocation);
+			std::cout<< "Initial Move- target quadrant: " << targetQuad <<"rover quadrant: "<< roverQuad <<std::endl;
+			int adjBackQuad = targetQuad-1;
+			int adjNextQuad = targetQuad+1;
+			if(adjNextQuad == 4) adjNextQuad = 0;
+			if (targetQuad == roverQuad|| adjNextQuad == roverQuad || adjBackQuad == roverQuad){
+				// do nothing
+			}else{ // add point and return
+				int nextQuad = roverQuad+initCornerSent;
+				if(nextQuad == 4) nextQuad = 0;
+				searchLocation.x = initCCWMove[nextQuad].x * (0.2 * myRoverIndex+0.8);
+				searchLocation.y = initCCWMove[nextQuad].y * (0.2 * myRoverIndex+0.8);
+				initCornerSent = true;
+				result.type = waypoint;
+				// std::cout << "Next Waypoint" << std::endl ;
+				std::cout << "InitX" << searchLocation.x << ",InitY" << searchLocation.y << std::endl;
+				// std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pathPointIndex <<"/"<<currentPathPoints.size() << std::endl;
+				std::cout << "Xc" << currentLocation.x << ",Yc" << currentLocation.y << std::endl;
+				result.wpts.waypoints.clear();
+				result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
+				return result;
+			}
+		}
+
+		// send hilbert moves
 		tmpLocation  = currentPathPoints[pathPointIndex];
 		if ((pathPointIndex +1)<=currentPathPoints.size()){
 			pathPointIndex++;
@@ -58,7 +100,7 @@ Result SearchController::DoWork() {
 		searchLocation.y = lowerLeftHilbertPt + tmpLocation.y*hilbert2dScale;
 
 		// Not inserting points in the collection area
-		if (fabs(searchLocation.x) < 0.6 && fabs(searchLocation.y)<0.6){
+		if (fabs(searchLocation.x) < 0.9 && fabs(searchLocation.y)< 0.9){
 			pathPointIndex++;
 			return result;
 		}
@@ -221,5 +263,23 @@ void SearchController::decrementPathIndex(){
 		  pathPointIndex =0;
 		}
 	}
+}
 
+int SearchController::getQuadrant(Point p){
+	float xVal = p.x;
+	float yVal = p.y;
+	int quad = 0;
+	if (xVal>0.0 && yVal>0.0){
+		quad = 0;
+	}else if (xVal<0.0 && yVal>0.0){
+		quad = 1;
+	}else if (xVal<0.0 && yVal<0.0){
+		quad = 2;
+	}else if (xVal>0.0 && yVal<0.0){
+		quad = 3;
+	}else{
+		std::cout<<"getQuadrant function failed" << std::endl;
+		quad = 0;
+	}
+	return quad;
 }

@@ -60,6 +60,14 @@ private:
   int myRoverIndex = 1;
   double lowerLeftHilbertPt = -6.5;
   bool pathUpdated = false;
+  int getQuadrant(Point p);
+  Point initCCWMove[4] = {
+		  {1,1},
+		  {-1,1},
+		  {-1,-1},
+		  {1,-1}
+  };
+  bool initCornerSent = false;
 
 };
 
