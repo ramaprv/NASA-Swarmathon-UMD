@@ -19,7 +19,7 @@ SearchController::SearchController() {
   result.wristAngle = M_PI/4;
 
   std::cout << "Generating Hilbert Motion" << std::endl;
-  generateHilbertPoints(5);
+  generateHilbertPoints(4);
 
 }
 
@@ -83,8 +83,8 @@ void SearchController::SetCenterLocation(Point centerLocation) {
 
   if (!result.wpts.waypoints.empty())
   {
-  result.wpts.waypoints.back().x -= diffX;
-  result.wpts.waypoints.back().y -= diffY;
+  // result.wpts.waypoints.back().x -= diffX;
+  // result.wpts.waypoints.back().y -= diffY;
   }
 
 }

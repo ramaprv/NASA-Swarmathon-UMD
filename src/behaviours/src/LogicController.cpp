@@ -171,6 +171,8 @@ Result LogicController::DoWork()
     // passed to the ROS Adapter such as left and right wheel PWM values in the
     // result struct.
     result = driveController.DoWork();
+    mapController.hilbertWaypoints.clear();
+    mapController.hilbertWaypoints = searchController.hilbertWaypoints;
     auto _result = mapController.DoWork();
 
     // When out of waypoints, the drive controller will throw an interrupt.
