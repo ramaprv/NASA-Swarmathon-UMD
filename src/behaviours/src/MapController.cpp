@@ -110,7 +110,7 @@ Result MapController::DoWork() {
     mapObj.push_back(mapPoint);
   }
   GetObjectPos(currentLocation);
-  visuvalization();
+  // visuvalization();
   result.b = wait;
   return (result);
 }
@@ -120,7 +120,7 @@ void MapController::SetCenterLocation(Point centerLocation) {
   float diffX = this->centerLocation.x - centerLocation.x;
   float diffY = this->centerLocation.y - centerLocation.y;
   this->centerLocation = centerLocation;
-  std::cout << "center loc x :" << centerLocation.x << "y: " << centerLocation.y << std::endl;
+  // std::cout << "center loc x :" << centerLocation.x << " y: " << centerLocation.y << std::endl;
 }
 
 void MapController::SetCurrentLocation(Point currentLocation) {
@@ -171,38 +171,61 @@ void MapController::setTagData(vector<Tag> tags){
   }
 }
 
-void MapController::visuvalization() {
-  const int mapSize  = 50;
-  const int offset = (int)mapSize/2;
-  char mapDisp[mapSize][mapSize];
+std::vector<int> MapController::getMapSize() {
+  int minX = -1000;
+  int minY = -1000;
+  int maxX = -1000;
+  int maxY = -1000;
+  for(auto pts : mapObj) {
+    minX = (pts.location.x < minX) ? pts.location.x : minX;
+    minY = (pts.location.y < minY) ? pts.location.y : minY;
+    maxX = (pts.location.x > maxX) ? pts.location.x : maxX;
+    maxY = (pts.location.y > maxY) ? pts.location.y : maxY;
+  }
+  auto width = maxX - minX;
+  auto length = maxY - minY;
+  std::vector<int> mapSize{width, length};
+  return(mapSize);
+}
 
-  for(int i =0 ; i < mapSize ; i++) {
-    for(int j=0 ; j < mapSize ; j++) {
-      mapDisp[i][j] = ' ';
+void MapController::visuvalization() {
+  /*
+  for(auto p : hilbertWaypoints) {
+    std::cout << "Hil X: " << round(p.x/gridSize) << " Y : " << round(p.y/gridSize) << std::endl;
+  }
+  Point loc = toGridPoint(currentLocation);
+  std:: cout << "------------ Current X : " << loc.x << " Y : " << loc.y << std::endl;
+  */
+  std::cout << "map Obj Size : " << mapObj.size() << std::endl;
+  const auto mapSize = getMapSize();
+  char mapDisp[mapSize[0]][mapSize[1]];
+  for(int i =0 ; i < mapSize[1] ; i++) {
+    for(int j=0 ; j < mapSize[0] ; j++) {
+      mapDisp[j][i] = '.';
     }
   }
-  /*
+
   for (auto p : mapObj) {
     std::cout << "point x : " << p.location.x << " y : " << p.location.y << " type : " << p.occType << endl;
 
     switch(p.occType){
       case EMPTY:
-        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = '.';
+        mapDisp[(int)p.location.y][(int)p.location.x] = '.';
         break;
       case OBSTACLE:
-        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = 'o';
+        mapDisp[(int)p.location.y][(int)p.location.x] = 'o';
         break;
       case CUBE:
-        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = 'c';
+        mapDisp[(int)p.location.y][(int)p.location.x] = 'c';
         break;
       case BOUNDARY:
-        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = 'b';
+        mapDisp[(int)p.location.y][(int)p.location.x] = 'b';
         break;
       case COLLECTIONCENTER:
-        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = '#';
+        mapDisp[(int)p.location.y][(int)p.location.x] = '#';
         break;
       default:
-        mapDisp[(int)p.location.x + offset][(int)p.location.y + offset] = '_';
+        mapDisp[(int)p.location.y][(int)p.location.x] = '_';
         break;
     }
 
@@ -212,15 +235,14 @@ void MapController::visuvalization() {
   curLoc.x = (currentLocation.x - centerLocation.x);
   curLoc.y = (currentLocation.y - centerLocation.y);
   Point gridPoint = toGridPoint(curLoc);
-  mapDisp[(int)(gridPoint.x + offset)][(int)(gridPoint.y + offset)] = '*';
+  mapDisp[(int)gridPoint.y][(int)gridPoint.x] = '*';
 
   std::cout << "size : " << mapObj.size()<< std::endl;
-  for(int i =0 ; i < mapSize ; i++) {
+  for(int i =0 ; i < mapSize[0] ; i++) {
     std::string row = "";
-    for(int j=0 ; j < mapSize ; j++) {
+    for(int j=0 ; j < mapSize[1] ; j++) {
       row  = row + mapDisp[i][j];
     }
     std::cout << row <<std::endl;
   }
-  */*
 }

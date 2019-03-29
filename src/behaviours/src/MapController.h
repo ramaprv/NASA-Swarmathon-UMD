@@ -49,6 +49,8 @@ public:
   std::vector<MapPoint> mapObj;
   Point currentLocation;
 
+  std::vector<Point> hilbertWaypoints;
+
 protected:
 
   void ProcessData();
@@ -78,6 +80,8 @@ private:
   bool currLocFound(Point currentLocation);
   void GetObjectPos(Point _currentLocation);
   void visuvalization();
+
+  std::vector<int> getMapSize();
 };
 
 #endif /* SEARCH_CONTROLLER */
