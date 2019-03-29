@@ -20,8 +20,11 @@
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
+#include <visualization_msgs/Marker.h>
+#include <tf/transform_broadcaster.h>
 #include <apriltags_ros/AprilTagDetectionArray.h>
 #include <std_msgs/Float32MultiArray.h>
+#include <std_msgs/ColorRGBA.h>
 #include "swarmie_msgs/Waypoint.h"
 #include "swarmie_msgs/Recruitment.h"
 #include "swarmie_msgs/Skid.h"
@@ -65,6 +68,7 @@ private:
 
 // Random number generator
 random_numbers::RandomNumberGenerator* rng;
+int counter = 0;
 
 std_msgs::UInt8 collision_msg;
 // Create logic controller
@@ -129,6 +133,9 @@ char host[128];		//rovers hostname
 string publishedName;	//published hostname
 char prev_state_machine[128];
 
+tf::TransformBroadcaster tfBrdcastr;
+tf::Transform tfMapToMarkers;
+
 // Publishers
 ros::Publisher stateMachinePublish;		//publishes state machine status
 ros::Publisher status_publisher;		//publishes rover status
@@ -139,6 +146,7 @@ ros::Publisher driveControlPublish;		//publishes motor commands to the motors
 ros::Publisher heartbeatPublisher;		//publishes ROSAdapters status via its "heartbeat"
 ros::Publisher obstaclePublisher;
 ros::Publisher swarmiesPub;
+ros::Publisher mapMarkerPub;
 // Publishes swarmie_msgs::Waypoint messages on "/<robot>/waypooints"
 // to indicate when waypoints have been reached.
 ros::Publisher waypointFeedbackPublisher;	//publishes a waypoint to travel to if the rover is given a waypoint in manual mode
@@ -168,6 +176,9 @@ time_t timerStartTime;
 // average its location.
 unsigned int startDelayInSeconds = 30;
 float timerTimeElapsed = 0;
+
+visualization_msgs::Marker points;
+// setting frame id
 
 //Transforms
 tf::TransformListener *tfListener;
@@ -240,6 +251,7 @@ int main(int argc, char **argv) {
   heartbeatPublisher = mNH.advertise<std_msgs::String>((publishedName + "/behaviour/heartbeat"), 1, true);		//publishes ROSAdapters status via its "heartbeat"
   waypointFeedbackPublisher = mNH.advertise<swarmie_msgs::Waypoint>((publishedName + "/waypoints"), 1, true);		//publishes a waypoint to travel to if the rover is given a waypoint in manual mode
   swarmiesPub = mNH.advertise<std_msgs::String>("/swarmiesList", 1000, true);
+  mapMarkerPub = mNH.advertise<visualization_msgs::Marker>("/swarmmap", 10, true);
   //timers
   publish_status_timer = mNH.createTimer(ros::Duration(status_publish_interval), publishStatusTimerEventHandler);
   stateMachineTimer = mNH.createTimer(ros::Duration(behaviourLoopTimeStep), behaviourStateMachine);
@@ -268,6 +280,15 @@ int main(int argc, char **argv) {
     logicController.SetModeManual();
   }
 
+  points.header.frame_id = "/swarmmap";
+  points.header.stamp = ros::Time::now();
+  points.action = visualization_msgs::Marker::ADD;
+  points.pose.orientation.w = 1.0;
+  points.type = visualization_msgs::Marker::POINTS;
+  points.scale.x = 0.01;
+  points.scale.y = 0.01;
+  points.scale.z = 0.01;
+
   timerStartTime = time(0);
 
   ros::spin();
@@ -291,6 +312,67 @@ std::vector<std::string> split(std::string str, std::string token){
     }
     return result;
 }
+
+
+void placeMapMarker() {
+  ++counter;
+  points.id = counter;
+  geometry_msgs::Point mapPt;
+  std_msgs::ColorRGBA color;
+  // points.points.push_back(mapPt);
+  // points.colors.push_back(color);
+  auto _mapObj = logicController.mapController.mapObj;
+  for (auto pt : _mapObj) {
+    mapPt.x = pt.location.x;
+    mapPt.y = pt.location.y;
+    mapPt.z = 0;
+
+    switch(pt.occType){
+      case EMPTY:
+        color.r = 0.0;
+        color.g = 0.0;
+        color.b = 0.0;
+        color.a = 1.0;
+        break;
+      case OBSTACLE:
+        color.r = 1.0;
+        color.g = 0.0;
+        color.b = 0.0;
+        color.a = 1.0;
+        break;
+      case CUBE:
+        color.r = 0.0;
+        color.g = 1.0;
+        color.b = 0.0;
+        color.a = 1.0;
+        break;
+      case BOUNDARY:
+        color.r = 1.0;
+        color.g = 0.0;
+        color.b = 1.0;
+        color.a = 1.0;
+        break;
+      case COLLECTIONCENTER:
+        color.r = 0.0;
+        color.g = 1.0;
+        color.b = 1.0;
+        color.a = 1.0;
+        break;
+      default:
+        color.r = 1.0;
+        color.g = 1.0;
+        color.b = 1.0;
+        color.a = 1.0;
+        break;
+    }
+
+    points.points.push_back(mapPt);
+    points.colors.push_back(color);
+
+  }
+  mapMarkerPub.publish(points);
+}
+
 
 // This is the top-most logic control block organised as a state machine.
 // This function calls the dropOff, pickUp, and search controllers.
@@ -350,7 +432,6 @@ void behaviourStateMachine(const ros::TimerEvent&)
       }
 
     }
-
     else
     {
       return;
@@ -403,6 +484,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
       sendDriveCommand(result.pd.left,result.pd.right);	//uses the results struct with data sent back from logic controller to send motor commands
 
 
+
       //Alter finger and wrist angle is told to reset with last stored value if currently has -1 value
       std_msgs::Float32 angle;
       if (result.fingerAngle != -1)
@@ -419,6 +501,10 @@ void behaviourStateMachine(const ros::TimerEvent&)
         prevWrist = result.wristAngle;		//store the last known gripper wrist angle
       }
     }
+  // tfMapToMarkers.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
+  // tfMapToMarkers.setRotation( tf::Quaternion(0, 0, 0, 1) );
+  // tfBrdcastr.sendTransform(tf::StampedTransform(tfMapToMarkers, ros::Time::now(), "/world", "/swarmmap"));
+  placeMapMarker();
   collision_msg.data = logicController.getCollisionCalls();
   obstaclePublisher.publish(collision_msg);
     //publishHandeling here
