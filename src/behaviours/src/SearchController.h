@@ -68,6 +68,7 @@ private:
 		  {1,-1}
   };
   bool initCornerSent = false;
+  Point  currentLocationGlobal;
 
 };
 
