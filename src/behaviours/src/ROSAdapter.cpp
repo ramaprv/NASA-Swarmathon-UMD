@@ -22,6 +22,7 @@
 #include <nav_msgs/Odometry.h>
 #include <visualization_msgs/Marker.h>
 #include <tf/transform_broadcaster.h>
+#include <tf/tf.h>
 #include <apriltags_ros/AprilTagDetectionArray.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/ColorRGBA.h>
@@ -132,9 +133,6 @@ std_msgs::String msg1; //used for passing messages to the GUI
 char host[128];		//rovers hostname
 string publishedName;	//published hostname
 char prev_state_machine[128];
-
-tf::TransformBroadcaster tfBrdcastr;
-tf::Transform tfMapToMarkers;
 
 // Publishers
 ros::Publisher stateMachinePublish;		//publishes state machine status
@@ -280,14 +278,14 @@ int main(int argc, char **argv) {
     logicController.SetModeManual();
   }
 
-  points.header.frame_id = "/swarmmap";
+  points.header.frame_id = "/achilles/map";
   points.header.stamp = ros::Time::now();
   points.action = visualization_msgs::Marker::ADD;
   points.pose.orientation.w = 1.0;
   points.type = visualization_msgs::Marker::POINTS;
-  points.scale.x = 0.01;
-  points.scale.y = 0.01;
-  points.scale.z = 0.01;
+  points.scale.x = 0.25;
+  points.scale.y = 0.25;
+  points.scale.z = 0.25;
 
   timerStartTime = time(0);
 
@@ -501,9 +499,6 @@ void behaviourStateMachine(const ros::TimerEvent&)
         prevWrist = result.wristAngle;		//store the last known gripper wrist angle
       }
     }
-  // tfMapToMarkers.setOrigin( tf::Vector3(0.0, 0.0, 0.0) );
-  // tfMapToMarkers.setRotation( tf::Quaternion(0, 0, 0, 1) );
-  // tfBrdcastr.sendTransform(tf::StampedTransform(tfMapToMarkers, ros::Time::now(), "/world", "/swarmmap"));
   placeMapMarker();
   collision_msg.data = logicController.getCollisionCalls();
   obstaclePublisher.publish(collision_msg);
