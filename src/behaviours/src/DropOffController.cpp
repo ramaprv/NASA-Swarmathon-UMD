@@ -43,6 +43,7 @@ DropOffController::~DropOffController() {
 
 Result DropOffController::DoWork() {
 
+  cout << "DropOff Controller DoWork" << endl;
   //cout << "8" << endl; //Debugging statement
   // Getting the total tag count from the left and the right side of the rover
   int count = countLeft + countRight;
