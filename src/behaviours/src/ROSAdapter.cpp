@@ -227,8 +227,12 @@ int main(int argc, char **argv) {
   joySubscriber = mNH.subscribe((publishedName + "/joystick"), 10, joyCmdHandler);					//receives joystick information
   modeSubscriber = mNH.subscribe((publishedName + "/mode"), 1, modeHandler);						//receives mode from GUI
   targetSubscriber = mNH.subscribe((publishedName + "/targets"), 10, targetHandler);					//receives tag data
+<<<<<<< HEAD
   // odometrySubscriber = mNH.subscribe((publishedName + "/odom/filtered"), 10, odometryHandler);				//receives ODOM data
   odometrySubscriber = mNH.subscribe((publishedName + "/odom"), 10, odometryHandler);				//receives ODOM data
+=======
+  odometrySubscriber = mNH.subscribe((publishedName + "/odom/filtered"), 10, odometryHandler);				//receives ODOM data
+>>>>>>> 178604a4e7fc84942970d6103487c79ae2447d2e
   mapSubscriber = mNH.subscribe((publishedName + "/odom/ekf"), 10, mapHandler);						//receives GPS data
   virtualFenceSubscriber = mNH.subscribe(("/virtualFence"), 10, virtualFenceHandler);					//receives data for vitrual boundaries
   manualWaypointSubscriber = mNH.subscribe((publishedName + "/waypoints/cmd"), 10, manualWaypointHandler);		//receives manual waypoints given from GUI
@@ -255,6 +259,10 @@ int main(int argc, char **argv) {
   stateMachineTimer = mNH.createTimer(ros::Duration(behaviourLoopTimeStep), behaviourStateMachine);
 
   logicController.setRoverName(publishedName);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 178604a4e7fc84942970d6103487c79ae2447d2e
   publish_heartbeat_timer = mNH.createTimer(ros::Duration(heartbeat_publish_interval), publishHeartBeatTimerEventHandler);
 
   typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Range, sensor_msgs::Range, sensor_msgs::Range> sonarSyncPolicy;
@@ -506,6 +514,10 @@ void behaviourStateMachine(const ros::TimerEvent&)
     //logicController.getPublishData(); //Not Currently Implemented, used to get data from logic controller and publish to the appropriate ROS Topic; Suggested
     //adds a blank space between sets of debugging data to easily tell one tick from the next
     //cout << endl;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 178604a4e7fc84942970d6103487c79ae2447d2e
   }
 
   // mode is NOT auto
@@ -874,8 +886,8 @@ void transformMapCentertoOdom()
 
   if (diff > drift_tolerance)	//If the difference is greater than tolerance, adjust the rovers perceived idea of where the center is. Used to decrease ODOM drift and keep rover accuracy for longer periods of time
   {
-    centerLocationOdom.x += xdiff/diff;	//adjust X
-    centerLocationOdom.y += ydiff/diff;	//adjust Y
+    // centerLocationOdom.x += xdiff/diff;	//adjust X
+    // centerLocationOdom.y += ydiff/diff;	//adjust Y
   }
 
   //cout << "center x diff : " << centerLocationMapRef.x - centerLocationOdom.x << " center y diff : " << centerLocationMapRef.y - centerLocationOdom.y << endl;

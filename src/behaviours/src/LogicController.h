@@ -138,6 +138,8 @@ private:
 
   void controllerInterconnect();
 
+  void updateProcessChange2Controllers(int p);
+
   long int current_time = 0;
 };
 

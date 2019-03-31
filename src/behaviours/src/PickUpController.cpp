@@ -201,7 +201,7 @@ Result PickUpController::DoWork()
   if (!targetHeld)
   {
     //threshold distance to be from the target block before attempting pickup
-    float targetDistance = 0.15; //meters
+    float targetDistance = 0.15; //meters 0.15
 
     // -----------------------------------------------------------
     // millisecond time = current time if not in a counting state
@@ -278,7 +278,7 @@ Result PickUpController::DoWork()
 
         // Rotate towards the block that we are seeing.
         // The error is negated in order to turn in a way that minimizes error.
-        result.pd.cmdAngularError = -blockYawError;
+        result.pd.cmdAngularError = -blockYawError*0.05;
       }
       //If in a counting state and has been counting for 1 second.
       else if (Td > 1.0 && Td < target_pickup_task_time_limit)
@@ -296,7 +296,7 @@ Result PickUpController::DoWork()
       if (vel > 0.2) vel = 0.2;
 
       result.pd.cmdVel = vel;
-      result.pd.cmdAngularError = -blockYawError;
+      result.pd.cmdAngularError = -blockYawError*0.05;
       timeOut = false;
 
       return result;
@@ -304,14 +304,14 @@ Result PickUpController::DoWork()
     else if (!lockTarget) //if a target hasn't been locked lock it and enter a counting state while slowly driving forward.
     {
       lockTarget = true;
-      result.pd.cmdVel = 0.18;
-      result.pd.cmdAngularError= 0.0;
+      result.pd.cmdVel = 0.18; //0.18
+      result.pd.cmdAngularError= -blockYawError*0.05; // 0
       timeOut = true;
       ignoreCenterSonar = true;
     }
     else if (Td > raise_time_begin) //raise the wrist
     {
-      result.pd.cmdVel = -0.15;
+      result.pd.cmdVel = -0.15; //-0.15
       result.pd.cmdAngularError= 0.0;
       result.wristAngle = 0;
     }
