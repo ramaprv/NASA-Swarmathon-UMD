@@ -124,13 +124,8 @@ void SearchController::SetCenterLocation(Point centerLocation) {
 
   if (!result.wpts.waypoints.empty())
   {
-<<<<<<< HEAD
-  // result.wpts.waypoints.back().x -= diffX;
-  // result.wpts.waypoints.back().y -= diffY;
-=======
    result.wpts.waypoints.back().x -= diffX;
    result.wpts.waypoints.back().y -= diffY;
->>>>>>> 178604a4e7fc84942970d6103487c79ae2447d2e
   }
 
 }

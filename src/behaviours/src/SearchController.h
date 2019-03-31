@@ -30,13 +30,8 @@ public:
   void generateHilbertPoints(unsigned int degree);
   void setRoverName(string publishedName);
   void setRoverCount_Rank(int noOfRovers,int rank);
-<<<<<<< HEAD
-
-  std::vector<Point> hilbertWaypoints ;
-
-=======
   void decrementPathIndex();
->>>>>>> 178604a4e7fc84942970d6103487c79ae2447d2e
+  std::vector<Point> hilbertWaypoints ;
 protected:
 
   void ProcessData();
@@ -58,20 +53,13 @@ private:
   string roverName;
   long int pathPointIndex = 0;
   double hilbert2dScale = 0.406;
-<<<<<<< HEAD
   int botIndex = 0;
-  // std::vector<Point> hilbertWaypoints ;
-=======
-  std::vector<Point> hilbertWaypoints ;
->>>>>>> 178604a4e7fc84942970d6103487c79ae2447d2e
+  // std::vector<Point> hilbertWaypoints
   std::vector<Point> currentPathPoints;
   void updateCurrentPathPoints(string roverName);
   bool ranOnce = false;
   int totalRovers = 1;
   int myRoverIndex = 1;
-<<<<<<< HEAD
-  double lowerLeftHilbertPt = -3;
-=======
   double lowerLeftHilbertPt = -6.5;
   bool pathUpdated = false;
   int getQuadrant(Point p);
@@ -82,7 +70,6 @@ private:
 		  {1,-1}
   };
   bool initCornerSent = false;
->>>>>>> 178604a4e7fc84942970d6103487c79ae2447d2e
 
 };
 
