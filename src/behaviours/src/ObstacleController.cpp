@@ -22,7 +22,7 @@ void ObstacleController::Reset() {
 void ObstacleController::avoidObstacle() {
   
     //always turn left to avoid obstacles
-    if (right < 0.8 || center < 0.8 || left < 0.8 || tag_boundary_seen) {
+    if (tag_boundary_seen) {
       result.type = precisionDriving;
 
       result.pd.cmdAngular = -K_angular;
@@ -31,6 +31,17 @@ void ObstacleController::avoidObstacle() {
       result.pd.cmdVel = 0.0;
       result.pd.setPointYaw = 0;
     }
+
+	if(center < 0.8 || (right < 0.8 && left < 0.8))
+	{	
+      result.type = precisionDriving;
+
+      result.pd.cmdAngular = -K_angular * 0.1;
+
+      result.pd.setPointVel = 0.0;
+      result.pd.cmdVel = 0.0;
+      result.pd.setPointYaw = 0;
+	}
 }
 
 // A collection zone was seen in front of the rover and we are not carrying a target
@@ -57,6 +68,7 @@ void ObstacleController::avoidCollectionZone() {
 
 Result ObstacleController::DoWork() {
 
+  std::cout << "ObstacleController: Do Work"<< std::endl;
   clearWaypoints = true;
   set_waypoint = true;
   result.PIDMode = CONST_PID;
@@ -71,18 +83,24 @@ Result ObstacleController::DoWork() {
 
   //if an obstacle has been avoided
   if (can_set_waypoint) {
+	if(right > 0.8 && left > 0.8)
+	{
+    	can_set_waypoint = false; //only one waypoint is set
+    	set_waypoint = false;
+    	clearWaypoints = false;
+	}
+	else
+	{
+		
+    	result.type = waypoint; 
+    	result.PIDMode = FAST_PID; //use fast pid for waypoints
+    	Point forward;            //waypoint is directly ahead of current heading
+    	forward.x = currentLocation.x + (0.5 * cos(currentLocation.theta));
+    	forward.y = currentLocation.y + (0.5 * sin(currentLocation.theta));
+    	result.wpts.waypoints.clear();
+    	result.wpts.waypoints.push_back(forward);
+	}
 
-    can_set_waypoint = false; //only one waypoint is set
-    set_waypoint = false;
-    clearWaypoints = false;
-
-    result.type = waypoint; 
-    result.PIDMode = FAST_PID; //use fast pid for waypoints
-    Point forward;            //waypoint is directly ahead of current heading
-    forward.x = currentLocation.x + (0.5 * cos(currentLocation.theta));
-    forward.y = currentLocation.y + (0.5 * sin(currentLocation.theta));
-    result.wpts.waypoints.clear();
-    result.wpts.waypoints.push_back(forward);
   }
 
   return result;
@@ -108,6 +126,7 @@ void ObstacleController::ProcessData() {
   //there is no report of 0 tags seen
   long int Tdifference = current_time - timeSinceTags;
   float Td = Tdifference/1e3;
+  std::cout << "Obstacle Controller: Process Data "<< std::endl;
   if (Td >= 0.5) {
     tag_boundary_seen = false;
     collection_zone_seen = false;
@@ -142,7 +161,7 @@ void ObstacleController::ProcessData() {
   }
 
   //if any sonar is below the trigger distance set physical obstacle true
-  if (left < triggerDistance || right < triggerDistance || center < triggerDistance)
+  if (center < triggerDistance || (right < triggerDistance && left < triggerDistance))
   {
     phys = true;
     timeSinceTags = current_time;
@@ -236,6 +255,8 @@ bool ObstacleController::ShouldInterrupt() {
 }
 
 bool ObstacleController::HasWork() {
+  
+  std::cout << "Obstacle Controller: Has Work"<< std::endl;
   //there is work if a waypoint needs to be set or the obstacle hasnt been avoided
   if (can_set_waypoint && set_waypoint)
   {
