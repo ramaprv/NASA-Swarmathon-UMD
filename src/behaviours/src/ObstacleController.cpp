@@ -6,6 +6,7 @@ ObstacleController::ObstacleController()
   obstacleDetected = false;
   obstacleInterrupt = false;
   result.PIDMode = CONST_PID; //use the const PID to turn at a constant speed
+  goalPosSet = false ;
 }
 
 
@@ -15,21 +16,42 @@ void ObstacleController::Reset() {
   obstacleAvoided = true;
   obstacleDetected = false;
   obstacleInterrupt = false;
+  goalPosSet = false ;
   delay = current_time;
 }
 
 // Avoid crashing into objects detected by the ultrasound or the tag bouundary
 void ObstacleController::avoidObstacle() {
+
+	if(true == phys)
+	{
+ 		//followBugAlgorithm = true;
+	}
   
     //always turn left to avoid obstacles
-    if (right < 0.8 || center < 0.8 || left < 0.8 || tag_boundary_seen) {
+    if (tag_boundary_seen || center < 0.8) {  // In case the obstacle is detected at the center rotate the bot until it aligns in following position
       result.type = precisionDriving;
 
-      result.pd.cmdAngular = -K_angular;
+	  if(tag_boundary_seen || left < right)
+		result.pd.cmdAngular = -K_angular * 0.1;
+	  else
+		result.pd.cmdAngular = K_angular * 0.1;
+		
 
       result.pd.setPointVel = 0.0;
       result.pd.cmdVel = 0.0;
       result.pd.setPointYaw = 0;
+    }
+	/* Bug algo goes here */
+	else if(center > 0.8 && (right < 0.8 || left < 0.8))
+    {
+        result.type = waypoint;
+        result.PIDMode = FAST_PID; //use fast pid for waypoints
+        Point forward;            //waypoint is directly ahead of current heading
+        forward.x = currentLocation.x + (0.5 * cos(currentLocation.theta));
+        forward.y = currentLocation.y + (0.5 * sin(currentLocation.theta));
+        result.wpts.waypoints.clear();
+        result.wpts.waypoints.push_back(forward);
     }
 }
 
@@ -62,27 +84,40 @@ Result ObstacleController::DoWork() {
   result.PIDMode = CONST_PID;
 
   // The obstacle is an april tag marking the collection zone
-  if(collection_zone_seen){
-    avoidCollectionZone();
+
+  if(goalPosSet == true || collection_zone_seen == true || tag_boundary_seen == true)
+  {
+  	if(collection_zone_seen){
+    	avoidCollectionZone();
+  	}
+  	else {
+    	avoidObstacle();
+  	}
+
+  	//if an obstacle has been avoided
+  	if (can_set_waypoint) {
+
+    	can_set_waypoint = false; //only one waypoint is set
+   	 	set_waypoint = false;
+    	clearWaypoints = false;
+		goalPosSet = false;
+
+    	result.type = waypoint; 
+    	result.PIDMode = FAST_PID; //use fast pid for waypoints
+    	Point forward;            //waypoint is directly ahead of current heading
+    	forward.x = currentLocation.x + (0.5 * cos(currentLocation.theta));
+    	forward.y = currentLocation.y + (0.5 * sin(currentLocation.theta));
+    	result.wpts.waypoints.clear();
+    	result.wpts.waypoints.push_back(forward);
+  	}
   }
-  else {
-    avoidObstacle();
-  }
 
-  //if an obstacle has been avoided
-  if (can_set_waypoint) {
+  if(false == goalPosSet)
+  {
+  		result.type = behavior ;
+		result.b = setGoalPoint ;
 
-    can_set_waypoint = false; //only one waypoint is set
-    set_waypoint = false;
-    clearWaypoints = false;
-
-    result.type = waypoint; 
-    result.PIDMode = FAST_PID; //use fast pid for waypoints
-    Point forward;            //waypoint is directly ahead of current heading
-    forward.x = currentLocation.x + (0.5 * cos(currentLocation.theta));
-    forward.y = currentLocation.y + (0.5 * sin(currentLocation.theta));
-    result.wpts.waypoints.clear();
-    result.wpts.waypoints.push_back(forward);
+		initialPosition = currentLocation ;
   }
 
   return result;
@@ -279,4 +314,13 @@ void ObstacleController::setTargetHeldClear()
     previousTargetState = false;
     ignore_center_sonar = false;
   }
+}
+
+void ObstacleController::SetGoalPoint(Point goalPos)
+{
+	std::cout << "I got a Goal Point from Logic Controller:" << std::endl;
+	goalPosition = goalPos;
+	std::cout << goalPosition.x << "," << goalPosition.y << std::endl;
+
+	goalPosSet = true ;
 }

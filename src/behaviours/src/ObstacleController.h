@@ -26,6 +26,7 @@ public:
   void setTargetHeldClear();
   //Asked by logiccontroller to determine if drive controller should have its waypoints cleared
   bool getShouldClearWaypoints() {bool tmp = clearWaypoints; clearWaypoints = false; return tmp;}
+  void SetGoalPoint(Point tmpLocation);
 
 protected:
 
@@ -86,6 +87,11 @@ private:
   bool can_set_waypoint = false;
 
   float camera_offset_correction = 0.020; //meters;
+
+  /* Variables implemented for the bug algorithm */
+  Point goalPosition ;
+  Point initialPosition ;
+  bool goalPosSet ;
 };
 
 #endif // OBSTACLECONTOLLER_H

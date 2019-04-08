@@ -31,6 +31,7 @@ void LogicController::Reset() {
 Result LogicController::DoWork()
 {
   Result result;
+  Point goalPoint;
 
   // First, a loop runs through all the controllers who have a priority of 0 or
   // above with the largest number being most important. A priority of less than
@@ -128,6 +129,14 @@ Result LogicController::DoWork()
           std::cout << "Process State Change to: " << processState << std::endl;
         }
       }
+	  else if(result.b == setGoalPoint) {
+	  	  /* Currently obstacle controller requests for the goal point using this functionality */
+
+		  goalPoint = driveController.GetNextWaypoint();
+
+		  obstacleController.SetGoalPoint(goalPoint);
+
+	  }
 
       // Update the priorites of the controllers based upon the new process state.
       if (result.b == nextProcess || result.b == prevProcess) {

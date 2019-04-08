@@ -489,3 +489,12 @@ PIDConfig DriveController::constYawConfig() {
   return config;
 
 }
+
+Point DriveController::GetNextWaypoint()
+{
+	Point tmpLocation =  {0};
+
+	tmpLocation = waypoints[0];
+
+	return tmpLocation;
+}
