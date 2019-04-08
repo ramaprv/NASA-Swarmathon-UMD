@@ -141,6 +141,8 @@ void SearchController::setRecruitmentLocation(Point p) {
 }
 
 void SearchController::ProcessData() {
+
+  std::cout << "SearchController: Process Data"<< std::endl;
 }
 
 bool SearchController::ShouldInterrupt(){
@@ -150,6 +152,8 @@ bool SearchController::ShouldInterrupt(){
 }
 
 bool SearchController::HasWork() {
+  
+  std::cout << "SearchController: Has Work"<< std::endl;
   return true;
 }
 

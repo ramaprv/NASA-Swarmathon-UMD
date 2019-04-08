@@ -53,6 +53,7 @@ void ObstacleController::avoidObstacle() {
         result.wpts.waypoints.clear();
         result.wpts.waypoints.push_back(forward);
     }
+
 }
 
 // A collection zone was seen in front of the rover and we are not carrying a target
@@ -79,6 +80,7 @@ void ObstacleController::avoidCollectionZone() {
 
 Result ObstacleController::DoWork() {
 
+  std::cout << "ObstacleController: Do Work"<< std::endl;
   clearWaypoints = true;
   set_waypoint = true;
   result.PIDMode = CONST_PID;
@@ -143,6 +145,7 @@ void ObstacleController::ProcessData() {
   //there is no report of 0 tags seen
   long int Tdifference = current_time - timeSinceTags;
   float Td = Tdifference/1e3;
+  std::cout << "Obstacle Controller: Process Data "<< std::endl;
   if (Td >= 0.5) {
     tag_boundary_seen = false;
     collection_zone_seen = false;
@@ -177,7 +180,7 @@ void ObstacleController::ProcessData() {
   }
 
   //if any sonar is below the trigger distance set physical obstacle true
-  if (left < triggerDistance || right < triggerDistance || center < triggerDistance)
+  if (center < triggerDistance || (right < triggerDistance && left < triggerDistance))
   {
     phys = true;
     timeSinceTags = current_time;
@@ -271,6 +274,8 @@ bool ObstacleController::ShouldInterrupt() {
 }
 
 bool ObstacleController::HasWork() {
+  
+  std::cout << "Obstacle Controller: Has Work"<< std::endl;
   //there is work if a waypoint needs to be set or the obstacle hasnt been avoided
   if (can_set_waypoint && set_waypoint)
   {

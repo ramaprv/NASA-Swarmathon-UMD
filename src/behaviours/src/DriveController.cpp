@@ -29,6 +29,7 @@ void DriveController::Reset()
 Result DriveController::DoWork()
 {
   
+  std::cout << "DriveController: Do Work"<< std::endl;
   ///WARNING waypoint input must use FAST_PID at this point in time failure to set fast pid will result in no movment
 
   if(result.type == behavior)
@@ -236,6 +237,7 @@ bool DriveController::HasWork() {   }
 
 void DriveController::ProcessData()
 {
+  std::cout << "DriveController: Process Data"<< std::endl;
   //determine if the drive commands are waypoint or precision driving
   if (result.type == waypoint) {
     
