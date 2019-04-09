@@ -29,6 +29,10 @@
 #include "swarmie_msgs/Waypoint.h"
 #include "swarmie_msgs/Recruitment.h"
 #include "swarmie_msgs/Skid.h"
+#include "swarmie_msgs/Point.h"
+#include "swarmie_msgs/RangeMap.h"
+#include "swarmie_msgs/RangeMapItem.h"
+
 
 // Include Controllers
 #include "LogicController.h"
@@ -148,6 +152,7 @@ ros::Publisher mapMarkerPub;
 // Publishes swarmie_msgs::Waypoint messages on "/<robot>/waypooints"
 // to indicate when waypoints have been reached.
 ros::Publisher waypointFeedbackPublisher;	//publishes a waypoint to travel to if the rover is given a waypoint in manual mode
+ros::Publisher roverRangeMapPub;
 
 // Subscribers
 ros::Subscriber joySubscriber;			//receives joystick information
@@ -161,6 +166,7 @@ ros::Subscriber virtualFenceSubscriber;		//receives data for vitrual boundaries
 ros::Subscriber manualWaypointSubscriber; 	//receives manual waypoints given from GUI
 ros::Subscriber recruitmentSubscriber;
 ros::Subscriber checkSwarmies;
+ros::Subscriber roverRangeMapSub;
 
 // Timers
 ros::Timer stateMachineTimer;
@@ -198,6 +204,7 @@ void publishHeartBeatTimerEventHandler(const ros::TimerEvent& event);
 void sonarHandler(const sensor_msgs::Range::ConstPtr& sonarLeft, const sensor_msgs::Range::ConstPtr& sonarCenter, const sensor_msgs::Range::ConstPtr& sonarRight);	//handles ultrasound data and stores data
 void recruitmentHandler(const swarmie_msgs::Recruitment& msg);
 void getString(const std_msgs::String::ConstPtr& message);
+void roverRangeMapHandler(const swarmie_msgs::RangeMap& msg);
 // Converts the time passed as reported by ROS (which takes Gazebo simulation rate into account) into milliseconds as an integer.
 long int getROSTimeInMilliSecs();
 
@@ -238,6 +245,7 @@ int main(int argc, char **argv) {
   message_filters::Subscriber<sensor_msgs::Range> sonarRightSubscriber(mNH, (publishedName + "/sonarRight"), 10);
   recruitmentSubscriber = mNH.subscribe("/detectionLocations", 10, recruitmentHandler);
   checkSwarmies = mNH.subscribe("/swarmiesList", 10, getString);
+  roverRangeMapSub = mNH.subscribe("/swarmiesHilbertMap", 100, roverRangeMapHandler);
 
   //publishers
   status_publisher = mNH.advertise<std_msgs::String>((publishedName + "/swarmie_status"), 1, true);			//publishes rover status
@@ -251,6 +259,8 @@ int main(int argc, char **argv) {
   waypointFeedbackPublisher = mNH.advertise<swarmie_msgs::Waypoint>((publishedName + "/waypoints"), 1, true);		//publishes a waypoint to travel to if the rover is given a waypoint in manual mode
   swarmiesPub = mNH.advertise<std_msgs::String>("/swarmiesList", 1000, true);
   mapMarkerPub = mNH.advertise<visualization_msgs::Marker>("/swarmmap", 10, true);
+  roverRangeMapPub = mNH.advertise<swarmie_msgs::RangeMap>("/swarmiesHilbertMap", 100, true);
+
   //timers
   publish_status_timer = mNH.createTimer(ros::Duration(status_publish_interval), publishStatusTimerEventHandler);
   stateMachineTimer = mNH.createTimer(ros::Duration(behaviourLoopTimeStep), behaviourStateMachine);
@@ -436,7 +446,6 @@ void behaviourStateMachine(const ros::TimerEvent&)
     {
       return;
     }
-
   }
 
   // Robot is in autonomous mode
@@ -508,6 +517,17 @@ void behaviourStateMachine(const ros::TimerEvent&)
     //logicController.getPublishData(); //Not Currently Implemented, used to get data from logic controller and publish to the appropriate ROS Topic; Suggested
     //adds a blank space between sets of debugging data to easily tell one tick from the next
     //cout << endl;
+    swarmie_msgs::RangeMap rangeMapROS;
+    for(auto item = logicController.rangeMap.begin(); item < logicController.rangeMap.end(); item++) {
+      swarmie_msgs::RangeMapItem hilbertItemROS;
+      hilbertItemROS.roverName.data = item->roverName;
+      hilbertItemROS.hilbertStart.x = item->hilbertStart.x;
+      hilbertItemROS.hilbertStart.y = item->hilbertStart.y;
+      hilbertItemROS.hilbertEnd.x = item->hilbertEnd.x;
+      hilbertItemROS.hilbertEnd.y = item->hilbertEnd.y;
+      rangeMapROS.roverRangeMap.push_back(hilbertItemROS);
+    }
+    roverRangeMapPub.publish(rangeMapROS);
   }
 
   // mode is NOT auto
@@ -816,6 +836,19 @@ long int getROSTimeInMilliSecs()
   // Convert from seconds and nanoseconds to milliseconds.
   return t.sec*1e3 + t.nsec/1e6;
 
+}
+void roverRangeMapHandler(const swarmie_msgs::RangeMap& msg) {
+  std::vector<RangeMapItem> rangeMap;
+  for(auto item : msg.roverRangeMap) {
+    RangeMapItem hilbertItem;
+    hilbertItem.roverName = item.roverName.data;
+    hilbertItem.hilbertStart.x = item.hilbertStart.x;
+    hilbertItem.hilbertStart.y = item.hilbertStart.y;
+    hilbertItem.hilbertEnd.x = item.hilbertEnd.x;
+    hilbertItem.hilbertEnd.y = item.hilbertEnd.y;
+    rangeMap.push_back(hilbertItem);
+  }
+  logicController.setRangeMap(rangeMap);
 }
 
 
