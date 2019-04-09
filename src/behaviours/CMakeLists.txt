@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   swarmie_msgs
   )
 
+
 catkin_package(
   CATKIN_DEPENDS geometry_msgs swarmie_msgs roscpp sensor_msgs std_msgs random_numbers tf apriltags_ros
 )
@@ -25,7 +26,7 @@ include_directories(
 add_executable(
   behaviours
   src/Tag.cpp
-  src/ObstacleController.cpp 
+  src/ObstacleController.cpp
   src/PickUpController.cpp
   src/DropOffController.cpp
   src/SearchController.cpp
@@ -46,4 +47,3 @@ target_link_libraries(
   behaviours
   ${catkin_LIBRARIES}
 )
-
