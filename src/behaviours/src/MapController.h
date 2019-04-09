@@ -5,6 +5,11 @@
 #include "Controller.h"
 #include <algorithm>
 #include <iostream>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
+// #include "opencv2/objdetect/objdetect.hpp"
 #include "Tag.h"
 
 enum gridType {
@@ -65,7 +70,7 @@ private:
   float sonarRight = 3;
   float sonarCenter = 3;
   // Grid Size
-  const double gridSize = 0.3;
+  const double gridSize = .75;
   //struct for returning data to ROS adapter
   Result result;
 
@@ -79,7 +84,7 @@ private:
   // Check if grid point corresponding to current point exists in map object
   bool currLocFound(Point currentLocation);
   void GetObjectPos(Point _currentLocation);
-  void visuvalization();
+  void visualizeMap();
 
   std::vector<int> getMapSize();
 };

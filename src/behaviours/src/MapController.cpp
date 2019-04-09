@@ -7,6 +7,7 @@
 
 #define PI 3.14159265
 
+
 MapController::MapController() {
   rng = new random_numbers::RandomNumberGenerator();
   currentLocation.x = 0;
@@ -20,10 +21,14 @@ MapController::MapController() {
 
   result.fingerAngle = M_PI/2;
   result.wristAngle = M_PI/4;
+
+  // Create a CV window to visualize generated Map
+  cv::namedWindow("MapWindow", CV_WINDOW_AUTOSIZE );
 }
 
 void MapController::Reset() {
   result.reset = false;
+  cv::destroyAllWindows();
 }
 
 /**
@@ -31,8 +36,8 @@ void MapController::Reset() {
  */
 Point MapController::toGridPoint(Point _currentLocation) {
   Point gridPoint;
-  gridPoint.x = round((centerLocation.x - _currentLocation.x) / gridSize);
-  gridPoint.y = round((centerLocation.y - _currentLocation.y) / gridSize);
+  gridPoint.x = round((centerLocation.x + _currentLocation.x) / gridSize);
+  gridPoint.y = round((centerLocation.y + _currentLocation.y) / gridSize);
   return gridPoint;
 }
 
@@ -54,10 +59,10 @@ void MapController::SetSonarData(float left, float center, float right) {
 
 void MapController::GetObjectPos(Point _currentLocation) {
   MapPoint mapPoint;
-  if(sonarLeft < 3) {
+  if(sonarLeft < 2) {
     Point obsPoint;
-    obsPoint.x = (centerLocation.x - _currentLocation.x) + (sonarLeft * std::cos((PI / 4) + _currentLocation.theta));
-    obsPoint.y = (centerLocation.y - _currentLocation.y) + (sonarLeft * std::sin((PI / 4) + _currentLocation.theta));
+    obsPoint.x = (centerLocation.x + _currentLocation.x) + (sonarLeft * std::cos((PI / 4) + _currentLocation.theta));
+    obsPoint.y = (centerLocation.y + _currentLocation.y) + (sonarLeft * std::sin((PI / 4) + _currentLocation.theta));
     if (!currLocFound(obsPoint)) {
       Point gridPoint = toGridPoint(obsPoint);
       mapPoint.location.x = gridPoint.x;
@@ -67,10 +72,10 @@ void MapController::GetObjectPos(Point _currentLocation) {
       mapObj.push_back(mapPoint);
     }
   }
-  if(sonarCenter < 3) {
+  if(sonarCenter < 2) {
     Point obsPoint;
-    obsPoint.x = (centerLocation.x - _currentLocation.x) + (sonarCenter * std::cos(_currentLocation.theta));
-    obsPoint.y = (centerLocation.y - _currentLocation.y) + (sonarCenter * std::sin(_currentLocation.theta));
+    obsPoint.x = (centerLocation.x + _currentLocation.x) + (sonarCenter * std::cos(_currentLocation.theta));
+    obsPoint.y = (centerLocation.y + _currentLocation.y) + (sonarCenter * std::sin(_currentLocation.theta));
     if (!currLocFound(obsPoint)) {
       Point gridPoint = toGridPoint(obsPoint);
       mapPoint.location.x = gridPoint.x;
@@ -80,10 +85,10 @@ void MapController::GetObjectPos(Point _currentLocation) {
       mapObj.push_back(mapPoint);
     }
   }
-  if(sonarRight < 3) {
+  if(sonarRight < 2) {
     Point obsPoint;
-    obsPoint.x = (centerLocation.x - _currentLocation.x) + (sonarRight * std::cos(-(PI / 4) + _currentLocation.theta));
-    obsPoint.y = (centerLocation.y - _currentLocation.y) + (sonarRight * std::sin(-(PI / 4) + _currentLocation.theta));
+    obsPoint.x = (centerLocation.x + _currentLocation.x) + (sonarRight * std::cos(-(PI / 4) + _currentLocation.theta));
+    obsPoint.y = (centerLocation.y + _currentLocation.y) + (sonarRight * std::sin(-(PI / 4) + _currentLocation.theta));
     if (!currLocFound(obsPoint)) {
       Point gridPoint = toGridPoint(obsPoint);
       mapPoint.location.x = gridPoint.x;
@@ -110,6 +115,7 @@ Result MapController::DoWork() {
     mapObj.push_back(mapPoint);
   }
   GetObjectPos(currentLocation);
+  visualizeMap();
   // visuvalization();
   result.b = wait;
   return (result);
@@ -147,8 +153,8 @@ void MapController::setTagData(vector<Tag> tags){
   for (auto tag : tags) {
     std::tuple<float, float, float> position = tag.getPosition();
     std::tuple<float, float, float> orientation = tag.calcRollPitchYaw();
-    cubePoint.x = (centerLocation.x - currentLocation.x) + get<0>(position);
-    cubePoint.y = (centerLocation.y - currentLocation.y) + get<1>(position);
+    cubePoint.x = (centerLocation.x + currentLocation.x) + get<0>(position);
+    cubePoint.y = (centerLocation.y + currentLocation.y) + get<1>(position);
     if (!currLocFound(cubePoint)) {
       Point gridPoint = toGridPoint(cubePoint);
       mapPoint.location.x = gridPoint.x;
@@ -182,13 +188,11 @@ std::vector<int> MapController::getMapSize() {
     maxX = (pts.location.x > maxX) ? pts.location.x : maxX;
     maxY = (pts.location.y > maxY) ? pts.location.y : maxY;
   }
-  auto width = maxX - minX;
-  auto length = maxY - minY;
-  std::vector<int> mapSize{width, length};
+  std::vector<int> mapSize{minX, minY, maxX, maxY};
   return(mapSize);
 }
 
-void MapController::visuvalization() {
+void MapController::visualizeMap() {
   /*
   for(auto p : hilbertWaypoints) {
     std::cout << "Hil X: " << round(p.x/gridSize) << " Y : " << round(p.y/gridSize) << std::endl;
@@ -196,47 +200,55 @@ void MapController::visuvalization() {
   Point loc = toGridPoint(currentLocation);
   std:: cout << "------------ Current X : " << loc.x << " Y : " << loc.y << std::endl;
   */
-  std::cout << "map Obj Size : " << mapObj.size() << std::endl;
-  const auto mapSize = getMapSize();
-  char mapDisp[mapSize[0]][mapSize[1]];
-  for(int i =0 ; i < mapSize[1] ; i++) {
-    for(int j=0 ; j < mapSize[0] ; j++) {
-      mapDisp[j][i] = '.';
-    }
-  }
+
+  // auto mapDims = getMapSize();
+  cv::Mat mapCVMat(200, 200, CV_8UC3, cv::Scalar(0,0,0));
 
   for (auto p : mapObj) {
-    std::cout << "point x : " << p.location.x << " y : " << p.location.y << " type : " << p.occType << endl;
+    // std::cout << "point x : " << p.location.x << " y : " << p.location.y << " type : " << p.occType << endl;
 
     switch(p.occType){
       case EMPTY:
-        mapDisp[(int)p.location.y][(int)p.location.x] = '.';
+        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
+          p.location.y + 100), 1, cv::Scalar(105, 105, 105), cv::FILLED);
         break;
       case OBSTACLE:
-        mapDisp[(int)p.location.y][(int)p.location.x] = 'o';
+        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
+          p.location.y + 100), 1, cv::Scalar(0, 0, 255), cv::FILLED);
         break;
       case CUBE:
-        mapDisp[(int)p.location.y][(int)p.location.x] = 'c';
+        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
+          p.location.y + 100), 1, cv::Scalar(255, 255, 255), cv::FILLED);
         break;
       case BOUNDARY:
-        mapDisp[(int)p.location.y][(int)p.location.x] = 'b';
+        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
+          p.location.y + 100), 1, cv::Scalar(0, 69, 255), cv::FILLED);
         break;
       case COLLECTIONCENTER:
-        mapDisp[(int)p.location.y][(int)p.location.x] = '#';
+        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
+          p.location.y + 100), 1, cv::Scalar(0, 215, 255), cv::FILLED);
         break;
       default:
-        mapDisp[(int)p.location.y][(int)p.location.x] = '_';
+        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
+          p.location.y + 100), 1, cv::Scalar(25, 25, 25), cv::FILLED);
         break;
     }
-
   }
 
   Point curLoc;
-  curLoc.x = (currentLocation.x - centerLocation.x);
-  curLoc.y = (currentLocation.y - centerLocation.y);
+  curLoc.x = (currentLocation.x + centerLocation.x);
+  curLoc.y = (currentLocation.y + centerLocation.y);
   Point gridPoint = toGridPoint(curLoc);
-  mapDisp[(int)gridPoint.y][(int)gridPoint.x] = '*';
+  cv::circle(mapCVMat, cv::Point(gridPoint.x + 100,
+    gridPoint.y + 100), 1, cv::Scalar(255, 255, 0), cv::FILLED);
 
+  cv::resize(mapCVMat, mapCVMat,
+    cv::Size(mapCVMat.cols * 5,mapCVMat.rows * 5),
+    0, 0, CV_INTER_LINEAR);
+  cv::imshow("MapWindow", mapCVMat);
+  cv::waitKey(30);
+
+/*
   std::cout << "size : " << mapObj.size()<< std::endl;
   for(int i =0 ; i < mapSize[0] ; i++) {
     std::string row = "";
@@ -245,4 +257,6 @@ void MapController::visuvalization() {
     }
     std::cout << row <<std::endl;
   }
+*/
+
 }
