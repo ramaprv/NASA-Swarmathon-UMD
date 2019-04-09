@@ -32,6 +32,9 @@ public:
   void setRoverCount_Rank(int noOfRovers,int rank);
   void decrementPathIndex();
   std::vector<Point> hilbertWaypoints ;
+  string roverName;
+  std::vector<Point> currentPathPoints;
+
 protected:
 
   void ProcessData();
@@ -50,12 +53,11 @@ private:
   // Flag to allow special behaviour for the first waypoint
   bool first_waypoint = true;
   bool succesfullPickup = false;
-  string roverName;
   long int pathPointIndex = 0;
   double hilbert2dScale = 0.406;
   int botIndex = 0;
   // std::vector<Point> hilbertWaypoints
-  std::vector<Point> currentPathPoints;
+
   void updateCurrentPathPoints(string roverName);
   bool ranOnce = false;
   int totalRovers = 1;
