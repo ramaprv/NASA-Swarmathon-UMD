@@ -31,6 +31,8 @@ void LogicController::Reset() {
 Result LogicController::DoWork()
 {
   Result result;
+  // Set the hilbert range for the rover in the hilbert map
+  setRoverSearchRange();
 
   // First, a loop runs through all the controllers who have a priority of 0 or
   // above with the largest number being most important. A priority of less than
@@ -491,4 +493,30 @@ void LogicController::updateProcessChange2Controllers(int p){
 	  if (p ==1){
 		  searchController.decrementPathIndex();
 	  }
+}
+
+void LogicController::setRangeMap(std::vector<RangeMapItem> rangeMap){
+  // Create a copy of the search range map in the logic controller
+  this->rangeMap = rangeMap;
+}
+
+void LogicController::setRoverSearchRange() {
+  RangeMapItem _roverRange;
+  _roverRange.roverName = searchController.roverName;
+  _roverRange.hilbertStart = searchController.currentPathPoints.front();
+  _roverRange.hilbertEnd = searchController.currentPathPoints.back();
+
+  bool isNotMember = true;
+  // index = std::find(rangeMap.begin(), rangeMap.end(), _roverRange);
+  for(auto idx = rangeMap.begin(); idx < rangeMap.end(); idx++) {
+    if(idx->roverName == _roverRange.roverName) {
+      idx->hilbertStart = _roverRange.hilbertStart;
+      idx->hilbertEnd = _roverRange.hilbertEnd;
+      isNotMember = false;
+      break;
+    }
+  }
+  if (isNotMember) {
+    rangeMap.push_back(_roverRange);
+  }
 }

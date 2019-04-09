@@ -10,6 +10,7 @@
 #include "RangeController.h"
 #include "ManualWaypointController.h"
 #include "MapController.h"
+#include <string>
 
 #include <vector>
 #include <queue>
@@ -32,6 +33,12 @@ struct PrioritizedController {
   {
     return priority < other.priority;
   }
+};
+
+struct RangeMapItem {
+  std::string roverName;
+  Point hilbertStart;
+  Point hilbertEnd;
 };
 
 class LogicController : virtual Controller
@@ -60,6 +67,9 @@ public:
   void gotRecruitmentMessage(Point p);
   void setRoverName(string publishedName);
   void setRoverCount_Rank(int noOfRovers,int rank);
+  // create a copy of the search range map locally
+  void setRangeMap(std::vector<RangeMapItem> rangeMap);
+  void setRoverSearchRange();
 
   int getCollisionCalls();
   // Passthrough for providing new waypoints to the
@@ -100,6 +110,7 @@ public:
   void setVirtualFenceOn( RangeShape* range );
   void setVirtualFenceOff( );
   MapController mapController;
+  std::vector<RangeMapItem> rangeMap;
 
 protected:
   void ProcessData();
