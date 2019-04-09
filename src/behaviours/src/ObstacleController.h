@@ -27,6 +27,7 @@ public:
   //Asked by logiccontroller to determine if drive controller should have its waypoints cleared
   bool getShouldClearWaypoints() {bool tmp = clearWaypoints; clearWaypoints = false; return tmp;}
   void SetGoalPoint(Point tmpLocation);
+  bool checkMline();
 
 protected:
 
@@ -48,7 +49,7 @@ private:
   const float reactivate_center_sonar_threshold = 0.8; //reactive center sonar if it goes back above this distance, assuming it is deactivated
   const int targetCountPivot = 6; ///unused variable
   const float obstacleDistancePivot = 0.2526; ///unused variable
-  const float triggerDistance = 0.8;
+  const float triggerDistance = 1.2;
 
   /*
      * Member variables
@@ -92,6 +93,7 @@ private:
   Point goalPosition ;
   Point initialPosition ;
   bool goalPosSet ;
+  int rotDirection ;
 };
 
 #endif // OBSTACLECONTOLLER_H
