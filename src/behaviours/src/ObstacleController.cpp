@@ -10,7 +10,6 @@ ObstacleController::ObstacleController()
   rotDirection = 0;
 }
 
-
 //note, not a full reset as this could cause a bad state
 //resets the interupt and knowledge of an obstacle or obstacle avoidance only.
 void ObstacleController::Reset() {
@@ -27,12 +26,13 @@ void ObstacleController::avoidObstacle() {
 
 	if(true == phys)
 	{
- 		//followBugAlgorithm = true;
+ 		followBugAlgorithm = true;
 	}
-  
+
     //always turn left to avoid obstacles
 	if(true == checkMline())
 	{
+    std::cout << "Check M Line" << std::endl;
 		obstacleAvoided = true ;
 	}
 	else
@@ -46,7 +46,7 @@ void ObstacleController::avoidObstacle() {
 				result.pd.cmdAngular = -K_angular * 0.2;
 			  else
 				result.pd.cmdAngular = K_angular * 0.2;
-		
+
 
 			  result.pd.setPointVel = 0.0;
 			  result.pd.cmdVel = 0.0;
@@ -65,7 +65,7 @@ void ObstacleController::avoidObstacle() {
 					{
 						rotDirection = 2; // Rotate Right when you find free space and you have reached the M line
 					}
-					std::cout << "Moving the bought straight" << right << ","  << left << std::endl;
+					std::cout << "Moving the bot straight" << right << ","  << left << std::endl;
 					result.type = waypoint;
 					result.PIDMode = FAST_PID; //use fast pid for waypoints
 					Point forward;            //waypoint is directly ahead of current heading
@@ -76,19 +76,40 @@ void ObstacleController::avoidObstacle() {
 				}
 				else
 				{
-					
-					result.type = precisionDriving;
-					if(1 == rotDirection)
-					{
-						result.pd.cmdAngular = -K_angular*0.2;
-					}
-					else
-					{
-						result.pd.cmdAngular = +K_angular * 0.2;
-					}
-					result.pd.setPointVel = 0.0;
-					result.pd.cmdVel = 0.0;
-					result.pd.setPointYaw = 0;
+          std::cout << "Bot to turn" << right << ","  << left << std::endl;
+					result.type = waypoint;
+					result.PIDMode = FAST_PID; //use fast pid for waypoints
+					Point forward;            //waypoint is directly ahead of current heading
+          double theta = (M_PI/180) *10;
+          if(1 == rotDirection)
+          {
+            //turn left
+            forward.x = currentLocation.x + (1 * cos(currentLocation.theta + theta));
+  					forward.y = currentLocation.y + (1 * sin(currentLocation.theta + theta));
+          }else{
+            //turn right
+            forward.x = currentLocation.x + (1 * cos(currentLocation.theta - theta));
+  					forward.y = currentLocation.y + (1 * sin(currentLocation.theta - theta));
+          }
+
+					result.wpts.waypoints.clear();
+					result.wpts.waypoints.push_back(forward);
+
+          // std::cout << "precisionDriving" << right << ","  << left << std::endl;
+          // std::cout << "Prev Angle " << result.pd.cmdAngular << std::endl;
+					// result.type = precisionDriving;
+					// if(1 == rotDirection)
+					// {
+					// 	result.pd.cmdAngular = -K_angular*0.2;
+					// }
+					// else
+					// {
+					// 	result.pd.cmdAngular = +K_angular * 0.2;
+					// }
+          // std::cout << "Curr Angle " << result.pd.cmdAngular << std::endl;
+					// result.pd.setPointVel = 0.0;
+					// result.pd.cmdVel = 0.0;
+					// result.pd.setPointYaw = 0;
 				}
 			}
 	}
@@ -98,7 +119,7 @@ void ObstacleController::avoidObstacle() {
 // A collection zone was seen in front of the rover and we are not carrying a target
 // so avoid running over the collection zone and possibly pushing cubes out.
 void ObstacleController::avoidCollectionZone() {
-  
+
     result.type = precisionDriving;
 
     result.pd.cmdVel = 0.0;
@@ -119,7 +140,7 @@ void ObstacleController::avoidCollectionZone() {
 
 Result ObstacleController::DoWork() {
 
-  std::cout << "ObstacleController: Do Work"<< std::endl;
+  // std::cout << "ObstacleController: Do Work"<< std::endl;
   clearWaypoints = true;
   set_waypoint = true;
   result.PIDMode = CONST_PID;
@@ -144,7 +165,7 @@ Result ObstacleController::DoWork() {
     	clearWaypoints = false;
 		goalPosSet = false;
 
-    	result.type = waypoint; 
+    	result.type = waypoint;
     	result.PIDMode = FAST_PID; //use fast pid for waypoints
     	Point forward;            //waypoint is directly ahead of current heading
     	forward.x = currentLocation.x + (0.5 * cos(currentLocation.theta));
@@ -185,20 +206,21 @@ void ObstacleController::ProcessData() {
   //there is no report of 0 tags seen
   long int Tdifference = current_time - timeSinceTags;
   float Td = Tdifference/1e3;
-  std::cout << "Obstacle Controller: Process Data "<< std::endl;
+  // std::cout << "Obstacle Controller: Process Data "<< std::endl;
   if (Td >= 0.5) {
     tag_boundary_seen = false;
     collection_zone_seen = false;
     phys= false;
     if (!obstacleAvoided)
     {
+      std::cout << "Can set waypoint Reset - in process" << std::endl;
       can_set_waypoint = true;
     }
   }
 
   //If we are ignoring the center sonar
   if(ignore_center_sonar){
-    //If the center distance is longer than the reactivation threshold 
+    //If the center distance is longer than the reactivation threshold
     if(center > reactivate_center_sonar_threshold){
       //currently do not re-enable the center sonar instead ignore it till the block is dropped off
       //ignore_center_sonar = false; //look at sonar again beacuse center ultrasound has gone long
@@ -220,7 +242,7 @@ void ObstacleController::ProcessData() {
   }
 
   //if any sonar is below the trigger distance set physical obstacle true
-  if (center < triggerDistance || right < triggerDistance || left < triggerDistance)
+  if (center < triggerDistance || right < triggerDistance || left < triggerDistance || true == followBugAlgorithm)
   {
     phys = true;
     timeSinceTags = current_time;
@@ -243,7 +265,7 @@ void ObstacleController::ProcessData() {
 // the collection zone
 // Added relative pose information so we know whether the
 // top of the AprilTag is pointing towards the rover or away.
-// If the top of the tags are away from the rover then treat them as obstacles. 
+// If the top of the tags are away from the rover then treat them as obstacles.
 void ObstacleController::setTagData(vector<Tag> tags){
   tag_boundary_seen = false;
   collection_zone_seen = false;
@@ -314,11 +336,12 @@ bool ObstacleController::ShouldInterrupt() {
 }
 
 bool ObstacleController::HasWork() {
-  
-  std::cout << "Obstacle Controller: Has Work"<< std::endl;
+
+  // std::cout << "Obstacle Controller: Has Work"<< std::endl;
   //there is work if a waypoint needs to be set or the obstacle hasnt been avoided
   if (can_set_waypoint && set_waypoint)
   {
+    std::cout << "Can set waypoint Reset - in has work" << std::endl;
     return true;
   }
 
@@ -327,7 +350,7 @@ bool ObstacleController::HasWork() {
 
 //ignore center ultrasound
 void ObstacleController::setIgnoreCenterSonar(){
-  ignore_center_sonar = true; 
+  ignore_center_sonar = true;
 }
 
 void ObstacleController::setCurrentTimeInMilliSecs( long int time )
@@ -364,27 +387,35 @@ void ObstacleController::setTargetHeldClear()
 
 void ObstacleController::SetGoalPoint(Point goalPos)
 {
-	std::cout << "I got a Goal Point from Logic Controller:" << std::endl;
+	// std::cout << "I got a Goal Point from Logic Controller:" << std::endl;
 	goalPosition = goalPos;
-	std::cout << goalPosition.x << "," << goalPosition.y << std::endl;
+	// std::cout << goalPosition.x << "," << goalPosition.y << std::endl;
 
 	goalPosSet = true ;
 	rotDirection =0;
 }
 
 bool ObstacleController :: checkMline()
-{ 
+{
   bool mline = false;
-  double distErr = 0.5;
+  double distErr = 0.1;
   double distanceToMline;
   double a = goalPosition.y-initialPosition.y;
   double b = initialPosition.x-goalPosition.x;
   double c = initialPosition.y*(goalPosition.x-initialPosition.x)-initialPosition.x*(goalPosition.y-initialPosition.y);
-  double x0 = currentLocation.x; 
+  double x0 = currentLocation.x;
   double y0 = currentLocation.y;
     //calculate the distance between the robot and the Mline
   distanceToMline = abs( a*x0 + b*y0 + c ) / sqrt( a*a+b*b );
-  if (distanceToMline < distErr){
+
+  double distanceFromInit;
+  double xdiff = currentLocation.y-initialPosition.y;
+  double ydiff = currentLocation.x-initialPosition.x;
+  distanceFromInit = sqrt( (xdiff*xdiff) + (ydiff*ydiff) );
+  std::cout << "Initial Point (" << initialPosition.x << "," << initialPosition.y << std::endl;
+  std::cout << "Current Point (" << currentLocation.x << "," << currentLocation.y << std::endl;
+  std::cout << "Dist init" << distanceFromInit << " | Dist M "<< distanceToMline <<std::endl;
+  if (distanceToMline < distErr && distanceFromInit > 0.2){
         //to ensure that the robot is on the Mline, it means between the start position and the goal position
         if(initialPosition.x < goalPosition.x){
             if(currentLocation.x > initialPosition.x && currentLocation.x < goalPosition.x){
@@ -409,5 +440,4 @@ bool ObstacleController :: checkMline()
   }
     //cout<<"robot on mline? "<<mline<<"\n";
   return mline;
-}     
-
+}
