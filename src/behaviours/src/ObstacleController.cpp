@@ -5,6 +5,7 @@ ObstacleController::ObstacleController()
   obstacleAvoided = true;
   obstacleDetected = false;
   obstacleInterrupt = false;
+  requestRejectPoint = false ;
   result.PIDMode = CONST_PID; //use the const PID to turn at a constant speed
   goalPosSet = false ;
   rotDirection = 0;
@@ -32,12 +33,21 @@ void ObstacleController::avoidObstacle() {
 
   //always turn left to avoid obstacles
   int checkM = checkMline();
-	if(checkM > 0)
+	if(checkM == 1)
 	{
+    /* The  Mline has been reached and can go towards the obstacle */
     // std::cout << "Check M Line" << std::endl;
 		followBugAlgorithm = false ;
+    requestRejectPoint = false ;
     obstacleAvoided = true;
 	}
+  else if(2 == checkM)
+  {
+    /* Implement an algrithm here to reject a point */
+    followBugAlgorithm = false ;
+    requestRejectPoint = true ;
+    obstacleAvoided = false ;
+  }
 	else
 	{
 
@@ -168,6 +178,9 @@ Result ObstacleController::DoWork() {
     	clearWaypoints = false;
 		goalPosSet = false;
 
+    if(false == requestRejectPoint)
+    {
+
     	result.type = waypoint;
     	result.PIDMode = FAST_PID; //use fast pid for waypoints
     	Point forward;            //waypoint is directly ahead of current heading
@@ -180,9 +193,6 @@ Result ObstacleController::DoWork() {
 
   if(false == goalPosSet)
   {
-  		result.type = behavior ;
-		result.b = setGoalPoint ;
-
 		initialPosition = currentLocation ;
   }
 
@@ -245,7 +255,7 @@ void ObstacleController::ProcessData() {
   }
 
   //if any sonar is below the trigger distance set physical obstacle true
-  if (center < triggerDistance || right < triggerDistance || left < triggerDistance || true == followBugAlgorithm)
+  if (center < triggerDistance || true == followBugAlgorithm)
   {
     phys = true;
     timeSinceTags = current_time;
@@ -257,10 +267,6 @@ void ObstacleController::ProcessData() {
     obstacleDetected = true;
     obstacleAvoided = false;
     can_set_waypoint = false;
-  }
-  else
-  {
-    //obstacleAvoided = true;
   }
 }
 
@@ -424,33 +430,55 @@ bool ObstacleController :: checkMline()
   // std::cout << "Dist init" << distanceFromInit << " | Dist M "<< distanceToMline <<std::endl;
   if (distanceToMline < distErr && distanceFromInit > distInitErr){
         //to ensure that the robot is on the Mline, it means between the start position and the goal position
-        if(currentLocation.x > initialPosition.x && currentLocation.x > goalPosition.x){
-            if(currentLocation.y > initialPosition.y && currentLocation.y > goalPosition.y){
-              mline = 2;
-            }
-        }
-        else if(initialPosition.x < goalPosition.x){
+        if(initialPosition.x < goalPosition.x){
             if(currentLocation.x > initialPosition.x && currentLocation.x < goalPosition.x){
                 mline = 1;
+            }
+            else if(currentLocation.x > initialPosition.x && currentLocation.x > goalPosition.x)
+            {
+              mLine = 2;
             }
         }
         else if(initialPosition.x > goalPosition.x){
             if(currentLocation.x < initialPosition.x && currentLocation.x > goalPosition.x){
                 mline = 1;
             }
+            else if(currentLocation.x < initialPosition.x && currentLocation.x < goalPosition.x)
+            {
+              mLine = 2;
+            }
         }
         else if(initialPosition.y < goalPosition.y){
             if(currentLocation.y > initialPosition.y && currentLocation.y < goalPosition.y){
                 mline = 1;
+            }
+            else if(currentLocation.y > initialPosition.y && currentLocation.y > goalPosition.y)
+            {
+              mLine = 2;
             }
         }
         else{
             if(currentLocation.y < initialPosition.y && currentLocation.y > goalPosition.y){
                 mline = 1;
             }
+            else if(currentLocation.y < initialPosition.y && currentLocation.y < goalPosition.y)
+            {
+              mLine = 2;
+            }
         }
 
   }
     //cout<<"robot on mline? "<<mline<<"\n";
   return mline;
+}
+
+bool ObstacleController::requestRejectPoint()
+{
+  return requestRejectPoint;
+}
+
+void ObstacleController::resetRejectRequest()
+{
+  /* This function to be called from controller interconnect after point has been requested */
+  requestRejectPoint = false;
 }

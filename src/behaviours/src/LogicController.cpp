@@ -364,6 +364,14 @@ void LogicController::controllerInterconnect()
     driveController.Reset();
   }
 
+  /* Check if there is a request to reject the point from the obstacle controller */
+  if(true == obstacleController.requestRejectPoint())
+  {
+    std::cout << "Request to reject a point" << std::endl;
+    /* Reject the next point from the search controller */
+    obstacleController.resetRejectRequest();
+  }
+
 }
 
 // Receives position in the world inertial frame (should rename to SetOdomPositionData).
