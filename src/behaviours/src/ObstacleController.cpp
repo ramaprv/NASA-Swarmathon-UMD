@@ -31,7 +31,7 @@ void ObstacleController::avoidObstacle() {
 	}
 
   //always turn left to avoid obstacles
-  checkM = checkMline()
+  int checkM = checkMline();
 	if(checkM > 0)
 	{
     // std::cout << "Check M Line" << std::endl;
@@ -84,7 +84,7 @@ void ObstacleController::avoidObstacle() {
 					result.type = waypoint;
 					result.PIDMode = FAST_PID; //use fast pid for waypoints
 					Point forward;            //waypoint is directly ahead of current heading
-          double theta = (M_PI/180) *10;
+          double theta = (M_PI/180) * 5;
           if(1 == rotDirection)
           {
             //turn left
