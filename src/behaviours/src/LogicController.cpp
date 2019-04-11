@@ -369,7 +369,11 @@ void LogicController::controllerInterconnect()
   {
     std::cout << "Request to reject a point" << std::endl;
     /* Reject the next point from the search controller */
+
     obstacleController.resetRejectRequest();
+  }else{
+    // If the previous point can be accessed then decrement the index of the search path
+    searchController.decrement(1);
   }
 
 }
@@ -500,6 +504,6 @@ void LogicController::updateProcessChange2Controllers(int p){
 	// if controller picks up then decrement the search path
 	// so that it can come back and search the same place for cluster
 	  if (p ==1){
-		  searchController.decrementPathIndex();
+		  searchController.decrementPathIndex(4);
 	  }
 }
