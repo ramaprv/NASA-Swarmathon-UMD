@@ -1,4 +1,5 @@
 #include "LogicController.h"
+#include<algorithm>
 
 LogicController::LogicController() {
 
@@ -31,9 +32,6 @@ void LogicController::Reset() {
 Result LogicController::DoWork()
 {
   Result result;
-  // Set the hilbert range for the rover in the hilbert map
-  setRoverSearchRange();
-
   // First, a loop runs through all the controllers who have a priority of 0 or
   // above with the largest number being most important. A priority of less than
   // 0 is an ignored controller (we will use -1 as the standard for an ignored
@@ -224,6 +222,9 @@ Result LogicController::DoWork()
   // Allow the controllers to communicate data between each other,
   // depending on the processState.
   controllerInterconnect();
+
+  // Set the hilbert range for the rover in the hilbert map
+  setRoverSearchRange();
 
   // Give the ROSAdapter the final decision on how it should drive.
   return result;
@@ -503,12 +504,19 @@ void LogicController::setRangeMap(std::vector<RangeMapItem> rangeMap){
 void LogicController::setRoverSearchRange() {
   RangeMapItem _roverRange;
   _roverRange.roverName = searchController.roverName;
-  _roverRange.hilbertStart = searchController.currentPathPoints.front();
-  _roverRange.hilbertEnd = searchController.currentPathPoints.back();
+  auto currentPts = searchController.currentPathPoints;
+  if (currentPts.size() > 0 ) {
+    _roverRange.hilbertStart.x = currentPts.front().x;
+    _roverRange.hilbertStart.y = currentPts.front().y;
+    _roverRange.hilbertEnd.x = currentPts.back().x;
+    _roverRange.hilbertEnd.y = currentPts.back().y;
+
+  }
 
   bool isNotMember = true;
   // index = std::find(rangeMap.begin(), rangeMap.end(), _roverRange);
-  for(auto idx = rangeMap.begin(); idx < rangeMap.end(); idx++) {
+
+  for(auto idx = rangeMap.begin(); idx != rangeMap.end(); ++idx) {
     if(idx->roverName == _roverRange.roverName) {
       idx->hilbertStart = _roverRange.hilbertStart;
       idx->hilbertEnd = _roverRange.hilbertEnd;
@@ -516,7 +524,9 @@ void LogicController::setRoverSearchRange() {
       break;
     }
   }
+
   if (isNotMember) {
     rangeMap.push_back(_roverRange);
   }
+  std::cout << "Num rovers in table: " << rangeMap.size() << std::endl;
 }

@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <string>
+#include <iostream>
 
 // ROS libraries
 #include <angles/angles.h>
@@ -258,7 +259,7 @@ int main(int argc, char **argv) {
   heartbeatPublisher = mNH.advertise<std_msgs::String>((publishedName + "/behaviour/heartbeat"), 1, true);		//publishes ROSAdapters status via its "heartbeat"
   waypointFeedbackPublisher = mNH.advertise<swarmie_msgs::Waypoint>((publishedName + "/waypoints"), 1, true);		//publishes a waypoint to travel to if the rover is given a waypoint in manual mode
   swarmiesPub = mNH.advertise<std_msgs::String>("/swarmiesList", 1000, true);
-  mapMarkerPub = mNH.advertise<visualization_msgs::Marker>("/swarmmap", 10, true);
+  mapMarkerPub = mNH.advertise<visualization_msgs::Marker>(publishedName + "/swarmmap", 10, true);
   roverRangeMapPub = mNH.advertise<swarmie_msgs::RangeMap>("/swarmiesHilbertMap", 100, true);
 
   //timers
@@ -440,7 +441,6 @@ void behaviourStateMachine(const ros::TimerEvent&)
           swarmiesPub.publish(msg1);
         }
       }
-
     }
     else
     {
@@ -517,8 +517,9 @@ void behaviourStateMachine(const ros::TimerEvent&)
     //logicController.getPublishData(); //Not Currently Implemented, used to get data from logic controller and publish to the appropriate ROS Topic; Suggested
     //adds a blank space between sets of debugging data to easily tell one tick from the next
     //cout << endl;
+
     swarmie_msgs::RangeMap rangeMapROS;
-    for(auto item = logicController.rangeMap.begin(); item < logicController.rangeMap.end(); item++) {
+    for(auto item = logicController.rangeMap.begin(); item != logicController.rangeMap.end(); ++item) {
       swarmie_msgs::RangeMapItem hilbertItemROS;
       hilbertItemROS.roverName.data = item->roverName;
       hilbertItemROS.hilbertStart.x = item->hilbertStart.x;
@@ -849,6 +850,7 @@ void roverRangeMapHandler(const swarmie_msgs::RangeMap& msg) {
     rangeMap.push_back(hilbertItem);
   }
   logicController.setRangeMap(rangeMap);
+  // std::cout << "Came here" << std::endl;
 }
 
 
