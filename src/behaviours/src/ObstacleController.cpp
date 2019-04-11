@@ -13,6 +13,7 @@ ObstacleController::ObstacleController()
 //note, not a full reset as this could cause a bad state
 //resets the interupt and knowledge of an obstacle or obstacle avoidance only.
 void ObstacleController::Reset() {
+  std::cout << "Reset -->" << '\n';
   obstacleAvoided = true;
   obstacleDetected = false;
   obstacleInterrupt = false;
@@ -33,7 +34,9 @@ void ObstacleController::avoidObstacle() {
 	if(true == checkMline())
 	{
     std::cout << "Check M Line" << std::endl;
-		obstacleAvoided = true ;
+		followBugAlgorithm = false ;
+    obstacleAvoided = true;
+    can_set_waypoint = true;
 	}
 	else
 	{
@@ -327,6 +330,7 @@ bool ObstacleController::ShouldInterrupt() {
     //if the obstacle has been avoided and we had previously detected one interrupt to change to waypoints
     if(obstacleAvoided && obstacleDetected)
     {
+      std::cout << "interrupt" << '\n';
       Reset();
       return true;
     } else {
@@ -378,6 +382,7 @@ void ObstacleController::setTargetHeldClear()
   //adjust current state on transition from cube held to cube not held
   if (targetHeld)
   {
+    std::cout << "targetHeld" << '\n';
     Reset();
     targetHeld = false;
     previousTargetState = false;
@@ -414,8 +419,9 @@ bool ObstacleController :: checkMline()
   distanceFromInit = sqrt( (xdiff*xdiff) + (ydiff*ydiff) );
   std::cout << "Initial Point (" << initialPosition.x << "," << initialPosition.y << std::endl;
   std::cout << "Current Point (" << currentLocation.x << "," << currentLocation.y << std::endl;
+  std::cout << "Goal Point (" << goalPosition.x << "," << goalPosition.y << std::endl;
   std::cout << "Dist init" << distanceFromInit << " | Dist M "<< distanceToMline <<std::endl;
-  if (distanceToMline < distErr && distanceFromInit > 0.2){
+  if (distanceToMline < distErr && distanceFromInit > 1.2){
         //to ensure that the robot is on the Mline, it means between the start position and the goal position
         if(initialPosition.x < goalPosition.x){
             if(currentLocation.x > initialPosition.x && currentLocation.x < goalPosition.x){
