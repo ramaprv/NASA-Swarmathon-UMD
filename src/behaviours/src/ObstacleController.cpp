@@ -13,7 +13,7 @@ ObstacleController::ObstacleController()
 //note, not a full reset as this could cause a bad state
 //resets the interupt and knowledge of an obstacle or obstacle avoidance only.
 void ObstacleController::Reset() {
-  std::cout << "Reset -->" << '\n';
+  // std::cout << "Reset -->" << '\n';
   obstacleAvoided = true;
   obstacleDetected = false;
   obstacleInterrupt = false;
@@ -30,10 +30,11 @@ void ObstacleController::avoidObstacle() {
  		followBugAlgorithm = true;
 	}
 
-    //always turn left to avoid obstacles
-	if(true == checkMline())
+  //always turn left to avoid obstacles
+  int checkM = checkMline();
+	if(checkM > 0)
 	{
-    std::cout << "Check M Line" << std::endl;
+    // std::cout << "Check M Line" << std::endl;
 		followBugAlgorithm = false ;
     obstacleAvoided = true;
 	}
@@ -41,7 +42,7 @@ void ObstacleController::avoidObstacle() {
 	{
 
 			if (tag_boundary_seen || center < 0.8) {  // In case the obstacle is detected at the center rotate the bot until it aligns in following position
-			  std::cout << "Rotating the bot" << center << std::endl;
+			  // std::cout << "Rotating the bot" << center << std::endl;
 			  result.type = precisionDriving;
 
 			  if(tag_boundary_seen || left < right)
@@ -67,7 +68,7 @@ void ObstacleController::avoidObstacle() {
 					{
 						rotDirection = 2; // Rotate Right when you find free space and you have reached the M line
 					}
-					std::cout << "Moving the bot straight" << right << ","  << left << std::endl;
+					// std::cout << "Moving the bot straight" << right << ","  << left << std::endl;
 					result.type = waypoint;
 					result.PIDMode = FAST_PID; //use fast pid for waypoints
 					Point forward;            //waypoint is directly ahead of current heading
@@ -78,11 +79,11 @@ void ObstacleController::avoidObstacle() {
 				}
 				else
 				{
-          std::cout << "Bot to turn" << right << ","  << left << std::endl;
+          // std::cout << "Bot to turn" << right << ","  << left << std::endl;
 					result.type = waypoint;
 					result.PIDMode = FAST_PID; //use fast pid for waypoints
 					Point forward;            //waypoint is directly ahead of current heading
-          double theta = (M_PI/180) *10;
+          double theta = (M_PI/180) * 5;
           if(1 == rotDirection)
           {
             //turn left
@@ -401,47 +402,54 @@ void ObstacleController::SetGoalPoint(Point goalPos)
 
 bool ObstacleController :: checkMline()
 {
-  bool mline = false;
+  int mline = 0;
   double distErr = 0.1;
+  double distInitErr = 1.2;
   double distanceToMline;
   double a = goalPosition.y-initialPosition.y;
   double b = initialPosition.x-goalPosition.x;
   double c = initialPosition.y*(goalPosition.x-initialPosition.x)-initialPosition.x*(goalPosition.y-initialPosition.y);
   double x0 = currentLocation.x;
   double y0 = currentLocation.y;
-    //calculate the distance between the robot and the Mline
+  //calculate the distance between the robot and the Mline
   distanceToMline = abs( a*x0 + b*y0 + c ) / sqrt( a*a+b*b );
 
   double distanceFromInit;
   double xdiff = currentLocation.y-initialPosition.y;
   double ydiff = currentLocation.x-initialPosition.x;
   distanceFromInit = sqrt( (xdiff*xdiff) + (ydiff*ydiff) );
-  std::cout << "Initial Point (" << initialPosition.x << "," << initialPosition.y << std::endl;
-  std::cout << "Current Point (" << currentLocation.x << "," << currentLocation.y << std::endl;
-  std::cout << "Goal Point (" << goalPosition.x << "," << goalPosition.y << std::endl;
-  std::cout << "Dist init" << distanceFromInit << " | Dist M "<< distanceToMline <<std::endl;
-  if (distanceToMline < distErr && distanceFromInit > 1.2){
+  // std::cout << "Initial Point (" << initialPosition.x << "," << initialPosition.y << std::endl;
+  // std::cout << "Current Point (" << currentLocation.x << "," << currentLocation.y << std::endl;
+  // std::cout << "Goal Point (" << goalPosition.x << "," << goalPosition.y << std::endl;
+  // std::cout << "Dist init" << distanceFromInit << " | Dist M "<< distanceToMline <<std::endl;
+  if (distanceToMline < distErr && distanceFromInit > distInitErr){
         //to ensure that the robot is on the Mline, it means between the start position and the goal position
-        if(initialPosition.x < goalPosition.x){
+        if(currentLocation.x > initialPosition.x && currentLocation.x > goalPosition.x){
+            if(currentLocation.y > initialPosition.y && currentLocation.y > goalPosition.y){
+              mline = 2;
+            }
+        }
+        else if(initialPosition.x < goalPosition.x){
             if(currentLocation.x > initialPosition.x && currentLocation.x < goalPosition.x){
-                mline = true;
+                mline = 1;
             }
         }
         else if(initialPosition.x > goalPosition.x){
             if(currentLocation.x < initialPosition.x && currentLocation.x > goalPosition.x){
-                mline = true;
+                mline = 1;
             }
         }
         else if(initialPosition.y < goalPosition.y){
             if(currentLocation.y > initialPosition.y && currentLocation.y < goalPosition.y){
-                mline = true;
+                mline = 1;
             }
         }
         else{
             if(currentLocation.y < initialPosition.y && currentLocation.y > goalPosition.y){
-                mline = true;
+                mline = 1;
             }
         }
+
   }
     //cout<<"robot on mline? "<<mline<<"\n";
   return mline;
