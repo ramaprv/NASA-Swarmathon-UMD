@@ -5,7 +5,7 @@ ObstacleController::ObstacleController()
   obstacleAvoided = true;
   obstacleDetected = false;
   obstacleInterrupt = false;
-  requestRejectPoint = false ;
+  requestRejection = false ;
   result.PIDMode = CONST_PID; //use the const PID to turn at a constant speed
   goalPosSet = false ;
   rotDirection = 0;
@@ -31,102 +31,102 @@ void ObstacleController::avoidObstacle() {
  		followBugAlgorithm = true;
 	}
 
-  //always turn left to avoid obstacles
-  int checkM = checkMline();
-	if(checkM == 1)
-	{
-    /* The  Mline has been reached and can go towards the obstacle */
-    // std::cout << "Check M Line" << std::endl;
-		followBugAlgorithm = false ;
-    requestRejectPoint = false ;
-    obstacleAvoided = true;
-	}
-  else if(2 == checkM)
-  {
-    /* Implement an algrithm here to reject a point */
-    followBugAlgorithm = false ;
-    requestRejectPoint = true ;
-    obstacleAvoided = false ;
+  if (tag_boundary_seen || center < 0.8) {  // In case the obstacle is detected at the center rotate the bot until it aligns in following position
+    // std::cout << "Rotating the bot" << center << std::endl;
+    result.type = precisionDriving;
+
+    if(tag_boundary_seen || left < right)
+    result.pd.cmdAngular = -K_angular * 0.2;
+    else
+    result.pd.cmdAngular = K_angular * 0.2;
+
+
+    result.pd.setPointVel = 0.0;
+    result.pd.cmdVel = 0.0;
+    result.pd.setPointYaw = 0;
   }
-	else
-	{
+  else if(center > 0.8)
+  {
+    if(true == followBugAlgorithm)
+    {
+      //always turn left to avoid obstacles
+      int checkM = checkMline();
+      if(checkM == 1)
+      {
+        /* The  Mline has been reached and can go towards the obstacle */
+        // std::cout << "Check M Line" << std::endl;
+        followBugAlgorithm = false ;
+        requestRejection = false ;
+        obstacleAvoided = true;
+      }
+      else if(2 == checkM)
+      {
+        /* Implement an algrithm here to reject a point */
+        followBugAlgorithm = false ;
+        requestRejection = true ;
+        obstacleAvoided = false ;
+      }
+      else
+      {
+            if((right < triggerDistance + 0.2) || (left < triggerDistance + 0.2))
+            {
+              if(left < triggerDistance)
+              {
+                rotDirection = 1; // Rotate left when you find free space and you have not reached the M line
+              }
+              else
+              {
+                rotDirection = 2; // Rotate Right when you find free space and you have reached the M line
+              }
+              // std::cout << "Moving the bot straight" << right << ","  << left << std::endl;
+              result.type = waypoint;
+              result.PIDMode = FAST_PID; //use fast pid for waypoints
+              Point forward;            //waypoint is directly ahead of current heading
+              forward.x = currentLocation.x + (0.2 * cos(currentLocation.theta));
+              forward.y = currentLocation.y + (0.2 * sin(currentLocation.theta));
+              result.wpts.waypoints.clear();
+              result.wpts.waypoints.push_back(forward);
+            }
+            else
+            {
+              // std::cout << "Bot to turn" << right << ","  << left << std::endl;
+              result.type = waypoint;
+              result.PIDMode = FAST_PID; //use fast pid for waypoints
+              Point forward;            //waypoint is directly ahead of current heading
+              double theta = (M_PI/180) * 5;
+              if(1 == rotDirection)
+              {
+                //turn left
+                forward.x = currentLocation.x + (1 * cos(currentLocation.theta + theta));
+                forward.y = currentLocation.y + (1 * sin(currentLocation.theta + theta));
+              }else{
+                //turn right
+                forward.x = currentLocation.x + (1 * cos(currentLocation.theta - theta));
+                forward.y = currentLocation.y + (1 * sin(currentLocation.theta - theta));
+              }
 
-			if (tag_boundary_seen || center < 0.8) {  // In case the obstacle is detected at the center rotate the bot until it aligns in following position
-			  // std::cout << "Rotating the bot" << center << std::endl;
-			  result.type = precisionDriving;
+              result.wpts.waypoints.clear();
+              result.wpts.waypoints.push_back(forward);
 
-			  if(tag_boundary_seen || left < right)
-				result.pd.cmdAngular = -K_angular * 0.2;
-			  else
-				result.pd.cmdAngular = K_angular * 0.2;
-
-
-			  result.pd.setPointVel = 0.0;
-			  result.pd.cmdVel = 0.0;
-			  result.pd.setPointYaw = 0;
-			}
-	/* Bug algo goes here */
-			else if(center > 0.8)
-			{
-				if((right < triggerDistance + 0.2) || (left < triggerDistance + 0.2))
-				{
-					if(left < triggerDistance)
-					{
-						rotDirection = 1; // Rotate left when you find free space and you have not reached the M line
-					}
-					else
-					{
-						rotDirection = 2; // Rotate Right when you find free space and you have reached the M line
-					}
-					// std::cout << "Moving the bot straight" << right << ","  << left << std::endl;
-					result.type = waypoint;
-					result.PIDMode = FAST_PID; //use fast pid for waypoints
-					Point forward;            //waypoint is directly ahead of current heading
-					forward.x = currentLocation.x + (0.2 * cos(currentLocation.theta));
-					forward.y = currentLocation.y + (0.2 * sin(currentLocation.theta));
-					result.wpts.waypoints.clear();
-					result.wpts.waypoints.push_back(forward);
-				}
-				else
-				{
-          // std::cout << "Bot to turn" << right << ","  << left << std::endl;
-					result.type = waypoint;
-					result.PIDMode = FAST_PID; //use fast pid for waypoints
-					Point forward;            //waypoint is directly ahead of current heading
-          double theta = (M_PI/180) * 5;
-          if(1 == rotDirection)
-          {
-            //turn left
-            forward.x = currentLocation.x + (1 * cos(currentLocation.theta + theta));
-  					forward.y = currentLocation.y + (1 * sin(currentLocation.theta + theta));
-          }else{
-            //turn right
-            forward.x = currentLocation.x + (1 * cos(currentLocation.theta - theta));
-  					forward.y = currentLocation.y + (1 * sin(currentLocation.theta - theta));
-          }
-
-					result.wpts.waypoints.clear();
-					result.wpts.waypoints.push_back(forward);
-
-          // std::cout << "precisionDriving" << right << ","  << left << std::endl;
-          // std::cout << "Prev Angle " << result.pd.cmdAngular << std::endl;
-					// result.type = precisionDriving;
-					// if(1 == rotDirection)
-					// {
-					// 	result.pd.cmdAngular = -K_angular*0.2;
-					// }
-					// else
-					// {
-					// 	result.pd.cmdAngular = +K_angular * 0.2;
-					// }
-          // std::cout << "Curr Angle " << result.pd.cmdAngular << std::endl;
-					// result.pd.setPointVel = 0.0;
-					// result.pd.cmdVel = 0.0;
-					// result.pd.setPointYaw = 0;
-				}
-			}
-	}
-
+              // std::cout << "precisionDriving" << right << ","  << left << std::endl;
+              // std::cout << "Prev Angle " << result.pd.cmdAngular << std::endl;
+              // result.type = precisionDriving;
+              // if(1 == rotDirection)
+              // {
+              // 	result.pd.cmdAngular = -K_angular*0.2;
+              // }
+              // else
+              // {
+              // 	result.pd.cmdAngular = +K_angular * 0.2;
+              // }
+              // std::cout << "Curr Angle " << result.pd.cmdAngular << std::endl;
+              // result.pd.setPointVel = 0.0;
+              // result.pd.cmdVel = 0.0;
+              // result.pd.setPointYaw = 0;
+            }
+        }
+    }
+  }
 }
 
 // A collection zone was seen in front of the rover and we are not carrying a target
@@ -178,7 +178,7 @@ Result ObstacleController::DoWork() {
     	clearWaypoints = false;
 		goalPosSet = false;
 
-    if(false == requestRejectPoint)
+    if(false == requestRejection)
     {
 
     	result.type = waypoint;
@@ -190,10 +190,12 @@ Result ObstacleController::DoWork() {
     	result.wpts.waypoints.push_back(forward);
   	}
   }
+}
 
   if(false == goalPosSet)
   {
 		initialPosition = currentLocation ;
+    goalPosSet = true ;
   }
 
   return result;
@@ -255,7 +257,7 @@ void ObstacleController::ProcessData() {
   }
 
   //if any sonar is below the trigger distance set physical obstacle true
-  if (center < triggerDistance || true == followBugAlgorithm)
+  if (center < 0.8 || true == followBugAlgorithm)
   {
     phys = true;
     timeSinceTags = current_time;
@@ -398,12 +400,15 @@ void ObstacleController::setTargetHeldClear()
 
 void ObstacleController::SetGoalPoint(Point goalPos)
 {
+  if(false == followBugAlgorithm)
+  {
+    goalPosition = goalPos;
+  	rotDirection =0;
+  }
 	// std::cout << "I got a Goal Point from Logic Controller:" << std::endl;
-	goalPosition = goalPos;
 	// std::cout << goalPosition.x << "," << goalPosition.y << std::endl;
 
-	goalPosSet = true ;
-	rotDirection =0;
+
 }
 
 bool ObstacleController :: checkMline()
@@ -436,7 +441,7 @@ bool ObstacleController :: checkMline()
             }
             else if(currentLocation.x > initialPosition.x && currentLocation.x > goalPosition.x)
             {
-              mLine = 2;
+              mline = 2;
             }
         }
         else if(initialPosition.x > goalPosition.x){
@@ -445,7 +450,7 @@ bool ObstacleController :: checkMline()
             }
             else if(currentLocation.x < initialPosition.x && currentLocation.x < goalPosition.x)
             {
-              mLine = 2;
+              mline = 2;
             }
         }
         else if(initialPosition.y < goalPosition.y){
@@ -454,7 +459,7 @@ bool ObstacleController :: checkMline()
             }
             else if(currentLocation.y > initialPosition.y && currentLocation.y > goalPosition.y)
             {
-              mLine = 2;
+              mline = 2;
             }
         }
         else{
@@ -463,7 +468,7 @@ bool ObstacleController :: checkMline()
             }
             else if(currentLocation.y < initialPosition.y && currentLocation.y < goalPosition.y)
             {
-              mLine = 2;
+              mline = 2;
             }
         }
 
@@ -474,11 +479,11 @@ bool ObstacleController :: checkMline()
 
 bool ObstacleController::requestRejectPoint()
 {
-  return requestRejectPoint;
+  return requestRejection;
 }
 
 void ObstacleController::resetRejectRequest()
 {
   /* This function to be called from controller interconnect after point has been requested */
-  requestRejectPoint = false;
+  requestRejection = false;
 }

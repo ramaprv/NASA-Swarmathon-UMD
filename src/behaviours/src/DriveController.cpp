@@ -492,11 +492,14 @@ PIDConfig DriveController::constYawConfig() {
 
 }
 
-Point DriveController::GetNextWaypoint()
+std::vector<Point> DriveController::GetNextWaypoint()
 {
-	Point tmpLocation =  {0};
+	std::vector<Point> tmpLocation ;
 
-	tmpLocation = waypoints[0];
+  if(false == waypoints.empty())
+  {
+    tmpLocation.push_back(waypoints[0]);
+  }
 
 	return tmpLocation;
 }

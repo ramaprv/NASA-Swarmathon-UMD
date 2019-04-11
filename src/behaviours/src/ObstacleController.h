@@ -97,7 +97,7 @@ private:
   bool goalPosSet ;
   int rotDirection ;
   bool followBugAlgorithm;
-  bool requestRejectPoint = false;
+  bool requestRejection = false;
 };
 
 #endif // OBSTACLECONTOLLER_H
