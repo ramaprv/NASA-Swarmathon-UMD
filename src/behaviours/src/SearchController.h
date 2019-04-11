@@ -30,7 +30,7 @@ public:
   void generateHilbertPoints(unsigned int degree);
   void setRoverName(string publishedName);
   void setRoverCount_Rank(int noOfRovers,int rank);
-  void decrementPathIndex();
+  void decrementPathIndex(int a);
 protected:
 
   void ProcessData();
