@@ -36,7 +36,6 @@ void ObstacleController::avoidObstacle() {
     std::cout << "Check M Line" << std::endl;
 		followBugAlgorithm = false ;
     obstacleAvoided = true;
-    can_set_waypoint = true;
 	}
 	else
 	{
