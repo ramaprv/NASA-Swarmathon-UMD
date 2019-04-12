@@ -61,7 +61,7 @@ Result DropOffController::DoWork() {
   if(reachedCollectionPoint)
   {
     //cout << "2" << endl; //Debugging statement
-    if (timerTimeElapsed >= 5)
+    if (timerTimeElapsed >= 7)
     {
       if (finalInterrupt)
       {
@@ -76,7 +76,29 @@ Result DropOffController::DoWork() {
         //cout << "1" << endl; //Debugging statement
       }
     }
-    else if (timerTimeElapsed >= 0.1)
+    else if (timerTimeElapsed <= 0.5)
+    {
+      isPrecisionDriving = true;
+      result.type = precisionDriving;
+
+      result.fingerAngle = 0; //close fingers
+      result.wristAngle = 0; //raise wrist
+
+      result.pd.cmdVel = 0;
+      result.pd.cmdAngularError = 0.0;
+    }
+    else if (timerTimeElapsed <= 1.5)
+    {
+      isPrecisionDriving = true;
+      result.type = precisionDriving;
+
+      result.fingerAngle = 0; //open fingers
+      result.wristAngle = 0; //raise wrist
+
+      result.pd.cmdVel = 0.1;
+      result.pd.cmdAngularError = 0.0;
+    }
+    else if (timerTimeElapsed > 1.5)
     {
       isPrecisionDriving = true;
       result.type = precisionDriving;
@@ -84,7 +106,7 @@ Result DropOffController::DoWork() {
       result.fingerAngle = M_PI_2; //open fingers
       result.wristAngle = 0; //raise wrist
 
-      result.pd.cmdVel = -0.3;
+      result.pd.cmdVel = -0.2;
       result.pd.cmdAngularError = 0.0;
     }
 
@@ -269,6 +291,7 @@ Result DropOffController::DoWork() {
 
   if (!centerSeen && seenEnoughCenterTags)
   {
+    result.wristAngle = 0; //raise wrist
     reachedCollectionPoint = true;
     centerApproach = false;
     returnTimer = current_time;
