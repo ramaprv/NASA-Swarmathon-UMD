@@ -1,4 +1,5 @@
 #include "LogicController.h"
+#include<algorithm>
 
 LogicController::LogicController() {
 
@@ -31,7 +32,6 @@ void LogicController::Reset() {
 Result LogicController::DoWork()
 {
   Result result;
-
   // First, a loop runs through all the controllers who have a priority of 0 or
   // above with the largest number being most important. A priority of less than
   // 0 is an ignored controller (we will use -1 as the standard for an ignored
@@ -174,6 +174,9 @@ Result LogicController::DoWork()
     // passed to the ROS Adapter such as left and right wheel PWM values in the
     // result struct.
     result = driveController.DoWork();
+    mapController.hilbertWaypoints.clear();
+    mapController.hilbertWaypoints = searchController.hilbertWaypoints;
+    auto _result = mapController.DoWork();
 
     // When out of waypoints, the drive controller will throw an interrupt.
     // However, unlike other controllers, drive controller is not on the
@@ -219,6 +222,9 @@ Result LogicController::DoWork()
   // Allow the controllers to communicate data between each other,
   // depending on the processState.
   controllerInterconnect();
+
+  // Set the hilbert range for the rover in the hilbert map
+  setRoverSearchRange();
 
   // Give the ROSAdapter the final decision on how it should drive.
   return result;
@@ -365,6 +371,7 @@ void LogicController::SetPositionData(Point currentLocation)
   obstacleController.setCurrentLocation(currentLocation);
   driveController.SetCurrentLocation(currentLocation);
   manualWaypointController.SetCurrentLocation(currentLocation);
+  mapController.SetCurrentLocation(currentLocation);
 }
 
 // Recieves position in the world frame with global data (GPS).
@@ -391,6 +398,7 @@ void LogicController::SetAprilTags(vector<Tag> tags)
   pickUpController.SetTagData(tags);
   obstacleController.setTagData(tags);
   dropOffController.SetTargetData(tags);
+  mapController.setTagData(tags);
 }
 
 // Give the specified controllers the sonar sensor values.
@@ -399,8 +407,8 @@ void LogicController::SetSonarData(float left, float center, float right)
   // The pickUpController only needs the center data in order to tell if
   // an april tag cube has been picked up correctly.
   pickUpController.SetSonarData(center);
-
   obstacleController.setSonarData(left,center,right);
+  mapController.SetSonarData(left,center,right);
 }
 
 // Called once by RosAdapter in guarded init.
@@ -408,6 +416,7 @@ void LogicController::SetCenterLocationOdom(Point centerLocationOdom)
 {
   searchController.SetCenterLocation(centerLocationOdom);
   dropOffController.SetCenterLocation(centerLocationOdom);
+  mapController.SetCenterLocation(centerLocationOdom);
 }
 
 void LogicController::AddManualWaypoint(Point manualWaypoint, int waypoint_id)
@@ -485,4 +494,39 @@ void LogicController::updateProcessChange2Controllers(int p){
 	  if (p ==1){
 		  searchController.decrementPathIndex();
 	  }
+}
+
+void LogicController::setRangeMap(std::vector<RangeMapItem> rangeMap){
+  // Create a copy of the search range map in the logic controller
+  this->rangeMap = rangeMap;
+}
+
+void LogicController::setRoverSearchRange() {
+  RangeMapItem _roverRange;
+  _roverRange.roverName = searchController.roverName;
+  auto currentPts = searchController.currentPathPoints;
+  if (currentPts.size() > 0 ) {
+    _roverRange.hilbertStart.x = currentPts.front().x;
+    _roverRange.hilbertStart.y = currentPts.front().y;
+    _roverRange.hilbertEnd.x = currentPts.back().x;
+    _roverRange.hilbertEnd.y = currentPts.back().y;
+
+  }
+
+  bool isNotMember = true;
+  // index = std::find(rangeMap.begin(), rangeMap.end(), _roverRange);
+
+  for(auto idx = rangeMap.begin(); idx != rangeMap.end(); ++idx) {
+    if(idx->roverName == _roverRange.roverName) {
+      idx->hilbertStart = _roverRange.hilbertStart;
+      idx->hilbertEnd = _roverRange.hilbertEnd;
+      isNotMember = false;
+      break;
+    }
+  }
+
+  if (isNotMember) {
+    rangeMap.push_back(_roverRange);
+  }
+  // std::cout << "Num rovers in table: " << rangeMap.size() << std::endl;
 }

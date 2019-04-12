@@ -20,7 +20,7 @@ SearchController::SearchController() {
   result.wristAngle = M_PI/4;
 
   std::cout << "Generating Hilbert Motion" << std::endl;
-  generateHilbertPoints(5);
+  generateHilbertPoints(4);
 
 }
 

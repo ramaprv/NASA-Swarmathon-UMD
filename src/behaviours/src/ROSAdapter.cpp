@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <string>
+#include <iostream>
 
 // ROS libraries
 #include <angles/angles.h>
@@ -20,11 +21,19 @@
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
+#include <visualization_msgs/Marker.h>
+#include <tf/transform_broadcaster.h>
+#include <tf/tf.h>
 #include <apriltags_ros/AprilTagDetectionArray.h>
 #include <std_msgs/Float32MultiArray.h>
+#include <std_msgs/ColorRGBA.h>
 #include "swarmie_msgs/Waypoint.h"
 #include "swarmie_msgs/Recruitment.h"
 #include "swarmie_msgs/Skid.h"
+#include "swarmie_msgs/Point.h"
+#include "swarmie_msgs/RangeMap.h"
+#include "swarmie_msgs/RangeMapItem.h"
+
 
 // Include Controllers
 #include "LogicController.h"
@@ -65,6 +74,7 @@ private:
 
 // Random number generator
 random_numbers::RandomNumberGenerator* rng;
+int counter = 0;
 
 std_msgs::UInt8 collision_msg;
 // Create logic controller
@@ -139,9 +149,11 @@ ros::Publisher driveControlPublish;		//publishes motor commands to the motors
 ros::Publisher heartbeatPublisher;		//publishes ROSAdapters status via its "heartbeat"
 ros::Publisher obstaclePublisher;
 ros::Publisher swarmiesPub;
+ros::Publisher mapMarkerPub;
 // Publishes swarmie_msgs::Waypoint messages on "/<robot>/waypooints"
 // to indicate when waypoints have been reached.
 ros::Publisher waypointFeedbackPublisher;	//publishes a waypoint to travel to if the rover is given a waypoint in manual mode
+ros::Publisher roverRangeMapPub;
 
 // Subscribers
 ros::Subscriber joySubscriber;			//receives joystick information
@@ -155,6 +167,7 @@ ros::Subscriber virtualFenceSubscriber;		//receives data for vitrual boundaries
 ros::Subscriber manualWaypointSubscriber; 	//receives manual waypoints given from GUI
 ros::Subscriber recruitmentSubscriber;
 ros::Subscriber checkSwarmies;
+ros::Subscriber roverRangeMapSub;
 
 // Timers
 ros::Timer stateMachineTimer;
@@ -168,6 +181,9 @@ time_t timerStartTime;
 // average its location.
 unsigned int startDelayInSeconds = 30;
 float timerTimeElapsed = 0;
+
+visualization_msgs::Marker points;
+// setting frame id
 
 //Transforms
 tf::TransformListener *tfListener;
@@ -189,6 +205,7 @@ void publishHeartBeatTimerEventHandler(const ros::TimerEvent& event);
 void sonarHandler(const sensor_msgs::Range::ConstPtr& sonarLeft, const sensor_msgs::Range::ConstPtr& sonarCenter, const sensor_msgs::Range::ConstPtr& sonarRight);	//handles ultrasound data and stores data
 void recruitmentHandler(const swarmie_msgs::Recruitment& msg);
 void getString(const std_msgs::String::ConstPtr& message);
+void roverRangeMapHandler(const swarmie_msgs::RangeMap& msg);
 // Converts the time passed as reported by ROS (which takes Gazebo simulation rate into account) into milliseconds as an integer.
 long int getROSTimeInMilliSecs();
 
@@ -218,6 +235,8 @@ int main(int argc, char **argv) {
   joySubscriber = mNH.subscribe((publishedName + "/joystick"), 10, joyCmdHandler);					//receives joystick information
   modeSubscriber = mNH.subscribe((publishedName + "/mode"), 1, modeHandler);						//receives mode from GUI
   targetSubscriber = mNH.subscribe((publishedName + "/targets"), 10, targetHandler);					//receives tag data
+  // odometrySubscriber = mNH.subscribe((publishedName + "/odom/filtered"), 10, odometryHandler);				//receives ODOM data
+  // odometrySubscriber = mNH.subscribe((publishedName + "/odom"), 10, odometryHandler);				//receives ODOM data
   odometrySubscriber = mNH.subscribe((publishedName + "/odom/filtered"), 10, odometryHandler);				//receives ODOM data
   mapSubscriber = mNH.subscribe((publishedName + "/odom/ekf"), 10, mapHandler);						//receives GPS data
   virtualFenceSubscriber = mNH.subscribe(("/virtualFence"), 10, virtualFenceHandler);					//receives data for vitrual boundaries
@@ -227,6 +246,7 @@ int main(int argc, char **argv) {
   message_filters::Subscriber<sensor_msgs::Range> sonarRightSubscriber(mNH, (publishedName + "/sonarRight"), 10);
   recruitmentSubscriber = mNH.subscribe("/detectionLocations", 10, recruitmentHandler);
   checkSwarmies = mNH.subscribe("/swarmiesList", 10, getString);
+  roverRangeMapSub = mNH.subscribe("/swarmiesHilbertMap", 100, roverRangeMapHandler);
 
   //publishers
   status_publisher = mNH.advertise<std_msgs::String>((publishedName + "/swarmie_status"), 1, true);			//publishes rover status
@@ -239,6 +259,9 @@ int main(int argc, char **argv) {
   heartbeatPublisher = mNH.advertise<std_msgs::String>((publishedName + "/behaviour/heartbeat"), 1, true);		//publishes ROSAdapters status via its "heartbeat"
   waypointFeedbackPublisher = mNH.advertise<swarmie_msgs::Waypoint>((publishedName + "/waypoints"), 1, true);		//publishes a waypoint to travel to if the rover is given a waypoint in manual mode
   swarmiesPub = mNH.advertise<std_msgs::String>("/swarmiesList", 1000, true);
+  mapMarkerPub = mNH.advertise<visualization_msgs::Marker>("/swarmmap", 1, true);
+  roverRangeMapPub = mNH.advertise<swarmie_msgs::RangeMap>("/swarmiesHilbertMap", 100, true);
+
   //timers
   publish_status_timer = mNH.createTimer(ros::Duration(status_publish_interval), publishStatusTimerEventHandler);
   stateMachineTimer = mNH.createTimer(ros::Duration(behaviourLoopTimeStep), behaviourStateMachine);
@@ -268,6 +291,15 @@ int main(int argc, char **argv) {
     logicController.SetModeManual();
   }
 
+  points.header.frame_id = "/achilles/odom";
+  points.header.stamp = ros::Time::now();
+  points.action = visualization_msgs::Marker::ADD;
+  points.pose.orientation.w = 1.0;
+  points.type = visualization_msgs::Marker::POINTS;
+  points.scale.x = 0.25;
+  points.scale.y = 0.25;
+  points.scale.z = 0.25;
+
   timerStartTime = time(0);
 
   ros::spin();
@@ -291,6 +323,80 @@ std::vector<std::string> split(std::string str, std::string token){
     }
     return result;
 }
+
+
+void placeMapMarker() {
+  ++counter;
+  points.id = counter;
+  geometry_msgs::Point mapPt;
+  std_msgs::ColorRGBA color;
+  // points.points.push_back(mapPt);
+  // points.colors.push_back(color);
+  auto _mapObj = logicController.mapController.mapObj;
+  for (auto pt : _mapObj) {
+    mapPt.x = pt.location.x;
+    mapPt.y = pt.location.y;
+    mapPt.z = 0;
+
+    switch(pt.occType){
+      case EMPTY:
+        color.r = 0.0;
+        color.g = 0.0;
+        color.b = 0.0;
+        color.a = 1.0;
+        break;
+      case OBSTACLE:
+        color.r = 1.0;
+        color.g = 0.0;
+        color.b = 0.0;
+        color.a = 1.0;
+        break;
+      case CUBE:
+        color.r = 0.0;
+        color.g = 1.0;
+        color.b = 0.0;
+        color.a = 1.0;
+        break;
+      case BOUNDARY:
+        color.r = 1.0;
+        color.g = 0.0;
+        color.b = 1.0;
+        color.a = 1.0;
+        break;
+      case COLLECTIONCENTER:
+        color.r = 0.0;
+        color.g = 1.0;
+        color.b = 1.0;
+        color.a = 1.0;
+        break;
+      default:
+        color.r = 1.0;
+        color.g = 1.0;
+        color.b = 1.0;
+        color.a = 1.0;
+        break;
+    }
+
+    points.points.push_back(mapPt);
+    points.colors.push_back(color);
+
+  }
+
+  mapPt.x = round((currentLocation.x + centerLocationOdom.x)/0.1);
+  mapPt.y = round((currentLocation.y + centerLocationOdom.y)/0.1);
+  mapPt.z = 0;
+
+  color.r = 0;
+  color.g = 1.0;
+  color.b = 1.0;
+  color.a = 1.0;
+
+  points.points.push_back(mapPt);
+  points.colors.push_back(color);
+
+  mapMarkerPub.publish(points);
+}
+
 
 // This is the top-most logic control block organised as a state machine.
 // This function calls the dropOff, pickUp, and search controllers.
@@ -334,7 +440,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
       centerLocationOdom.y = centerOdom.y;
 
       startTime = getROSTimeInMilliSecs();
-      
+
       std::string str2 = ",";
       if (visited == false) {
         msg1.data = publishedName;
@@ -348,14 +454,11 @@ void behaviourStateMachine(const ros::TimerEvent&)
           swarmiesPub.publish(msg1);
         }
       }
-
     }
-
     else
     {
       return;
     }
-
   }
 
   // Robot is in autonomous mode
@@ -403,6 +506,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
       sendDriveCommand(result.pd.left,result.pd.right);	//uses the results struct with data sent back from logic controller to send motor commands
 
 
+
       //Alter finger and wrist angle is told to reset with last stored value if currently has -1 value
       std_msgs::Float32 angle;
       if (result.fingerAngle != -1)
@@ -419,15 +523,25 @@ void behaviourStateMachine(const ros::TimerEvent&)
         prevWrist = result.wristAngle;		//store the last known gripper wrist angle
       }
     }
+  placeMapMarker();
   collision_msg.data = logicController.getCollisionCalls();
   obstaclePublisher.publish(collision_msg);
     //publishHandeling here
     //logicController.getPublishData(); //Not Currently Implemented, used to get data from logic controller and publish to the appropriate ROS Topic; Suggested
-
-
     //adds a blank space between sets of debugging data to easily tell one tick from the next
     //cout << endl;
 
+    swarmie_msgs::RangeMap rangeMapROS;
+    for(auto item = logicController.rangeMap.begin(); item != logicController.rangeMap.end(); ++item) {
+      swarmie_msgs::RangeMapItem hilbertItemROS;
+      hilbertItemROS.roverName.data = item->roverName;
+      hilbertItemROS.hilbertStart.x = item->hilbertStart.x;
+      hilbertItemROS.hilbertStart.y = item->hilbertStart.y;
+      hilbertItemROS.hilbertEnd.x = item->hilbertEnd.x;
+      hilbertItemROS.hilbertEnd.y = item->hilbertEnd.y;
+      rangeMapROS.roverRangeMap.push_back(hilbertItemROS);
+    }
+    roverRangeMapPub.publish(rangeMapROS);
   }
 
   // mode is NOT auto
@@ -541,7 +655,7 @@ int count =0;
       rank = count;
    }
  }
-        
+
 logicController.setRoverCount_Rank(list.size(),rank);
 std::cout<< "RosAdapter:size = "<<list.size()<<", Rank="<<rank<< std::endl;
 visited = true;
@@ -736,6 +850,20 @@ long int getROSTimeInMilliSecs()
   // Convert from seconds and nanoseconds to milliseconds.
   return t.sec*1e3 + t.nsec/1e6;
 
+}
+void roverRangeMapHandler(const swarmie_msgs::RangeMap& msg) {
+  std::vector<RangeMapItem> rangeMap;
+  for(auto item : msg.roverRangeMap) {
+    RangeMapItem hilbertItem;
+    hilbertItem.roverName = item.roverName.data;
+    hilbertItem.hilbertStart.x = item.hilbertStart.x;
+    hilbertItem.hilbertStart.y = item.hilbertStart.y;
+    hilbertItem.hilbertEnd.x = item.hilbertEnd.x;
+    hilbertItem.hilbertEnd.y = item.hilbertEnd.y;
+    rangeMap.push_back(hilbertItem);
+  }
+  logicController.setRangeMap(rangeMap);
+  // std::cout << "Came here" << std::endl;
 }
 
 
