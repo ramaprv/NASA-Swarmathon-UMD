@@ -259,7 +259,7 @@ int main(int argc, char **argv) {
   heartbeatPublisher = mNH.advertise<std_msgs::String>((publishedName + "/behaviour/heartbeat"), 1, true);		//publishes ROSAdapters status via its "heartbeat"
   waypointFeedbackPublisher = mNH.advertise<swarmie_msgs::Waypoint>((publishedName + "/waypoints"), 1, true);		//publishes a waypoint to travel to if the rover is given a waypoint in manual mode
   swarmiesPub = mNH.advertise<std_msgs::String>("/swarmiesList", 1000, true);
-  mapMarkerPub = mNH.advertise<visualization_msgs::Marker>(publishedName + "/swarmmap", 10, true);
+  mapMarkerPub = mNH.advertise<visualization_msgs::Marker>("/swarmmap", 1, true);
   roverRangeMapPub = mNH.advertise<swarmie_msgs::RangeMap>("/swarmiesHilbertMap", 100, true);
 
   //timers
@@ -291,7 +291,7 @@ int main(int argc, char **argv) {
     logicController.SetModeManual();
   }
 
-  points.header.frame_id = "/achilles/map";
+  points.header.frame_id = "/achilles/odom";
   points.header.stamp = ros::Time::now();
   points.action = visualization_msgs::Marker::ADD;
   points.pose.orientation.w = 1.0;
@@ -381,6 +381,19 @@ void placeMapMarker() {
     points.colors.push_back(color);
 
   }
+
+  mapPt.x = round((currentLocation.x + centerLocationOdom.x)/0.1);
+  mapPt.y = round((currentLocation.y + centerLocationOdom.y)/0.1);
+  mapPt.z = 0;
+
+  color.r = 0;
+  color.g = 1.0;
+  color.b = 1.0;
+  color.a = 1.0;
+
+  points.points.push_back(mapPt);
+  points.colors.push_back(color);
+
   mapMarkerPub.publish(points);
 }
 

@@ -69,8 +69,16 @@ private:
   float sonarLeft = 3;
   float sonarRight = 3;
   float sonarCenter = 3;
+
+  float blockDistance;
+  float blockYawError;
+  float cameraOffsetCorrection = 0.023; //meters;
+  float posX;
+  float posY;
+  float posZ;
+  float blockDistanceFromCamera;
   // Grid Size
-  const double gridSize = .75;
+  const double gridSize = .1;
   //struct for returning data to ROS adapter
   Result result;
 

@@ -528,5 +528,5 @@ void LogicController::setRoverSearchRange() {
   if (isNotMember) {
     rangeMap.push_back(_roverRange);
   }
-  std::cout << "Num rovers in table: " << rangeMap.size() << std::endl;
+  // std::cout << "Num rovers in table: " << rangeMap.size() << std::endl;
 }

@@ -36,8 +36,8 @@ void MapController::Reset() {
  */
 Point MapController::toGridPoint(Point _currentLocation) {
   Point gridPoint;
-  gridPoint.x = round((centerLocation.x + _currentLocation.x) / gridSize);
-  gridPoint.y = round((centerLocation.y + _currentLocation.y) / gridSize);
+  gridPoint.x = round((centerLocation.x - _currentLocation.x) / gridSize);
+  gridPoint.y = round((centerLocation.y - _currentLocation.y) / gridSize);
   return gridPoint;
 }
 
@@ -59,10 +59,10 @@ void MapController::SetSonarData(float left, float center, float right) {
 
 void MapController::GetObjectPos(Point _currentLocation) {
   MapPoint mapPoint;
-  if(sonarLeft < 2) {
+  if(sonarLeft < 0.0002) {
     Point obsPoint;
-    obsPoint.x = (centerLocation.x + _currentLocation.x) + (sonarLeft * std::cos((PI / 4) + _currentLocation.theta));
-    obsPoint.y = (centerLocation.y + _currentLocation.y) + (sonarLeft * std::sin((PI / 4) + _currentLocation.theta));
+    obsPoint.x = _currentLocation.x + (sonarLeft * std::cos((PI / 4) + _currentLocation.theta));
+    obsPoint.y = _currentLocation.y + (sonarLeft * std::sin((PI / 4) + _currentLocation.theta));
     if (!currLocFound(obsPoint)) {
       Point gridPoint = toGridPoint(obsPoint);
       mapPoint.location.x = gridPoint.x;
@@ -74,8 +74,8 @@ void MapController::GetObjectPos(Point _currentLocation) {
   }
   if(sonarCenter < 2) {
     Point obsPoint;
-    obsPoint.x = (centerLocation.x + _currentLocation.x) + (sonarCenter * std::cos(_currentLocation.theta));
-    obsPoint.y = (centerLocation.y + _currentLocation.y) + (sonarCenter * std::sin(_currentLocation.theta));
+    obsPoint.x = _currentLocation.x + (sonarCenter * std::cos(_currentLocation.theta));
+    obsPoint.y = _currentLocation.y + (sonarCenter * std::sin(_currentLocation.theta));
     if (!currLocFound(obsPoint)) {
       Point gridPoint = toGridPoint(obsPoint);
       mapPoint.location.x = gridPoint.x;
@@ -85,10 +85,10 @@ void MapController::GetObjectPos(Point _currentLocation) {
       mapObj.push_back(mapPoint);
     }
   }
-  if(sonarRight < 2) {
+  if(sonarRight < 0.0002) {
     Point obsPoint;
-    obsPoint.x = (centerLocation.x + _currentLocation.x) + (sonarRight * std::cos(-(PI / 4) + _currentLocation.theta));
-    obsPoint.y = (centerLocation.y + _currentLocation.y) + (sonarRight * std::sin(-(PI / 4) + _currentLocation.theta));
+    obsPoint.x = _currentLocation.x + (sonarRight * std::cos(-(PI / 4) + _currentLocation.theta));
+    obsPoint.y = _currentLocation.y + (sonarRight * std::sin(-(PI / 4) + _currentLocation.theta));
     if (!currLocFound(obsPoint)) {
       Point gridPoint = toGridPoint(obsPoint);
       mapPoint.location.x = gridPoint.x;
@@ -151,28 +151,49 @@ void MapController::setTagData(vector<Tag> tags){
   MapPoint mapPoint;
   Point cubePoint;
   for (auto tag : tags) {
-    std::tuple<float, float, float> position = tag.getPosition();
-    std::tuple<float, float, float> orientation = tag.calcRollPitchYaw();
-    cubePoint.x = (centerLocation.x + currentLocation.x) + get<0>(position);
-    cubePoint.y = (centerLocation.y + currentLocation.y) + get<1>(position);
-    if (!currLocFound(cubePoint)) {
-      Point gridPoint = toGridPoint(cubePoint);
-      mapPoint.location.x = gridPoint.x;
-      mapPoint.location.y = gridPoint.y;
-      mapPoint.location.theta = get<1>(orientation);
-      mapPoint.id = 0;
-      switch((int)tag.getID()){
-        case 1:
-          mapPoint.occType = BOUNDARY;
-          break;
-        case 256:
-          mapPoint.occType = COLLECTIONCENTER;
-          break;
-        default:
-          mapPoint.occType = CUBE;
-          break;
-      }
-      mapObj.push_back(mapPoint);
+    posX = tag.getPositionX();
+    posY = tag.getPositionY();
+    posZ = tag.getPositionZ();
+    // std::tuple<float, float, float> orientation = tag.calcRollPitchYaw();
+    // using a^2 + b^2 = c^2 to find the distance to the block
+    // 0.195 is the height of the camera lens above the ground in cm.
+    //
+    // a is the linear distance from the robot to the block, c is the
+    // distance from the camera lens, and b is the height of the
+    // camera above the ground.
+
+    blockDistanceFromCamera = std::hypot(std::hypot(posX, posY), posZ);
+
+    if ( (blockDistanceFromCamera*blockDistanceFromCamera - 0.195*0.195) > 0 )
+    {
+      blockDistance = std::sqrt(blockDistanceFromCamera*blockDistanceFromCamera - 0.195*0.195);
+      blockYawError = std::atan((posX + cameraOffsetCorrection)/blockDistance);
+      auto tagDistFromBot = std::hypot(blockDistance, (posX + cameraOffsetCorrection));
+      cubePoint.x = currentLocation.x + (std::cos(currentLocation.theta + blockYawError) * tagDistFromBot);
+      cubePoint.y = currentLocation.y + (std::sin(currentLocation.theta + blockYawError) * tagDistFromBot);
+      cubePoint.theta = currentLocation.theta + blockYawError;
+      std::cout << "Tag Pos : X : " << cubePoint.x << " Y : " << cubePoint.y << std::endl ;
+      //std::cout << "Tag Pos : R : " << get<0>(orientation) << " P : " << get<1>(orientation) << " Y : " << get<2>(orientation) << std::endl ;
+      if (!currLocFound(cubePoint)) {
+        Point gridPoint = toGridPoint(cubePoint);
+        mapPoint.location.x = gridPoint.x;
+        mapPoint.location.y = gridPoint.y;
+        mapPoint.location.theta = cubePoint.theta;
+        mapPoint.id = 0;
+        switch((int)tag.getID()){
+          case 1:
+            mapPoint.occType = BOUNDARY;
+            break;
+          case 256:
+            mapPoint.occType = COLLECTIONCENTER;
+            break;
+          default:
+            mapPoint.occType = CUBE;
+            break;
+        }
+        mapObj.push_back(mapPoint);
+    }
+
     }
   }
 }
@@ -236,8 +257,8 @@ void MapController::visualizeMap() {
   }
 
   Point curLoc;
-  curLoc.x = (currentLocation.x + centerLocation.x);
-  curLoc.y = (currentLocation.y + centerLocation.y);
+  curLoc.x = currentLocation.x;
+  curLoc.y = currentLocation.y;
   Point gridPoint = toGridPoint(curLoc);
   cv::circle(mapCVMat, cv::Point(gridPoint.x + 100,
     gridPoint.y + 100), 1, cv::Scalar(255, 255, 0), cv::FILLED);
