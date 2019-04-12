@@ -186,6 +186,7 @@ bool PickUpController::ShouldInterrupt(){
     interupted = false;
     has_control = false;
     return true;
+
   }
   else
   {
@@ -284,7 +285,7 @@ Result PickUpController::DoWork()
       else if (Td > 1.0 && Td < target_pickup_task_time_limit)
       {
         // The rover will reverse straight backwards without turning.
-        result.pd.cmdVel = -0.15;
+        result.pd.cmdVel = 0.15; //-0.15
         result.pd.cmdAngularError= 0.0;
       }
     }
