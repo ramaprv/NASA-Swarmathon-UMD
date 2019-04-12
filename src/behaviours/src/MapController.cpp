@@ -3,6 +3,7 @@
 #include <cmath>
 #include <math.h>
 #include <string>
+#include <iterator>
 #include "Tag.h"
 
 #define PI 3.14159265
@@ -41,14 +42,19 @@ Point MapController::toGridPoint(Point _currentLocation) {
   return gridPoint;
 }
 
-bool MapController::currLocFound(Point _currentLocation) {
+int MapController::currLocFound(Point _currentLocation) {
   bool updateFlag = false;
   _currentLocation = toGridPoint(_currentLocation);
+  int index = -1;
   for (auto p : mapObj) {
+    index++;
     updateFlag = (p.location.x == _currentLocation.x) && (p.location.y == _currentLocation.y);
     if (updateFlag) break;
   }
-  return updateFlag;
+  if(!updateFlag) {
+    index = -1;
+  }
+  return index;
 }
 
 void MapController::SetSonarData(float left, float center, float right) {
@@ -63,7 +69,8 @@ void MapController::GetObjectPos(Point _currentLocation) {
     Point obsPoint;
     obsPoint.x = _currentLocation.x + (sonarLeft * std::cos((PI / 4) + _currentLocation.theta));
     obsPoint.y = _currentLocation.y + (sonarLeft * std::sin((PI / 4) + _currentLocation.theta));
-    if (!currLocFound(obsPoint)) {
+    int index = currLocFound(obsPoint);
+    if (index < 0) {
       Point gridPoint = toGridPoint(obsPoint);
       mapPoint.location.x = gridPoint.x;
       mapPoint.location.y = gridPoint.y;
@@ -71,31 +78,42 @@ void MapController::GetObjectPos(Point _currentLocation) {
       mapPoint.occType = OBSTACLE;
       mapObj.push_back(mapPoint);
     }
+    else {
+      mapObj[index].occType = OBSTACLE;
+    }
   }
-  if(sonarCenter < 2) {
+  if(sonarCenter < 1) {
     Point obsPoint;
     obsPoint.x = _currentLocation.x + (sonarCenter * std::cos(_currentLocation.theta));
     obsPoint.y = _currentLocation.y + (sonarCenter * std::sin(_currentLocation.theta));
-    if (!currLocFound(obsPoint)) {
+    int index = currLocFound(obsPoint);
+    if (index < 0) {
       Point gridPoint = toGridPoint(obsPoint);
       mapPoint.location.x = gridPoint.x;
       mapPoint.location.y = gridPoint.y;
       mapPoint.id = 0;
       mapPoint.occType = OBSTACLE;
       mapObj.push_back(mapPoint);
+    }
+    else {
+      mapObj[index].occType = OBSTACLE;
     }
   }
   if(sonarRight < 0.0002) {
     Point obsPoint;
     obsPoint.x = _currentLocation.x + (sonarRight * std::cos(-(PI / 4) + _currentLocation.theta));
     obsPoint.y = _currentLocation.y + (sonarRight * std::sin(-(PI / 4) + _currentLocation.theta));
-    if (!currLocFound(obsPoint)) {
+    int index = currLocFound(obsPoint);
+    if (index < 0) {
       Point gridPoint = toGridPoint(obsPoint);
       mapPoint.location.x = gridPoint.x;
       mapPoint.location.y = gridPoint.y;
       mapPoint.id = 0;
       mapPoint.occType = OBSTACLE;
       mapObj.push_back(mapPoint);
+    }
+    else {
+      mapObj[index].occType = OBSTACLE;
     }
   }
 }
@@ -105,7 +123,8 @@ void MapController::GetObjectPos(Point _currentLocation) {
  * This code adds new grid points to map object vector
  */
 Result MapController::DoWork() {
-  if (!currLocFound(currentLocation)) {
+  int index = currLocFound(currentLocation);
+  if (index < 0) {
     MapPoint mapPoint;
     Point gridPoint = toGridPoint(currentLocation);
     mapPoint.location.x = gridPoint.x;
@@ -113,6 +132,9 @@ Result MapController::DoWork() {
     mapPoint.id = 0;
     mapPoint.occType = EMPTY;
     mapObj.push_back(mapPoint);
+  }
+  else {
+    mapObj[index].occType = EMPTY;
   }
   GetObjectPos(currentLocation);
   visualizeMap();
@@ -172,9 +194,10 @@ void MapController::setTagData(vector<Tag> tags){
       cubePoint.x = currentLocation.x + (std::cos(currentLocation.theta + blockYawError) * tagDistFromBot);
       cubePoint.y = currentLocation.y + (std::sin(currentLocation.theta + blockYawError) * tagDistFromBot);
       cubePoint.theta = currentLocation.theta + blockYawError;
-      std::cout << "Tag Pos : X : " << cubePoint.x << " Y : " << cubePoint.y << std::endl ;
+      // std::cout << "Tag Pos : X : " << cubePoint.x << " Y : " << cubePoint.y << std::endl ;
       //std::cout << "Tag Pos : R : " << get<0>(orientation) << " P : " << get<1>(orientation) << " Y : " << get<2>(orientation) << std::endl ;
-      if (!currLocFound(cubePoint)) {
+      int index = currLocFound(cubePoint);
+      if (index < 0) {
         Point gridPoint = toGridPoint(cubePoint);
         mapPoint.location.x = gridPoint.x;
         mapPoint.location.y = gridPoint.y;
@@ -192,8 +215,20 @@ void MapController::setTagData(vector<Tag> tags){
             break;
         }
         mapObj.push_back(mapPoint);
-    }
-
+      }
+      else {
+        switch((int)tag.getID()){
+          case 1:
+            mapObj[index].occType = BOUNDARY;
+            break;
+          case 256:
+            mapObj[index].occType = COLLECTIONCENTER;
+            break;
+          default:
+            mapObj[index].occType = CUBE;
+            break;
+        }
+      }
     }
   }
 }
