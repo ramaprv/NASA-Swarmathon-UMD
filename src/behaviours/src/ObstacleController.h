@@ -31,6 +31,7 @@ public:
   bool checkRejectionCriterion();
   bool requestRejectPoint();
   void resetRejectRequest();
+  bool getObstacleControllerStatus();
 
 protected:
 
@@ -101,6 +102,7 @@ private:
   bool requestRejection = false;
 
   bool moveAhead = false ;
+  bool obstacleControllerFinished = false ;
 };
 
 #endif // OBSTACLECONTOLLER_H

@@ -96,6 +96,7 @@ Result ObstacleController::DoWork() {
   // std::cout << "ObstacleController: Do Work"<< std::endl;
   clearWaypoints = true;
   set_waypoint = true;
+
   result.PIDMode = CONST_PID;
 
   // The obstacle is an april tag marking the collection zone
@@ -116,7 +117,9 @@ Result ObstacleController::DoWork() {
     	can_set_waypoint = false; //only one waypoint is set
    	 	set_waypoint = false;
     	clearWaypoints = false;
-		goalPosSet = false;
+		  goalPosSet = false;
+
+      obstacleControllerFinished = true;
 
     if(false == requestRejection)
     {
@@ -129,6 +132,9 @@ Result ObstacleController::DoWork() {
     	result.wpts.waypoints.clear();
     	result.wpts.waypoints.push_back(forward);
   	}
+    /*else {
+      clearWaypoints = true;
+    }*/
   }
 }
 
@@ -161,6 +167,7 @@ void ObstacleController::ProcessData() {
   //there is no report of 0 tags seen
   long int Tdifference = current_time - timeSinceTags;
   float Td = Tdifference/1e3;
+  obstacleControllerFinished = false ;
   // std::cout << "Obstacle Controller: Process Data "<< std::endl;
   if (Td >= 0.5) {
     tag_boundary_seen = false;
@@ -377,6 +384,7 @@ void ObstacleController::SetGoalPoint(Point goalPos)
     goalPosition = goalPos;
   	rotDirection =0;
   }
+  std::cout << "Obstacle controller goal point is :" << goalPosition.x << ", " << goalPosition.y << std::endl;
 	// std::cout << "I got a Goal Point from Logic Controller:" << std::endl;
 	// std::cout << goalPosition.x << "," << goalPosition.y << std::endl;
 
@@ -434,7 +442,7 @@ bool ObstacleController::checkRejectionCriterion()
 
   goalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
 
-  if(goalDist > 5)
+  if(goalDist > 20)
   {
     std::cout << "Going out of the threshold distance" << std::endl;
     rejectFlag = true ;
@@ -447,4 +455,9 @@ bool ObstacleController::checkRejectionCriterion()
   }
 
   return rejectFlag;
+}
+
+bool ObstacleController::getObstacleControllerStatus()
+{
+  return obstacleControllerFinished;
 }

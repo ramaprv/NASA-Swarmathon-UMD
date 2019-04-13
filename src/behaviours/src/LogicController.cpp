@@ -357,27 +357,29 @@ void LogicController::controllerInterconnect()
   }
 
   /* Check if there is a request to reject the point from the obstacle controller */
-  if(true == obstacleController.requestRejectPoint())
+  if(true == obstacleController.getObstacleControllerStatus())
   {
-    std::cout << "Request to reject a point" << std::endl;
-    /* Reject the next point from the search controller */
+    if(true == obstacleController.requestRejectPoint() )
+    {
+      std::cout << "Request to reject a point" << std::endl;
+      /* Reject the next point from the search controller */
 
-    obstacleController.resetRejectRequest();
+      obstacleController.resetRejectRequest();
+    }
+    else
+    {
+      std::cout << "Decrementing the path index" << std::endl;
+      // If the previous point can be accessed then decrement the index of the search path
+      searchController.decrementPathIndex(1);
+    }
   }
-  else
-  {
-    // searchController.decrementPathIndex(1);
-  }
+
 
   goalPoint = driveController.GetNextWaypoint();
   if(false == goalPoint.empty())
   {
     obstacleController.SetGoalPoint(goalPoint[0]);
   }
-  // }else{
-  //   // If the previous point can be accessed then decrement the index of the search path
-  //   searchController.decrementPathIndex(1);
-  // }
 
 }
 
