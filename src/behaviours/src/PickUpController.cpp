@@ -233,11 +233,11 @@ Result PickUpController::DoWork()
     // The sequence of events is:
     // 1. Target aquisition phase: Align the robot with the closest visible target cube, if near enough to get a target lock then start the pickup timer (Td)
     // 2. Approach Target phase: until *grasp_time_begin* seconds
-    // 3. Stop and close fingers (hopefully on a block - we won't be able to see it remember): at *grasp_time_begin* seconds 
-    // 4. Raise the gripper - does the rover see a block or did it miss it: at *raise_time_begin* seconds 
+    // 3. Stop and close fingers (hopefully on a block - we won't be able to see it remember): at *grasp_time_begin* seconds
+    // 4. Raise the gripper - does the rover see a block or did it miss it: at *raise_time_begin* seconds
     // 5. If we get here the target was not seen in the robots gripper so drive backwards and and try to get a new lock on a target: at *target_require_begin* seconds
     // 6. If we get here we give up and release control with a task failed flag: for *target_pickup_task_time_limit* seconds
-    
+
     // If we don't see any blocks or cubes turn towards the location of the last cube we saw.
     // I.E., try to re-aquire the last cube we saw.
 
@@ -262,7 +262,7 @@ Result PickUpController::DoWork()
         nTargetsSeen = 0;
     }
 
-    
+
     if (nTargetsSeen == 0 && !lockTarget)
     {
       // This if statement causes us to time out if we don't re-aquire a block within the time limit.
@@ -285,7 +285,15 @@ Result PickUpController::DoWork()
       else if (Td > 1.0 && Td < target_pickup_task_time_limit)
       {
         // The rover will reverse straight backwards without turning.
-        result.pd.cmdVel = 0.15; //-0.15
+        if (backOffTagLossCount<5){
+          result.pd.cmdVel = -0.15; //-0.15
+          backOffTagLossCount++;
+        }else{
+          result.pd.cmdVel = 0.15; //-0.15
+          backOffTagLossCount=0;
+        }
+
+        result.pd.cmdVel = -0.15; //-0.15
         result.pd.cmdAngularError= 0.0;
       }
     }
