@@ -331,6 +331,7 @@ int LogicController::getCollisionCalls()
 void LogicController::controllerInterconnect()
 {
 
+  std::vector<Point> goalPoint;
   if (processState == PROCESS_STATE_SEARCHING)
   {
 
@@ -359,6 +360,31 @@ void LogicController::controllerInterconnect()
   if(obstacleController.getShouldClearWaypoints())
   {
     driveController.Reset();
+  }
+
+  /* Check if there is a request to reject the point from the obstacle controller */
+  if(true == obstacleController.getObstacleControllerStatus())
+  {
+    if(true == obstacleController.requestRejectPoint() )
+    {
+      std::cout << "Request to reject a point" << std::endl;
+      /* Reject the next point from the search controller */
+
+      obstacleController.resetRejectRequest();
+    }
+    else
+    {
+      std::cout << "Decrementing the path index" << std::endl;
+      // If the previous point can be accessed then decrement the index of the search path
+      searchController.decrementPathIndex(1);
+    }
+  }
+
+
+  goalPoint = driveController.GetNextWaypoint();
+  if(false == goalPoint.empty())
+  {
+    obstacleController.SetGoalPoint(goalPoint[0]);
   }
 
 }
@@ -492,7 +518,7 @@ void LogicController::updateProcessChange2Controllers(int p){
 	// if controller picks up then decrement the search path
 	// so that it can come back and search the same place for cluster
 	  if (p ==1){
-		  searchController.decrementPathIndex();
+		  searchController.decrementPathIndex(4);
 	  }
 }
 

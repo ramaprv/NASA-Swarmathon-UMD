@@ -30,11 +30,11 @@ public:
   void generateHilbertPoints(unsigned int degree);
   void setRoverName(string publishedName);
   void setRoverCount_Rank(int noOfRovers,int rank);
-  void decrementPathIndex();
+  void decrementPathIndex(int a);
   std::vector<Point> hilbertWaypoints ;
   string roverName;
   std::vector<Point> currentPathPoints;
-
+  
 protected:
 
   void ProcessData();
