@@ -37,8 +37,15 @@ void MapController::Reset() {
  */
 Point MapController::toGridPoint(Point _currentLocation) {
   Point gridPoint;
-  gridPoint.x = round((centerLocation.x - _currentLocation.x) / gridSize);
-  gridPoint.y = round((centerLocation.y - _currentLocation.y) / gridSize);
+  gridPoint.x = round((_currentLocation.x - centerLocation.x ) / gridSize);
+  gridPoint.y = round((_currentLocation.y - centerLocation.y) / gridSize);
+  return gridPoint;
+}
+
+Point MapController::toGridPoint2(Point currentLocation_) {
+  Point gridPoint;
+  gridPoint.x = round(currentLocation_.x / gridSize);
+  gridPoint.y = round(currentLocation_.y / gridSize);
   return gridPoint;
 }
 
@@ -281,7 +288,7 @@ void MapController::visualizeMap() {
   */
 
   // auto mapDims = getMapSize();
-  cv::Mat mapCVMat(200, 200, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat mapCVMat(300, 300, CV_8UC3, cv::Scalar(0,0,0));
 
   for (auto p : mapObj) {
     // std::cout << "point x : " << p.location.x << " y : " << p.location.y << " type : " << p.occType << endl;
@@ -321,8 +328,20 @@ void MapController::visualizeMap() {
   cv::circle(mapCVMat, cv::Point(gridPoint.x + 100,
     gridPoint.y + 100), 1, cv::Scalar(255, 255, 0), cv::FILLED);
 
+  Point searchPointNow = toGridPoint(currSearchPoint);
+  Point searchPointNext = toGridPoint(nextSearchPoint);
+
+  cv::circle(mapCVMat, cv::Point(searchPointNow.x + 100,
+    searchPointNow.y + 100), 1, cv::Scalar(205, 0, 255), cv::FILLED);
+  std::cout << "** HIL X: " << currSearchPoint.x << " Y: " << currSearchPoint.y << std::endl;
+  std::cout << "**** HIL GRID X: " << searchPointNow.x << " Y: " << searchPointNow.y << std::endl;
+
+  cv::circle(mapCVMat, cv::Point(searchPointNext.x + 100,
+      searchPointNext.y + 100), 1, cv::Scalar(43, 255, 0), cv::FILLED);
+
+
   cv::resize(mapCVMat, mapCVMat,
-    cv::Size(mapCVMat.cols * 5,mapCVMat.rows * 5),
+    cv::Size(mapCVMat.cols * 4,mapCVMat.rows * 4),
     0, 0, CV_INTER_LINEAR);
   cv::imshow("MapWindow", mapCVMat);
   cv::waitKey(30);

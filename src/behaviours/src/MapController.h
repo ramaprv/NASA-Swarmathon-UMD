@@ -54,6 +54,9 @@ public:
   std::vector<MapPoint> mapObj;
   Point currentLocation;
 
+  Point currSearchPoint;
+  Point nextSearchPoint;
+
   std::vector<Point> hilbertWaypoints;
 
 protected:
@@ -89,6 +92,7 @@ private:
 
   // Convert to discrete grid point
   Point toGridPoint(Point currentLocation);
+  Point toGridPoint2(Point currentLocation);
   // Check if grid point corresponding to current point exists in map object
   int currLocFound(Point currentLocation);
   void GetObjectPos(Point _currentLocation);

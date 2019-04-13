@@ -101,14 +101,20 @@ Result ObstacleController::DoWork() {
 
   // The obstacle is an april tag marking the collection zone
 
-  if(goalPosSet == true || collection_zone_seen == true || tag_boundary_seen == true)
+  // if(goalPosSet == true || collection_zone_seen == true || tag_boundary_seen == true)
+  if(true)
   {
   	if(collection_zone_seen){
     	avoidCollectionZone();
   	}
-  	else {
+  	else if (phys) {
     	avoidObstacle();
   	}
+    else{
+      obstacleAvoided = true;
+      obstacleInterrupt = false;
+      result.type = waypoint;
+    }
 
   	//if an obstacle has been avoided
   	if (can_set_waypoint) {

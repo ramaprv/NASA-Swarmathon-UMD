@@ -46,6 +46,7 @@ Result LogicController::DoWork()
       // in order to properly pre-proccess data.
     }
   }
+  std::cout << "Logic State: "<< logicState<< std::endl;
 
   switch(logicState) {
 
@@ -330,7 +331,19 @@ int LogicController::getCollisionCalls()
 //                       \<----> ControllerB
 void LogicController::controllerInterconnect()
 {
-
+  if (searchController.currentPathPoints.size() > 0 ) {
+    Point tmpLocation = searchController.currentPathPoints[searchController.pathPointIndex-1];
+    Point searchLocation;
+    searchLocation.x = searchController.lowerLeftHilbertPt + tmpLocation.x*searchController.hilbert2dScale;
+    searchLocation.y = searchController.lowerLeftHilbertPt + tmpLocation.y*searchController.hilbert2dScale;
+    // std::cout << "********Size of Hilbert point vector: " << searchController.currentPathPoints.size() << std::endl;
+    mapController.currSearchPoint = searchLocation;
+    tmpLocation = searchController.currentPathPoints[searchController.pathPointIndex ];
+    searchLocation.x = searchController.lowerLeftHilbertPt + tmpLocation.x*searchController.hilbert2dScale;
+    searchLocation.y = searchController.lowerLeftHilbertPt + tmpLocation.y*searchController.hilbert2dScale;
+    mapController.nextSearchPoint = searchLocation;
+  }
+  // mapController.currSearchPoint = searchController.currentPathPoints[0];
   std::vector<Point> goalPoint;
   if (processState == PROCESS_STATE_SEARCHING)
   {

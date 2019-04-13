@@ -34,7 +34,10 @@ public:
   std::vector<Point> hilbertWaypoints ;
   string roverName;
   std::vector<Point> currentPathPoints;
-  
+  long int pathPointIndex = 0;
+  double lowerLeftHilbertPt = -6.5;
+  double hilbert2dScale = 0.406;
+
 protected:
 
   void ProcessData();
@@ -53,8 +56,7 @@ private:
   // Flag to allow special behaviour for the first waypoint
   bool first_waypoint = true;
   bool succesfullPickup = false;
-  long int pathPointIndex = 0;
-  double hilbert2dScale = 0.406;
+
   int botIndex = 0;
   // std::vector<Point> hilbertWaypoints
 
@@ -62,7 +64,7 @@ private:
   bool ranOnce = false;
   int totalRovers = 1;
   int myRoverIndex = 1;
-  double lowerLeftHilbertPt = -6.5;
+
   bool pathUpdated = false;
   int getQuadrant(Point p);
   Point initCCWMove[4] = {
