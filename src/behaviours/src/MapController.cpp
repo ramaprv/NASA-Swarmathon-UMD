@@ -65,7 +65,7 @@ void MapController::SetSonarData(float left, float center, float right) {
 
 void MapController::GetObjectPos(Point _currentLocation) {
   MapPoint mapPoint;
-  if(sonarLeft < 0.0002) {
+  if(sonarLeft < 1) {
     Point obsPoint;
     obsPoint.x = _currentLocation.x + (sonarLeft * std::cos((PI / 4) + _currentLocation.theta));
     obsPoint.y = _currentLocation.y + (sonarLeft * std::sin((PI / 4) + _currentLocation.theta));
@@ -99,7 +99,7 @@ void MapController::GetObjectPos(Point _currentLocation) {
       mapObj[index].occType = OBSTACLE;
     }
   }
-  if(sonarRight < 0.0002) {
+  if(sonarRight < 1) {
     Point obsPoint;
     obsPoint.x = _currentLocation.x + (sonarRight * std::cos(-(PI / 4) + _currentLocation.theta));
     obsPoint.y = _currentLocation.y + (sonarRight * std::sin(-(PI / 4) + _currentLocation.theta));
@@ -172,7 +172,29 @@ bool MapController::HasWork() {
 void MapController::setTagData(vector<Tag> tags){
   MapPoint mapPoint;
   Point cubePoint;
+  double closest = std::numeric_limits<double>::max();
+  int target  = 0;
+  int idx1 = 0;
+  int idx2 = 0;
+
+  for (auto item: tags) {
+    if (item.getID() == 0) {
+
+      double test = std::hypot(std::hypot(item.getPositionX(), item.getPositionY()), item.getPositionZ());
+
+      if (closest > test)
+      {
+        target = idx1;
+        closest = test;
+      }
+    }
+    idx1++;
+  }
+
   for (auto tag : tags) {
+
+    if (idx2 == target) continue;
+
     posX = tag.getPositionX();
     posY = tag.getPositionY();
     posZ = tag.getPositionZ();
@@ -230,6 +252,7 @@ void MapController::setTagData(vector<Tag> tags){
         }
       }
     }
+    idx2++;
   }
 }
 
