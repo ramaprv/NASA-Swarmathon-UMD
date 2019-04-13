@@ -1,6 +1,7 @@
 #ifndef LOGICCONTROLLER_H
 #define LOGICCONTROLLER_H
 
+#include <iostream>
 #include "Controller.h"
 #include "PickUpController.h"
 #include "DropOffController.h"
@@ -9,6 +10,8 @@
 #include "DriveController.h"
 #include "RangeController.h"
 #include "ManualWaypointController.h"
+#include "MapController.h"
+#include <string>
 
 #include <vector>
 #include <queue>
@@ -31,6 +34,12 @@ struct PrioritizedController {
   {
     return priority < other.priority;
   }
+};
+
+struct RangeMapItem {
+  std::string roverName;
+  Point hilbertStart;
+  Point hilbertEnd;
 };
 
 class LogicController : virtual Controller
@@ -59,6 +68,9 @@ public:
   void gotRecruitmentMessage(Point p);
   void setRoverName(string publishedName);
   void setRoverCount_Rank(int noOfRovers,int rank);
+  // create a copy of the search range map locally
+  void setRangeMap(std::vector<RangeMapItem> rangeMap);
+  void setRoverSearchRange();
 
   int getCollisionCalls();
   // Passthrough for providing new waypoints to the
@@ -98,6 +110,8 @@ public:
   // allowed range.
   void setVirtualFenceOn( RangeShape* range );
   void setVirtualFenceOff( );
+  MapController mapController;
+  std::vector<RangeMapItem> rangeMap;
 
 protected:
   void ProcessData();
@@ -129,6 +143,7 @@ private:
   DriveController driveController;
   RangeController range_controller;
   ManualWaypointController manualWaypointController;
+
 
   std::vector<PrioritizedController> prioritizedControllers;
   priority_queue<PrioritizedController> control_queue;
