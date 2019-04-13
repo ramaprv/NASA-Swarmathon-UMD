@@ -291,7 +291,7 @@ int main(int argc, char **argv) {
     logicController.SetModeManual();
   }
 
-  points.header.frame_id = "/achilles/odom";
+  points.header.frame_id = publishedName + "/odom";
   points.header.stamp = ros::Time::now();
   points.action = visualization_msgs::Marker::ADD;
   points.pose.orientation.w = 1.0;

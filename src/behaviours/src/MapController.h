@@ -90,7 +90,7 @@ private:
   // Convert to discrete grid point
   Point toGridPoint(Point currentLocation);
   // Check if grid point corresponding to current point exists in map object
-  bool currLocFound(Point currentLocation);
+  int currLocFound(Point currentLocation);
   void GetObjectPos(Point _currentLocation);
   void visualizeMap();
 
