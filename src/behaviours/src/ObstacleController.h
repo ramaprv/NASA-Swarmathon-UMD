@@ -28,6 +28,7 @@ public:
   bool getShouldClearWaypoints() {bool tmp = clearWaypoints; clearWaypoints = false; return tmp;}
   void SetGoalPoint(Point tmpLocation);
   bool checkMline();
+  bool checkRejectionCriterion();
   bool requestRejectPoint();
   void resetRejectRequest();
 
@@ -98,6 +99,8 @@ private:
   int rotDirection ;
   bool followBugAlgorithm;
   bool requestRejection = false;
+
+  bool moveAhead = false ;
 };
 
 #endif // OBSTACLECONTOLLER_H

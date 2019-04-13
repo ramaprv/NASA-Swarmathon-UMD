@@ -24,21 +24,21 @@ void ObstacleController::Reset() {
 }
 
 // Avoid crashing into objects detected by the ultrasound or the tag bouundary
-void ObstacleController::avoidObstacle() {
+void ObstacleController::avoidObstacle()
+{
 
-	if(true == phys)
-	{
- 		followBugAlgorithm = true;
-	}
+  bool rejectFlag = false ;
+  int checkM = 0 ;
 
-  if (tag_boundary_seen || center < 0.8) {  // In case the obstacle is detected at the center rotate the bot until it aligns in following position
-    // std::cout << "Rotating the bot" << center << std::endl;
+  if (tag_boundary_seen || center < 0.8)
+  {  // In case the obstacle is detected at the center rotate the bot until it aligns in following position
+    std::cout << "Rotating the bot" << center << std::endl;
     result.type = precisionDriving;
 
-    if(tag_boundary_seen || left < right)
-    result.pd.cmdAngular = -K_angular * 0.2;
+    if(tag_boundary_seen || rotDirection == 1)
+      result.pd.cmdAngular = -K_angular * 0.2;
     else
-    result.pd.cmdAngular = K_angular * 0.2;
+      result.pd.cmdAngular = K_angular * 0.2;
 
 
     result.pd.setPointVel = 0.0;
@@ -47,84 +47,24 @@ void ObstacleController::avoidObstacle() {
   }
   else if(center > 0.8)
   {
-    if(true == followBugAlgorithm)
+    requestRejection = checkRejectionCriterion();
+
+    if(true == requestRejection)
     {
-      //always turn left to avoid obstacles
-      int checkM = checkMline();
-      if(checkM == 1)
-      {
-        /* The  Mline has been reached and can go towards the obstacle */
-        // std::cout << "Check M Line" << std::endl;
-        followBugAlgorithm = false ;
-        requestRejection = false ;
-        obstacleAvoided = true;
-      }
-      else if(2 == checkM)
-      {
-        /* Implement an algrithm here to reject a point */
-        followBugAlgorithm = false ;
-        requestRejection = true ;
-        obstacleAvoided = false ;
-      }
-      else
-      {
-            if((right < triggerDistance + 0.2) || (left < triggerDistance + 0.2))
-            {
-              if(left < triggerDistance)
-              {
-                rotDirection = 1; // Rotate left when you find free space and you have not reached the M line
-              }
-              else
-              {
-                rotDirection = 2; // Rotate Right when you find free space and you have reached the M line
-              }
-              // std::cout << "Moving the bot straight" << right << ","  << left << std::endl;
-              result.type = waypoint;
-              result.PIDMode = FAST_PID; //use fast pid for waypoints
-              Point forward;            //waypoint is directly ahead of current heading
-              forward.x = currentLocation.x + (0.2 * cos(currentLocation.theta));
-              forward.y = currentLocation.y + (0.2 * sin(currentLocation.theta));
-              result.wpts.waypoints.clear();
-              result.wpts.waypoints.push_back(forward);
-            }
-            else
-            {
-              // std::cout << "Bot to turn" << right << ","  << left << std::endl;
-              result.type = waypoint;
-              result.PIDMode = FAST_PID; //use fast pid for waypoints
-              Point forward;            //waypoint is directly ahead of current heading
-              double theta = (M_PI/180) * 5;
-              if(1 == rotDirection)
-              {
-                //turn left
-                forward.x = currentLocation.x + (1 * cos(currentLocation.theta + theta));
-                forward.y = currentLocation.y + (1 * sin(currentLocation.theta + theta));
-              }else{
-                //turn right
-                forward.x = currentLocation.x + (1 * cos(currentLocation.theta - theta));
-                forward.y = currentLocation.y + (1 * sin(currentLocation.theta - theta));
-              }
-
-              result.wpts.waypoints.clear();
-              result.wpts.waypoints.push_back(forward);
-
-              // std::cout << "precisionDriving" << right << ","  << left << std::endl;
-              // std::cout << "Prev Angle " << result.pd.cmdAngular << std::endl;
-              // result.type = precisionDriving;
-              // if(1 == rotDirection)
-              // {
-              // 	result.pd.cmdAngular = -K_angular*0.2;
-              // }
-              // else
-              // {
-              // 	result.pd.cmdAngular = +K_angular * 0.2;
-              // }
-              // std::cout << "Curr Angle " << result.pd.cmdAngular << std::endl;
-              // result.pd.setPointVel = 0.0;
-              // result.pd.cmdVel = 0.0;
-              // result.pd.setPointYaw = 0;
-            }
-        }
+      /* Implement the functionality to reject the point */
+      obstacleAvoided = true ;
+      followBugAlgorithm = false ;
+    }
+    else {
+      // if((right < triggerDistance + 0.2) || (left < triggerDistance + 0.2))
+        std::cout << "Moving the bot straight" << right << ","  << left << std::endl;
+        result.type = waypoint;
+        result.PIDMode = FAST_PID; //use fast pid for waypoints
+        Point forward;            //waypoint is directly ahead of current heading
+        forward.x = currentLocation.x + (0.2 * cos(currentLocation.theta));
+        forward.y = currentLocation.y + (0.2 * sin(currentLocation.theta));
+        result.wpts.waypoints.clear();
+        result.wpts.waypoints.push_back(forward);
     }
   }
 }
@@ -257,10 +197,36 @@ void ObstacleController::ProcessData() {
   }
 
   //if any sonar is below the trigger distance set physical obstacle true
-  if (center < 0.8 || true == followBugAlgorithm)
+  float goalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
+  if ((center < 0.8 && goalDist > 0.2))
   {
     phys = true;
     timeSinceTags = current_time;
+
+    /* Define the rotation direction in the beginning */
+    if(false == followBugAlgorithm)
+    {
+
+      if (left <= right)
+      {
+        rotDirection = 1;
+      }
+      else
+      {
+        rotDirection = 2;
+      }
+      followBugAlgorithm = true;
+    }
+  }
+
+  /* A separate check to reset the phys obstacle in case the bot is following the bug algorithm and it has successfully avoided */
+
+  if(true == followBugAlgorithm)
+  {
+    if((center > 0.8) && (left > triggerDistance) && (right > triggerDistance))
+      phys = false ;
+    else
+      phys = true ;
   }
 
   //if physical obstacle, tag boundary, or collection zone visible
@@ -269,6 +235,11 @@ void ObstacleController::ProcessData() {
     obstacleDetected = true;
     obstacleAvoided = false;
     can_set_waypoint = false;
+  }
+  else
+  {
+    followBugAlgorithm = false ;
+    obstacleAvoided = true ;
   }
 }
 
@@ -400,6 +371,7 @@ void ObstacleController::setTargetHeldClear()
 
 void ObstacleController::SetGoalPoint(Point goalPos)
 {
+  /* Do not change the goal position if the obstacle controller has got control */
   if(false == followBugAlgorithm)
   {
     goalPosition = goalPos;
@@ -413,66 +385,33 @@ void ObstacleController::SetGoalPoint(Point goalPos)
 
 bool ObstacleController :: checkMline()
 {
-  int mline = 0;
-  double distErr = 0.1;
-  double distInitErr = 1.2;
-  double distanceToMline;
-  double a = goalPosition.y-initialPosition.y;
-  double b = initialPosition.x-goalPosition.x;
-  double c = initialPosition.y*(goalPosition.x-initialPosition.x)-initialPosition.x*(goalPosition.y-initialPosition.y);
-  double x0 = currentLocation.x;
-  double y0 = currentLocation.y;
-  //calculate the distance between the robot and the Mline
-  distanceToMline = abs( a*x0 + b*y0 + c ) / sqrt( a*a+b*b );
-
-  double distanceFromInit;
-  double xdiff = currentLocation.y-initialPosition.y;
-  double ydiff = currentLocation.x-initialPosition.x;
-  distanceFromInit = sqrt( (xdiff*xdiff) + (ydiff*ydiff) );
-  // std::cout << "Initial Point (" << initialPosition.x << "," << initialPosition.y << std::endl;
-  // std::cout << "Current Point (" << currentLocation.x << "," << currentLocation.y << std::endl;
-  // std::cout << "Goal Point (" << goalPosition.x << "," << goalPosition.y << std::endl;
-  // std::cout << "Dist init" << distanceFromInit << " | Dist M "<< distanceToMline <<std::endl;
-  if (distanceToMline < distErr && distanceFromInit > distInitErr){
-        //to ensure that the robot is on the Mline, it means between the start position and the goal position
-        if(initialPosition.x < goalPosition.x){
-            if(currentLocation.x > initialPosition.x && currentLocation.x < goalPosition.x){
-                mline = 1;
-            }
-            else if(currentLocation.x > initialPosition.x && currentLocation.x > goalPosition.x)
-            {
-              mline = 2;
-            }
+  bool mline = true ;
+  if(initialPosition.x < goalPosition.x)
+  {
+      if(currentLocation.x > initialPosition.x && currentLocation.x > goalPosition.x)
+      {
+        mline = false;
+      }
+    }
+    else if(initialPosition.x > goalPosition.x)
+    {
+        if(currentLocation.x < initialPosition.x && currentLocation.x < goalPosition.x)
+        {
+          mline = false;
         }
-        else if(initialPosition.x > goalPosition.x){
-            if(currentLocation.x < initialPosition.x && currentLocation.x > goalPosition.x){
-                mline = 1;
-            }
-            else if(currentLocation.x < initialPosition.x && currentLocation.x < goalPosition.x)
-            {
-              mline = 2;
-            }
+    }
+    else if(initialPosition.y < goalPosition.y){
+        if(currentLocation.y > initialPosition.y && currentLocation.y > goalPosition.y)
+        {
+          mline = false;
         }
-        else if(initialPosition.y < goalPosition.y){
-            if(currentLocation.y > initialPosition.y && currentLocation.y < goalPosition.y){
-                mline = 1;
-            }
-            else if(currentLocation.y > initialPosition.y && currentLocation.y > goalPosition.y)
-            {
-              mline = 2;
-            }
+    }
+    else{
+        if(currentLocation.y < initialPosition.y && currentLocation.y < goalPosition.y)
+        {
+          mline = false;
         }
-        else{
-            if(currentLocation.y < initialPosition.y && currentLocation.y > goalPosition.y){
-                mline = 1;
-            }
-            else if(currentLocation.y < initialPosition.y && currentLocation.y < goalPosition.y)
-            {
-              mline = 2;
-            }
-        }
-
-  }
+    }
     //cout<<"robot on mline? "<<mline<<"\n";
   return mline;
 }
@@ -486,4 +425,26 @@ void ObstacleController::resetRejectRequest()
 {
   /* This function to be called from controller interconnect after point has been requested */
   requestRejection = false;
+}
+
+bool ObstacleController::checkRejectionCriterion()
+{
+  float goalDist = 0;
+  bool rejectFlag = false ;
+
+  goalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
+
+  if(goalDist > 5)
+  {
+    std::cout << "Going out of the threshold distance" << std::endl;
+    rejectFlag = true ;
+  }
+
+  if(false == checkMline())
+  {
+    std::cout << "The point is within the obstacle space" << std::endl;
+    rejectFlag = true ;
+  }
+
+  return rejectFlag;
 }

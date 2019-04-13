@@ -364,6 +364,10 @@ void LogicController::controllerInterconnect()
 
     obstacleController.resetRejectRequest();
   }
+  else
+  {
+    // searchController.decrementPathIndex(1);
+  }
 
   goalPoint = driveController.GetNextWaypoint();
   if(false == goalPoint.empty())

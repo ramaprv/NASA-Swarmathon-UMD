@@ -237,6 +237,7 @@ bool DriveController::HasWork() {   }
 
 void DriveController::ProcessData()
 {
+  std::cout << "Drive Controller Size" << waypoints.size() << std::endl;
   // std::cout << "DriveController: Process Data"<< std::endl;
   //determine if the drive commands are waypoint or precision driving
   if (result.type == waypoint) {
