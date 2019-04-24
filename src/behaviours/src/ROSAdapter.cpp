@@ -334,11 +334,11 @@ void placeMapMarker() {
   // points.colors.push_back(color);
   auto _mapObj = logicController.mapController.mapObj;
   for (auto pt : _mapObj) {
-    mapPt.x = pt.location.x;
-    mapPt.y = pt.location.y;
+    mapPt.x = pt.first.x;
+    mapPt.y = pt.first.y;
     mapPt.z = 0;
 
-    switch(pt.occType){
+    switch(pt.second){
       case EMPTY:
         color.r = 0.0;
         color.g = 0.0;
@@ -523,7 +523,7 @@ void behaviourStateMachine(const ros::TimerEvent&)
         prevWrist = result.wristAngle;		//store the last known gripper wrist angle
       }
     }
-  placeMapMarker();
+  // placeMapMarker();
   collision_msg.data = logicController.getCollisionCalls();
   obstaclePublisher.publish(collision_msg);
     //publishHandeling here

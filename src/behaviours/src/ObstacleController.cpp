@@ -6,7 +6,7 @@ ObstacleController::ObstacleController()
   obstacleDetected = false;
   obstacleInterrupt = false;
   requestRejection = false ;
-  result.PIDMode = CONST_PID; //use the const PID to turn at a constant speed
+  result.PIDMode = FAST_PID; //use the const PID to turn at a constant speed
   goalPosSet = false ;
   rotDirection = 0;
 }

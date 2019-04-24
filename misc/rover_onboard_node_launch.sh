@@ -9,7 +9,7 @@ do
         -- ) shift ; break ;;
     esac
 done
-    
+
 echo "running pkill on old rosnodes"
 pkill usb_cam_node
 pkill behaviours
@@ -84,7 +84,7 @@ echo $(realpath ..)/camera_info/head_camera.yaml
 echo "rosrun behaviours"
 nohup > logs/$HOSTNAME"_behaviours_log.txt" rosrun behaviours behaviours &
 echo "rosrun obstacle_detection"
-nohup rosrun obstacle_detection obstacle &
+# nohup rosrun obstacle_detection obstacle &
 echo "rosrun diagnostics"
 nohup > logs/$HOSTNAME"_diagnostics_log.txt" rosrun diagnostics diagnostics &
 
@@ -164,7 +164,7 @@ throttle()
     nohup >/dev/null rosrun topic_tools throttle messages $1 1.0 __name:=$2 &
 }
 
-nohup >/dev/null rosrun topic_tools throttle messages /$HOSTNAME/targets/image/compressed $frame_rate /$HOSTNAME/targets/image_throttle/compressed __name:=${HOSTNAME}_throttle_image & 
+nohup >/dev/null rosrun topic_tools throttle messages /$HOSTNAME/targets/image/compressed $frame_rate /$HOSTNAME/targets/image_throttle/compressed __name:=${HOSTNAME}_throttle_image &
 
 throttle /$HOSTNAME/sonarLeft ${HOSTNAME}_throttle_sonarLeft
 throttle /$HOSTNAME/sonarRight ${HOSTNAME}_throttle_sonarRight

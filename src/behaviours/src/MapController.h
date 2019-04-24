@@ -5,6 +5,8 @@
 #include "Controller.h"
 #include <algorithm>
 #include <iostream>
+#include <map>
+#include <utility>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/core/types.hpp>
 #include <opencv2/opencv.hpp>
@@ -18,13 +20,6 @@ enum gridType {
   CUBE,
   COLLECTIONCENTER,
   BOUNDARY
-};
-
-
-struct MapPoint {
-  Point location;
-  int id;
-  gridType occType;
 };
 
 /**
@@ -49,9 +44,9 @@ public:
   void SetCurrentLocation(Point currentLocation);
   void SetCenterLocation(Point centerLocation);
   void SetSonarData(float left, float center, float right);
-  static bool CheckIfPointInMap(MapPoint p);
+  // static bool CheckIfPointInMap(MapPoint p); // unsed function
   void setTagData(vector<Tag> tags);
-  std::vector<MapPoint> mapObj;
+  std::map<Point, gridType> mapObj;
   Point currentLocation;
 
   Point currSearchPoint;
@@ -93,8 +88,9 @@ private:
   // Convert to discrete grid point
   Point toGridPoint(Point currentLocation);
   Point toGridPoint2(Point currentLocation);
+  void addPointToMap(Point pt, gridType type);
   // Check if grid point corresponding to current point exists in map object
-  int currLocFound(Point currentLocation);
+  // int currLocFound(Point currentLocation); // unused since mapObj vector -> mapObj set
   void GetObjectPos(Point _currentLocation);
   void visualizeMap();
 
