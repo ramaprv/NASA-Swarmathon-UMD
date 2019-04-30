@@ -390,8 +390,9 @@ void ObstacleController::SetGoalPoint(Point goalPos)
     goalPosition = goalPos;
     init2GoalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
   	rotDirection =0;
+    // std::cout << "Obstacle controller goal point is :" << goalPosition.x << ", " << goalPosition.y << std::endl;
   }
-  std::cout << "Obstacle controller goal point is :" << goalPosition.x << ", " << goalPosition.y << std::endl;
+
 	// std::cout << "I got a Goal Point from Logic Controller:" << std::endl;
 	// std::cout << goalPosition.x << "," << goalPosition.y << std::endl;
 

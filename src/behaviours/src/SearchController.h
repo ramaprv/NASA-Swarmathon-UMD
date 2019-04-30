@@ -37,6 +37,7 @@ public:
   long int pathPointIndex = 0;
   double lowerLeftHilbertPt = -6.5;
   double hilbert2dScale = 0.406;
+  int arenaLevel = 1;
 
 protected:
 

@@ -46,7 +46,7 @@ Result LogicController::DoWork()
       // in order to properly pre-proccess data.
     }
   }
-  std::cout << "Logic State: "<< logicState<< std::endl;
+  // std::cout << "Logic State: "<< logicState<< std::endl;
 
   switch(logicState) {
 
