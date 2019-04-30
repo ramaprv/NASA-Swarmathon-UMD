@@ -292,8 +292,8 @@ void MapController::visualizeMap() {
   cv::circle(mapCVMat, cv::Point(gridPoint.x + 100,
     gridPoint.y + 100), 1, cv::Scalar(255, 255, 0), cv::FILLED);
 
-  Point searchPointNow = toGridPoint(currSearchPoint);
-  Point searchPointNext = toGridPoint(nextSearchPoint);
+  Point searchPointNow = toGridPoint2(currSearchPoint);
+  Point searchPointNext = toGridPoint2(nextSearchPoint);
 
   cv::circle(mapCVMat, cv::Point(searchPointNow.x + 100,
     searchPointNow.y + 100), 1, cv::Scalar(205, 0, 255), cv::FILLED);
