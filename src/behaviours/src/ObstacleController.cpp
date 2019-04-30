@@ -388,6 +388,7 @@ void ObstacleController::SetGoalPoint(Point goalPos)
   if(false == followBugAlgorithm)
   {
     goalPosition = goalPos;
+    init2GoalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
   	rotDirection =0;
   }
   std::cout << "Obstacle controller goal point is :" << goalPosition.x << ", " << goalPosition.y << std::endl;
@@ -448,7 +449,7 @@ bool ObstacleController::checkRejectionCriterion()
 
   goalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
 
-  if(goalDist > 20)
+  if(goalDist > init2GoalDist + 5)
   {
     std::cout << "Going out of the threshold distance" << std::endl;
     rejectFlag = true ;
