@@ -37,10 +37,35 @@ void MapController::Reset() {
  */
 Point MapController::toGridPoint(Point _currentLocation) {
   Point gridPoint;
-  gridPoint.x = round((centerLocation.x - _currentLocation.x) / gridSize);
-  gridPoint.y = round((centerLocation.y - _currentLocation.y) / gridSize);
+  gridPoint.x = round((_currentLocation.x - centerLocation.x ) / gridSize);
+  gridPoint.y = round((_currentLocation.y - centerLocation.y) / gridSize);
   return gridPoint;
 }
+
+Point MapController::toGridPoint2(Point currentLocation_) {
+  Point gridPoint;
+  gridPoint.x = round(currentLocation_.x / gridSize);
+  gridPoint.y = round(currentLocation_.y / gridSize);
+  return gridPoint;
+}
+
+
+void MapController::addPointToMap(Point pt, gridType type) {
+  if (mapObj.empty()) {
+    mapObj.insert(std::make_pair (pt, type));
+    return;
+  }
+  auto index = mapObj.find(pt);
+  if (index != mapObj.end()) {
+    index->second = type;
+  }
+  else {
+    mapObj.insert(std::make_pair (pt, type));
+  }
+
+}
+
+/* Unused after changing mapObj to set
 
 int MapController::currLocFound(Point _currentLocation) {
   bool updateFlag = false;
@@ -56,6 +81,7 @@ int MapController::currLocFound(Point _currentLocation) {
   }
   return index;
 }
+*/
 
 void MapController::SetSonarData(float left, float center, float right) {
   sonarLeft = left;
@@ -64,57 +90,31 @@ void MapController::SetSonarData(float left, float center, float right) {
 }
 
 void MapController::GetObjectPos(Point _currentLocation) {
-  MapPoint mapPoint;
+  gridType occType;
+  Point gridPoint;
+  Point obsPoint;
   if(sonarLeft < 1) {
-    Point obsPoint;
     obsPoint.x = _currentLocation.x + (sonarLeft * std::cos((PI / 4) + _currentLocation.theta));
     obsPoint.y = _currentLocation.y + (sonarLeft * std::sin((PI / 4) + _currentLocation.theta));
-    int index = currLocFound(obsPoint);
-    if (index < 0) {
-      Point gridPoint = toGridPoint(obsPoint);
-      mapPoint.location.x = gridPoint.x;
-      mapPoint.location.y = gridPoint.y;
-      mapPoint.id = 0;
-      mapPoint.occType = OBSTACLE;
-      mapObj.push_back(mapPoint);
-    }
-    else {
-      mapObj[index].occType = OBSTACLE;
-    }
+    gridPoint = toGridPoint(obsPoint);
+    occType = OBSTACLE;
+    addPointToMap(gridPoint, occType);
   }
+
   if(sonarCenter < 1) {
-    Point obsPoint;
     obsPoint.x = _currentLocation.x + (sonarCenter * std::cos(_currentLocation.theta));
     obsPoint.y = _currentLocation.y + (sonarCenter * std::sin(_currentLocation.theta));
-    int index = currLocFound(obsPoint);
-    if (index < 0) {
-      Point gridPoint = toGridPoint(obsPoint);
-      mapPoint.location.x = gridPoint.x;
-      mapPoint.location.y = gridPoint.y;
-      mapPoint.id = 0;
-      mapPoint.occType = OBSTACLE;
-      mapObj.push_back(mapPoint);
-    }
-    else {
-      mapObj[index].occType = OBSTACLE;
-    }
+    gridPoint = toGridPoint(obsPoint);
+    occType = OBSTACLE;
+    addPointToMap(gridPoint, occType);
   }
+
   if(sonarRight < 1) {
-    Point obsPoint;
     obsPoint.x = _currentLocation.x + (sonarRight * std::cos(-(PI / 4) + _currentLocation.theta));
     obsPoint.y = _currentLocation.y + (sonarRight * std::sin(-(PI / 4) + _currentLocation.theta));
-    int index = currLocFound(obsPoint);
-    if (index < 0) {
-      Point gridPoint = toGridPoint(obsPoint);
-      mapPoint.location.x = gridPoint.x;
-      mapPoint.location.y = gridPoint.y;
-      mapPoint.id = 0;
-      mapPoint.occType = OBSTACLE;
-      mapObj.push_back(mapPoint);
-    }
-    else {
-      mapObj[index].occType = OBSTACLE;
-    }
+    gridPoint = toGridPoint(obsPoint);
+    occType = OBSTACLE;
+    addPointToMap(gridPoint, occType);
   }
 }
 
@@ -123,19 +123,9 @@ void MapController::GetObjectPos(Point _currentLocation) {
  * This code adds new grid points to map object vector
  */
 Result MapController::DoWork() {
-  int index = currLocFound(currentLocation);
-  if (index < 0) {
-    MapPoint mapPoint;
-    Point gridPoint = toGridPoint(currentLocation);
-    mapPoint.location.x = gridPoint.x;
-    mapPoint.location.y = gridPoint.y;
-    mapPoint.id = 0;
-    mapPoint.occType = EMPTY;
-    mapObj.push_back(mapPoint);
-  }
-  else {
-    mapObj[index].occType = EMPTY;
-  }
+  Point gridPoint = toGridPoint(currentLocation);
+  gridType occType = EMPTY;
+  addPointToMap(gridPoint, occType);
   GetObjectPos(currentLocation);
   visualizeMap();
   // visuvalization();
@@ -170,7 +160,6 @@ bool MapController::HasWork() {
 }
 
 void MapController::setTagData(vector<Tag> tags){
-  MapPoint mapPoint;
   Point cubePoint;
   double closest = std::numeric_limits<double>::max();
   int target  = 0;
@@ -208,8 +197,7 @@ void MapController::setTagData(vector<Tag> tags){
 
     blockDistanceFromCamera = std::hypot(std::hypot(posX, posY), posZ);
 
-    if ( (blockDistanceFromCamera*blockDistanceFromCamera - 0.195*0.195) > 0 )
-    {
+    if ( (blockDistanceFromCamera*blockDistanceFromCamera - 0.195*0.195) > 0 ) {
       blockDistance = std::sqrt(blockDistanceFromCamera*blockDistanceFromCamera - 0.195*0.195);
       blockYawError = std::atan((posX + cameraOffsetCorrection)/blockDistance);
       auto tagDistFromBot = std::hypot(blockDistance, (posX + cameraOffsetCorrection));
@@ -218,44 +206,26 @@ void MapController::setTagData(vector<Tag> tags){
       cubePoint.theta = currentLocation.theta + blockYawError;
       // std::cout << "Tag Pos : X : " << cubePoint.x << " Y : " << cubePoint.y << std::endl ;
       //std::cout << "Tag Pos : R : " << get<0>(orientation) << " P : " << get<1>(orientation) << " Y : " << get<2>(orientation) << std::endl ;
-      int index = currLocFound(cubePoint);
-      if (index < 0) {
-        Point gridPoint = toGridPoint(cubePoint);
-        mapPoint.location.x = gridPoint.x;
-        mapPoint.location.y = gridPoint.y;
-        mapPoint.location.theta = cubePoint.theta;
-        mapPoint.id = 0;
-        switch((int)tag.getID()){
-          case 1:
-            mapPoint.occType = BOUNDARY;
-            break;
-          case 256:
-            mapPoint.occType = COLLECTIONCENTER;
-            break;
-          default:
-            mapPoint.occType = CUBE;
-            break;
-        }
-        mapObj.push_back(mapPoint);
+      Point gridPoint = toGridPoint(cubePoint);
+      gridType occType;
+      switch((int)tag.getID()){
+        case 1:
+          occType = BOUNDARY;
+          break;
+        case 256:
+          occType = COLLECTIONCENTER;
+          break;
+        default:
+          occType = CUBE;
+          break;
       }
-      else {
-        switch((int)tag.getID()){
-          case 1:
-            mapObj[index].occType = BOUNDARY;
-            break;
-          case 256:
-            mapObj[index].occType = COLLECTIONCENTER;
-            break;
-          default:
-            mapObj[index].occType = CUBE;
-            break;
-        }
-      }
+      addPointToMap(gridPoint, occType);
     }
     idx2++;
   }
 }
 
+/*
 std::vector<int> MapController::getMapSize() {
   int minX = -1000;
   int minY = -1000;
@@ -270,6 +240,7 @@ std::vector<int> MapController::getMapSize() {
   std::vector<int> mapSize{minX, minY, maxX, maxY};
   return(mapSize);
 }
+*/
 
 void MapController::visualizeMap() {
   /*
@@ -281,35 +252,35 @@ void MapController::visualizeMap() {
   */
 
   // auto mapDims = getMapSize();
-  cv::Mat mapCVMat(200, 200, CV_8UC3, cv::Scalar(0,0,0));
+  cv::Mat mapCVMat(300, 300, CV_8UC3, cv::Scalar(0,0,0));
 
   for (auto p : mapObj) {
-    // std::cout << "point x : " << p.location.x << " y : " << p.location.y << " type : " << p.occType << endl;
+    std::cout << "point x : " << p.first.x << " y : " << p.first.y << " type : " << p.second << endl;
 
-    switch(p.occType){
+    switch(p.second){
       case EMPTY:
-        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
-          p.location.y + 100), 1, cv::Scalar(105, 105, 105), cv::FILLED);
+        cv::circle(mapCVMat, cv::Point(p.first.x + 100,
+          p.first.y + 100), 1, cv::Scalar(105, 105, 105), cv::FILLED);
         break;
       case OBSTACLE:
-        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
-          p.location.y + 100), 1, cv::Scalar(0, 0, 255), cv::FILLED);
+        cv::circle(mapCVMat, cv::Point(p.first.x + 100,
+          p.first.y + 100), 1, cv::Scalar(0, 0, 255), cv::FILLED);
         break;
       case CUBE:
-        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
-          p.location.y + 100), 1, cv::Scalar(255, 255, 255), cv::FILLED);
+        cv::circle(mapCVMat, cv::Point(p.first.x + 100,
+          p.first.y + 100), 1, cv::Scalar(255, 255, 255), cv::FILLED);
         break;
       case BOUNDARY:
-        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
-          p.location.y + 100), 1, cv::Scalar(0, 69, 255), cv::FILLED);
+        cv::circle(mapCVMat, cv::Point(p.first.x + 100,
+          p.first.y + 100), 1, cv::Scalar(0, 69, 255), cv::FILLED);
         break;
       case COLLECTIONCENTER:
-        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
-          p.location.y + 100), 1, cv::Scalar(0, 215, 255), cv::FILLED);
+        cv::circle(mapCVMat, cv::Point(p.first.x + 100,
+          p.first.y + 100), 1, cv::Scalar(0, 215, 255), cv::FILLED);
         break;
       default:
-        cv::circle(mapCVMat, cv::Point(p.location.x + 100,
-          p.location.y + 100), 1, cv::Scalar(25, 25, 25), cv::FILLED);
+        cv::circle(mapCVMat, cv::Point(p.first.x + 100,
+          p.first.y + 100), 1, cv::Scalar(25, 25, 25), cv::FILLED);
         break;
     }
   }
@@ -321,8 +292,20 @@ void MapController::visualizeMap() {
   cv::circle(mapCVMat, cv::Point(gridPoint.x + 100,
     gridPoint.y + 100), 1, cv::Scalar(255, 255, 0), cv::FILLED);
 
+  Point searchPointNow = toGridPoint(currSearchPoint);
+  Point searchPointNext = toGridPoint(nextSearchPoint);
+
+  cv::circle(mapCVMat, cv::Point(searchPointNow.x + 100,
+    searchPointNow.y + 100), 1, cv::Scalar(205, 0, 255), cv::FILLED);
+  // std::cout << "** HIL X: " << currSearchPoint.x << " Y: " << currSearchPoint.y << std::endl;
+  // std::cout << "**** HIL GRID X: " << searchPointNow.x << " Y: " << searchPointNow.y << std::endl;
+
+  cv::circle(mapCVMat, cv::Point(searchPointNext.x + 100,
+      searchPointNext.y + 100), 1, cv::Scalar(43, 255, 0), cv::FILLED);
+
+
   cv::resize(mapCVMat, mapCVMat,
-    cv::Size(mapCVMat.cols * 5,mapCVMat.rows * 5),
+    cv::Size(mapCVMat.cols * 4,mapCVMat.rows * 4),
     0, 0, CV_INTER_LINEAR);
   cv::imshow("MapWindow", mapCVMat);
   cv::waitKey(30);
