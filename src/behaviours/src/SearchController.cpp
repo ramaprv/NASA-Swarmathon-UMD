@@ -64,7 +64,7 @@ Result SearchController::DoWork() {
 						}
 					}while(!isvalid);
 			int targetQuad =getQuadrant(searchLocation);
-			int roverQuad =getQuadrant(currentLocation);
+			int roverQuad =getQuadrant(currentLocationGlobal);
 			std::cout<< "Initial Move- target quadrant: " << targetQuad <<"rover quadrant: "<< roverQuad <<std::endl;
 			int adjBackQuad = targetQuad-1;
 			int adjNextQuad = targetQuad+1;
@@ -79,9 +79,11 @@ Result SearchController::DoWork() {
 				initCornerSent = true;
 				result.type = waypoint;
 				// std::cout << "Next Waypoint" << std::endl ;
+				searchLocation.x += centerLocation.x;
+				searchLocation.y += centerLocation.y;
 				std::cout << "InitX" << searchLocation.x << ",InitY" << searchLocation.y << std::endl;
 				// std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pathPointIndex <<"/"<<currentPathPoints.size() << std::endl;
-				std::cout << "Xc" << currentLocation.x << ",Yc" << currentLocation.y << std::endl;
+				std::cout << "Xc" << currentLocationGlobal.x << ",Yc" << currentLocationGlobal.y << std::endl;
 				result.wpts.waypoints.clear();
 				result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
 				return result;
@@ -106,10 +108,12 @@ Result SearchController::DoWork() {
 		}
 
 		result.type = waypoint;
+		searchLocation.x += centerLocation.x;
+		searchLocation.y += centerLocation.y;
 		// std::cout << "Next Waypoint" << std::endl ;
 		std::cout << "Xs" << searchLocation.x << ",Ys" << searchLocation.y << ",PointIndex" << pathPointIndex<<"/"<<currentPathPoints.size() << std::endl;
         // std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pathPointIndex <<"/"<<currentPathPoints.size() << std::endl;
-		std::cout << "Xc" << currentLocation.x << ",Yc" << currentLocation.y << std::endl;
+		std::cout << "Xc" << currentLocationGlobal.x << ",Yc" << currentLocationGlobal.y << std::endl;
 		result.wpts.waypoints.clear();
 		result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
     }
@@ -132,6 +136,8 @@ void SearchController::SetCenterLocation(Point centerLocation) {
 
 void SearchController::SetCurrentLocation(Point currentLocation) {
   this->currentLocation = currentLocation;
+  currentLocationGlobal.x = currentLocation.x - centerLocation.x;
+  currentLocationGlobal.y = currentLocation.y - centerLocation.y;
 }
 
 void SearchController::setRecruitmentLocation(Point p) {

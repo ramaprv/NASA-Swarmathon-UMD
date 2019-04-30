@@ -82,6 +82,8 @@ private:
 
   //this controller has control~
   bool has_control = false;
+
+  int backOffTagLossCount = 0;
 };
 
 #endif // end header define
