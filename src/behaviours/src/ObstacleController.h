@@ -26,6 +26,12 @@ public:
   void setTargetHeldClear();
   //Asked by logiccontroller to determine if drive controller should have its waypoints cleared
   bool getShouldClearWaypoints() {bool tmp = clearWaypoints; clearWaypoints = false; return tmp;}
+  void SetGoalPoint(Point tmpLocation);
+  bool checkMline();
+  bool checkRejectionCriterion();
+  bool requestRejectPoint();
+  void resetRejectRequest();
+  bool getObstacleControllerStatus();
 
 protected:
 
@@ -42,12 +48,12 @@ private:
   // Are there AprilTags in the camera view that mark the collection zone
   // and are those AprilTags oriented towards or away from the camera.
   bool checkForCollectionZoneTags( Tag tag );
-  
+
   const float K_angular = 1.0; //radians a second turn rate to avoid obstacles
   const float reactivate_center_sonar_threshold = 0.8; //reactive center sonar if it goes back above this distance, assuming it is deactivated
   const int targetCountPivot = 6; ///unused variable
   const float obstacleDistancePivot = 0.2526; ///unused variable
-  const float triggerDistance = 0.8;
+  const float triggerDistance = 1.2;
 
   /*
      * Member variables
@@ -81,11 +87,24 @@ private:
   bool phys = false; // Physical obstacle
   bool tag_boundary_seen = false; // The obstacle is the arena boundary defined by AprilTags
   bool collection_zone_seen = false; // The obstacle is the collection zone
-  
+
   bool set_waypoint = false;
   bool can_set_waypoint = false;
 
   float camera_offset_correction = 0.020; //meters;
+
+  /* Variables implemented for the bug algorithm */
+  Point goalPosition ;
+  Point initialPosition ;
+  bool goalPosSet ;
+  int rotDirection ;
+  bool followBugAlgorithm;
+  bool requestRejection = false;
+
+  bool moveAhead = false ;
+  bool obstacleControllerFinished = false ;
+  float init2GoalDist = 0;
+
 };
 
 #endif // OBSTACLECONTOLLER_H

@@ -46,6 +46,7 @@ Result LogicController::DoWork()
       // in order to properly pre-proccess data.
     }
   }
+  std::cout << "Logic State: "<< logicState<< std::endl;
 
   switch(logicState) {
 
@@ -330,7 +331,20 @@ int LogicController::getCollisionCalls()
 //                       \<----> ControllerB
 void LogicController::controllerInterconnect()
 {
-
+  if (searchController.currentPathPoints.size() > 0 ) {
+    Point tmpLocation = searchController.currentPathPoints[searchController.pathPointIndex-1];
+    Point searchLocation;
+    searchLocation.x = searchController.lowerLeftHilbertPt + tmpLocation.x*searchController.hilbert2dScale;
+    searchLocation.y = searchController.lowerLeftHilbertPt + tmpLocation.y*searchController.hilbert2dScale;
+    // std::cout << "********Size of Hilbert point vector: " << searchController.currentPathPoints.size() << std::endl;
+    mapController.currSearchPoint = searchLocation;
+    tmpLocation = searchController.currentPathPoints[searchController.pathPointIndex ];
+    searchLocation.x = searchController.lowerLeftHilbertPt + tmpLocation.x*searchController.hilbert2dScale;
+    searchLocation.y = searchController.lowerLeftHilbertPt + tmpLocation.y*searchController.hilbert2dScale;
+    mapController.nextSearchPoint = searchLocation;
+  }
+  // mapController.currSearchPoint = searchController.currentPathPoints[0];
+  std::vector<Point> goalPoint;
   if (processState == PROCESS_STATE_SEARCHING)
   {
 
@@ -359,6 +373,31 @@ void LogicController::controllerInterconnect()
   if(obstacleController.getShouldClearWaypoints())
   {
     driveController.Reset();
+  }
+
+  /* Check if there is a request to reject the point from the obstacle controller */
+  if(true == obstacleController.getObstacleControllerStatus())
+  {
+    if(true == obstacleController.requestRejectPoint() )
+    {
+      std::cout << "Request to reject a point" << std::endl;
+      /* Reject the next point from the search controller */
+
+      obstacleController.resetRejectRequest();
+    }
+    else
+    {
+      std::cout << "Decrementing the path index" << std::endl;
+      // If the previous point can be accessed then decrement the index of the search path
+      searchController.decrementPathIndex(1);
+    }
+  }
+
+
+  goalPoint = driveController.GetNextWaypoint();
+  if(false == goalPoint.empty())
+  {
+    obstacleController.SetGoalPoint(goalPoint[0]);
   }
 
 }
@@ -492,7 +531,7 @@ void LogicController::updateProcessChange2Controllers(int p){
 	// if controller picks up then decrement the search path
 	// so that it can come back and search the same place for cluster
 	  if (p ==1){
-		  searchController.decrementPathIndex();
+		  searchController.decrementPathIndex(4);
 	  }
 }
 

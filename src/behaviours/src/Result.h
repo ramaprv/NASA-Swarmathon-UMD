@@ -50,7 +50,8 @@ enum BehaviorTrigger {
   wait, //used by logic controller to indicate to ROSAdapter indicate when nothing should happen
   prevProcess, //when the process state should revert to the previouse state according to the controller
   noChange, //guard used by logic controller against faulty configurations
-  nextProcess //when the process state should advance tot he next state according to the controller
+  nextProcess, //when the process state should advance tot he next state according to the controller
+  setGoalPoint // Requested currently by the Obstacle controller to request for the goal waypoint
 };
 
 struct PrecisionDriving {
