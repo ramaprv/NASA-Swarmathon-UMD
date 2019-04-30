@@ -255,7 +255,7 @@ void MapController::visualizeMap() {
   cv::Mat mapCVMat(300, 300, CV_8UC3, cv::Scalar(0,0,0));
 
   for (auto p : mapObj) {
-    std::cout << "point x : " << p.first.x << " y : " << p.first.y << " type : " << p.second << endl;
+    // std::cout << "point x : " << p.first.x << " y : " << p.first.y << " type : " << p.second << endl;
 
     switch(p.second){
       case EMPTY:
@@ -292,8 +292,8 @@ void MapController::visualizeMap() {
   cv::circle(mapCVMat, cv::Point(gridPoint.x + 100,
     gridPoint.y + 100), 1, cv::Scalar(255, 255, 0), cv::FILLED);
 
-  Point searchPointNow = toGridPoint(currSearchPoint);
-  Point searchPointNext = toGridPoint(nextSearchPoint);
+  Point searchPointNow = toGridPoint2(currSearchPoint);
+  Point searchPointNext = toGridPoint2(nextSearchPoint);
 
   cv::circle(mapCVMat, cv::Point(searchPointNow.x + 100,
     searchPointNow.y + 100), 1, cv::Scalar(205, 0, 255), cv::FILLED);

@@ -76,7 +76,7 @@ private:
   float posZ;
   float blockDistanceFromCamera;
   // Grid Size
-  const double gridSize = .1;
+  const double gridSize = .2;
   //struct for returning data to ROS adapter
   Result result;
 

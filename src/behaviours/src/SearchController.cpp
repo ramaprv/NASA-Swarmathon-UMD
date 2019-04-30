@@ -47,7 +47,7 @@ Result SearchController::DoWork() {
     else
     {
 		// Initial move to go to required quadrant
-		if (pathPointIndex == 0){
+		if (pathPointIndex == 0 && arenaLevel == 1){
 			bool isvalid = false;
 			int index =-1;
 					do{
@@ -90,24 +90,75 @@ Result SearchController::DoWork() {
 			}
 		}
 
+    std::cout<< "PathPointIndex: "<< pathPointIndex << std::endl;
+    std::cout<< "ArenaLevel: "<< arenaLevel << std::endl;
+    /*
+    if (pathPointIndex < currentPathPoints.size()-5 && arenaLevel == 1){
+      pathPointIndex = currentPathPoints.size()-5;
+    }
+    */
+
 		// send hilbert moves
 		tmpLocation  = currentPathPoints[pathPointIndex];
 		if ((pathPointIndex +1)<=currentPathPoints.size()){
 			pathPointIndex++;
-		 }
-		 else{
-		 	return result;
+		}else{
+
+
+      if (arenaLevel == 1){
+        pathPointIndex = 0;
+        arenaLevel = 2;
+        lowerLeftHilbertPt  = -1 * 22 / 2 ;
+        hilbert2dScale = (float)22/pow(2.0,6.0);
+        generateHilbertPoints(6);
+        updateCurrentPathPoints(roverName);
+        tmpLocation  = currentPathPoints[pathPointIndex];
+        pathPointIndex++;
+        std::cout<< "new Level Update: " << lowerLeftHilbertPt << ","<< hilbert2dScale <<std::endl;
+        return result;
+      }else if (arenaLevel == 2){
+        pathPointIndex = 0;
+        arenaLevel = 3;
+        lowerLeftHilbertPt  = -1 * 26 / 2 ;
+        hilbert2dScale = (float)26/pow(2.0,6.0);
+        generateHilbertPoints(6);
+        updateCurrentPathPoints(roverName);
+        tmpLocation  = currentPathPoints[pathPointIndex];
+        pathPointIndex++;
+        std::cout<< "new Level Update: " << lowerLeftHilbertPt << ","<< hilbert2dScale <<std::endl;
+        return result;
+      }
 	    }
+
 		searchLocation.x = lowerLeftHilbertPt + tmpLocation.x*hilbert2dScale;
 		searchLocation.y = lowerLeftHilbertPt + tmpLocation.y*hilbert2dScale;
 
 		// Not inserting points in the collection area
-		if (fabs(searchLocation.x) < 0.9 && fabs(searchLocation.y)< 0.9){
-			pathPointIndex++;
-			return result;
-		}
+    if (arenaLevel == 2){
+      while(fabs(searchLocation.x) < 6.5 && fabs(searchLocation.y)< 6.5 && (pathPointIndex +2)<=currentPathPoints.size()){
+        std::cout<< "dumping 6.5" << std::endl;
+        tmpLocation  = currentPathPoints[pathPointIndex];
+        searchLocation.x = lowerLeftHilbertPt + tmpLocation.x*hilbert2dScale;
+    		searchLocation.y = lowerLeftHilbertPt + tmpLocation.y*hilbert2dScale;
+        pathPointIndex++;
+      }
+    }else if (arenaLevel == 3){
+      while(fabs(searchLocation.x) < 11 && fabs(searchLocation.y)< 11 && (pathPointIndex +2)<=currentPathPoints.size()){
+        std::cout<< "dumping 11" << std::endl;
+        tmpLocation  = currentPathPoints[pathPointIndex];
+        searchLocation.x = lowerLeftHilbertPt + tmpLocation.x*hilbert2dScale;
+    		searchLocation.y = lowerLeftHilbertPt + tmpLocation.y*hilbert2dScale;
+        pathPointIndex++;
+      }
+    }else {
+      if (fabs(searchLocation.x) < 0.9 && fabs(searchLocation.y)< 0.9 && arenaLevel == 1){
+  			pathPointIndex++;
+        return result;
+  		}
+    }
 
 		result.type = waypoint;
+    // convert to local frame
 		searchLocation.x += centerLocation.x;
 		searchLocation.y += centerLocation.y;
 		// std::cout << "Next Waypoint" << std::endl ;
@@ -242,7 +293,7 @@ void SearchController::updateCurrentPathPoints(string roverName){
 		startLocation.y = lowerLeftHilbertPt + tmpLocation2.y*hilbert2dScale;
 		float dist2start = hypot(startLocation.x, startLocation.y);
 
-		if (true){
+		if (arenaLevel%2 == 1){
 			// if (dist2final<dist2start){
 			std::reverse(currentPathPoints.begin(),currentPathPoints.end());
 			std::cout << "path Reversed" << std::endl;
