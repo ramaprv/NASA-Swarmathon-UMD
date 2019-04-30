@@ -52,7 +52,7 @@ void ObstacleController::avoidObstacle()
     if(true == requestRejection)
     {
       /* Implement the functionality to reject the point */
-      obstacleAvoided = true ;
+      obstacleAvoided = true;
       followBugAlgorithm = false ;
     }
     else {
@@ -211,7 +211,7 @@ void ObstacleController::ProcessData() {
 
   //if any sonar is below the trigger distance set physical obstacle true
   float goalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
-  if ((center < 0.8 && goalDist > 0.2))
+  if ((center < 0.8 && goalDist > 0.5))
   {
     phys = true;
     timeSinceTags = current_time;
@@ -266,6 +266,14 @@ void ObstacleController::setTagData(vector<Tag> tags){
   collection_zone_seen = false;
   count_left_collection_zone_tags = 0;
   count_right_collection_zone_tags = 0;
+
+  // Reset obstacle controller to pickup block when found
+  for (int i = 0; i < tags.size(); i++) {
+    if (tags[i].getID() == 0) {
+      Reset();
+      return;
+    }
+  }
 
   // give Boundary tag type precedence, even if holding a target
   for (int i = 0; i < tags.size(); i++) {

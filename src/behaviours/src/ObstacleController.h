@@ -104,7 +104,6 @@ private:
   bool moveAhead = false ;
   bool obstacleControllerFinished = false ;
   float init2GoalDist = 0;
-
 };
 
 #endif // OBSTACLECONTOLLER_H
