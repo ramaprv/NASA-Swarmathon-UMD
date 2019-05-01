@@ -338,7 +338,7 @@ void placeMapMarker() {
     mapPt.y = pt.first.y;
     mapPt.z = 0;
 
-    switch(pt.second){
+    switch(pt.second.grType){
       case EMPTY:
         color.r = 0.0;
         color.g = 0.0;

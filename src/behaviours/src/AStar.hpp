@@ -9,6 +9,12 @@
 #include <vector>
 #include <functional>
 #include <set>
+#include <queue>
+#include <vector>
+#include<algorithm>
+#include <map>
+#include "Point.h"
+#include "MapController.h"
 
 namespace AStar
 {
@@ -33,7 +39,21 @@ namespace AStar
         uint getScore();
     };
 
+    struct prioritizedNode {
+      Node* qNode;
+      prioritizedNode(Node* _qNode):
+        qNode(_qNode)
+      {
+      }
+
+      inline bool operator <(const prioritizedNode& other) const
+      {
+        return qNode->getScore() < other.qNode->getScore();
+      }
+    };
+
     using NodeSet = std::set<Node*>;
+    std::priority_queue<prioritizedNode> nodeQueue;
 
     class Generator
     {
@@ -50,6 +70,8 @@ namespace AStar
         void addCollision(Vec2i coordinates_);
         void removeCollision(Vec2i coordinates_);
         void clearCollisions();
+        bool rejectWithMap(Vec2i coordinates_);
+        std::map<Point, mapValue>* mapObjPtr;
 
     private:
         HeuristicFunction heuristic;

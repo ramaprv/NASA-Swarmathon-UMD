@@ -1,5 +1,4 @@
 #include "AStar.hpp"
-#include <algorithm>
 
 using namespace std::placeholders;
 
@@ -72,44 +71,60 @@ void AStar::Generator::clearCollisions()
 AStar::CoordinateList AStar::Generator::findPath(Vec2i source_, Vec2i target_)
 {
     Node *current = nullptr;
+    nodeQueue = std::priority_queue<prioritizedNode>();
     NodeSet openSet, closedSet;
-    openSet.insert(new Node(source_));
+    nodeQueue.push(prioritizedNode(new Node(source_)));
+    // openSet.insert(new Node(source_));
 
-    while (!openSet.empty()) {
-        current = *openSet.begin();
-        for (auto node : openSet) {
-            if (node->getScore() <= current->getScore()) {
-                current = node;
-            }
-        }
+
+    while (nodeQueue.size()>0) {
+    // while (!openSet.empty()) {
+        current = nodeQueue.top().qNode;
+        // current = *openSet.begin();
+        // for (auto node : openSet) {
+        //     if (node->getScore() <= current->getScore()) {
+        //         current = node;
+        //     }
+        // }
 
         if (current->coordinates == target_) {
             break;
         }
 
         closedSet.insert(current);
-        openSet.erase(std::find(openSet.begin(), openSet.end(), current));
+        // openSet.erase(std::find(openSet.begin(), openSet.end(), current));
+        nodeQueue.pop();
 
         for (uint i = 0; i < directions; ++i) {
             Vec2i newCoordinates(current->coordinates + direction[i]);
             if (detectCollision(newCoordinates) ||
                 findNodeOnList(closedSet, newCoordinates)) {
-                continue;
+                  if(rejectWithMap(current->coordinates)) {
+                    continue;
+                  }
             }
 
             uint totalCost = current->G + ((i < 4) ? 10 : 14);
 
-            Node *successor = findNodeOnList(openSet, newCoordinates);
-            if (successor == nullptr) {
-                successor = new Node(newCoordinates, current);
-                successor->G = totalCost;
-                successor->H = heuristic(successor->coordinates, target_);
-                openSet.insert(successor);
-            }
-            else if (totalCost < successor->G) {
-                successor->parent = current;
-                successor->G = totalCost;
-            }
+            Node *successor;
+            successor = new Node(newCoordinates, current);
+            successor->G = totalCost;
+            successor->H = heuristic(successor->coordinates, target_);
+            nodeQueue.push(prioritizedNode(successor));
+
+            // ************check if needed************
+            // Node *successor = findNodeOnList(openSet, newCoordinates);
+            // if (successor == nullptr) {
+                // successor = new Node(newCoordinates, current);
+                // successor->G = totalCost;
+                // successor->H = heuristic(successor->coordinates, target_);
+                // openSet.insert(successor);
+                // nodeQueue.push(prioritizedNode(successor));
+            // }
+            // else if (totalCost < successor->G) {
+                // successor->parent = current;
+                // successor->G = totalCost;
+            // }
         }
     }
 
@@ -118,7 +133,7 @@ AStar::CoordinateList AStar::Generator::findPath(Vec2i source_, Vec2i target_)
         path.push_back(current->coordinates);
         current = current->parent;
     }
-
+    nodeQueue = std::priority_queue<prioritizedNode>();
     releaseNodes(openSet);
     releaseNodes(closedSet);
 
@@ -133,6 +148,25 @@ AStar::Node* AStar::Generator::findNodeOnList(NodeSet& nodes_, Vec2i coordinates
         }
     }
     return nullptr;
+}
+
+bool AStar::Generator::rejectWithMap(Vec2i coordinates_)
+{
+    Point pt;
+    pt.x = coordinates_.x;
+    pt.y = coordinates_.y;
+    index = mapObjPtr->find(pt)
+    if(index != mapObjPtr->end()) {
+      if(index->second.grType() == EMPTY){
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+    else {
+      return false;
+    }
 }
 
 void AStar::Generator::releaseNodes(NodeSet& nodes_)

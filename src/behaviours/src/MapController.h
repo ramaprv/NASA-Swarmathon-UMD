@@ -22,6 +22,18 @@ enum gridType {
   BOUNDARY
 };
 
+struct mapValue {
+  gridType grType;
+  bool isOptimal;
+  Point parent;
+  mapValue(gridType type) : grType(type) {
+    isOptimal = false;
+    parent.x = -1;
+    parent.y = -1;
+  }
+};
+
+
 /**
  * This class implements the search control algorithm for the rovers. The code
  * here should be modified and enhanced to improve search performance.
@@ -46,7 +58,7 @@ public:
   void SetSonarData(float left, float center, float right);
   // static bool CheckIfPointInMap(MapPoint p); // unsed function
   void setTagData(vector<Tag> tags);
-  std::map<Point, gridType> mapObj;
+  std::map<Point, mapValue> mapObj;
   Point currentLocation;
 
   Point currSearchPoint;

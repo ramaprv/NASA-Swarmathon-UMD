@@ -52,15 +52,15 @@ Point MapController::toGridPoint2(Point currentLocation_) {
 
 void MapController::addPointToMap(Point pt, gridType type) {
   if (mapObj.empty()) {
-    mapObj.insert(std::make_pair (pt, type));
+    mapObj.insert(std::make_pair (pt, mapValue(type)));
     return;
   }
   auto index = mapObj.find(pt);
   if (index != mapObj.end()) {
-    index->second = type;
+    index->second.grType = type;
   }
   else {
-    mapObj.insert(std::make_pair (pt, type));
+    mapObj.insert(std::make_pair (pt, mapValue(type)));
   }
 
 }
@@ -255,9 +255,9 @@ void MapController::visualizeMap() {
   cv::Mat mapCVMat(300, 300, CV_8UC3, cv::Scalar(0,0,0));
 
   for (auto p : mapObj) {
-    // std::cout << "point x : " << p.first.x << " y : " << p.first.y << " type : " << p.second << endl;
+    // std::cout << "point x : " << p.first.x << " y : " << p.first.y << " type : " << p.second.grType << endl;
 
-    switch(p.second){
+    switch(p.second.grType){
       case EMPTY:
         cv::circle(mapCVMat, cv::Point(p.first.x + 100,
           p.first.y + 100), 1, cv::Scalar(105, 105, 105), cv::FILLED);
