@@ -344,11 +344,18 @@ void ObstacleController::setTagData(vector<Tag> tags){
   }
 
   if (targetHeld) {
+    int count = 0;
     for (int i = 0; i < tags.size(); i++) {
       if (tags[i].getID() == 0) {
         collection_zone_seen = checkIfTagNotinHand( tags[i] );
+        if (collection_zone_seen){
+          count+=1;
+        }
         timeSinceTags = current_time;
       }
+    }
+    if (count>1){
+      collection_zone_seen = true;
     }
   }
 }
@@ -360,7 +367,7 @@ bool ObstacleController::checkIfTagNotinHand( Tag tag ) {
 
   float blockDistanceFromCamera = std::hypot(std::hypot(posX, posY), posZ);
 
-  return (blockDistanceFromCamera*blockDistanceFromCamera - 0.180*0.180) > 0;
+  return (blockDistanceFromCamera*blockDistanceFromCamera - 0.225*0.225) > 0;
 }
 
 
@@ -485,26 +492,26 @@ bool ObstacleController :: checkMline()
       {
         mline = false;
       }
-    }
-    else if(initialPosition.x > goalPosition.x)
-    {
-        if(currentLocation.x < initialPosition.x && currentLocation.x < goalPosition.x)
-        {
-          mline = false;
-        }
-    }
-    else if(initialPosition.y < goalPosition.y){
-        if(currentLocation.y > initialPosition.y && currentLocation.y > goalPosition.y)
-        {
-          mline = false;
-        }
-    }
-    else{
-        if(currentLocation.y < initialPosition.y && currentLocation.y < goalPosition.y)
-        {
-          mline = false;
-        }
-    }
+  }
+  else if(initialPosition.x > goalPosition.x)
+  {
+      if(currentLocation.x < initialPosition.x && currentLocation.x < goalPosition.x)
+      {
+        mline = false;
+      }
+  }
+  else if(initialPosition.y < goalPosition.y){
+      if(currentLocation.y > initialPosition.y && currentLocation.y > goalPosition.y)
+      {
+        mline = false;
+      }
+  }
+  else{
+      if(currentLocation.y < initialPosition.y && currentLocation.y < goalPosition.y)
+      {
+        mline = false;
+      }
+  }
     //cout<<"robot on mline? "<<mline<<"\n";
   return mline;
 }
