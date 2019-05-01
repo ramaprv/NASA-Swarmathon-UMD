@@ -26,7 +26,7 @@ AStar::uint AStar::Node::getScore()
 
 AStar::Generator::Generator()
 {
-    setDiagonalMovement(false);
+    setDiagonalMovement(True);
     setHeuristic(&Heuristic::manhattan);
 
     direction = {
@@ -68,14 +68,16 @@ void AStar::Generator::clearCollisions()
     walls.clear();
 }
 
-AStar::CoordinateList AStar::Generator::findPath(Vec2i source_, Vec2i target_)
+bool AStar::Generator::findPath()
 {
-    Node *current = nullptr;
-    nodeQueue = std::priority_queue<prioritizedNode>();
-    NodeSet openSet, closedSet;
-    nodeQueue.push(prioritizedNode(new Node(source_)));
+    // Node *current = nullptr;
+    // nodeQueue = std::priority_queue<prioritizedNode>();
+    // NodeSet openSet, closedSet;
+    // nodeMap closedMap;
+    // nodeQueue.push(prioritizedNode(new Node(source_)));
     // openSet.insert(new Node(source_));
 
+    auto start = std::chrono::high_resolution_clock::now();
 
     while (nodeQueue.size()>0) {
     // while (!openSet.empty()) {
@@ -91,18 +93,26 @@ AStar::CoordinateList AStar::Generator::findPath(Vec2i source_, Vec2i target_)
             break;
         }
 
-        closedSet.insert(current);
+        Point pt;
+        pt.x = current->coordinates.x
+        pt.y = current->coordinates.y
+        closedMap.insert(std::make_pair (pt, current->coordinates);
+        // closedSet.insert(current);
         // openSet.erase(std::find(openSet.begin(), openSet.end(), current));
         nodeQueue.pop();
 
         for (uint i = 0; i < directions; ++i) {
             Vec2i newCoordinates(current->coordinates + direction[i]);
-            if (detectCollision(newCoordinates) ||
-                findNodeOnList(closedSet, newCoordinates)) {
-                  if(rejectWithMap(current->coordinates)) {
-                    continue;
-                  }
+            if( inClosedMap(newCoordinates) || rejectWithMap(current->coordinates)) {
+              continue;
             }
+
+            // if (detectCollision(newCoordinates) ||
+            //     findNodeOnList(closedSet, newCoordinates)) {
+            //       if(rejectWithMap(current->coordinates)) {
+            //         continue;
+            //       }
+            // }
 
             uint totalCost = current->G + ((i < 4) ? 10 : 14);
 
@@ -125,19 +135,57 @@ AStar::CoordinateList AStar::Generator::findPath(Vec2i source_, Vec2i target_)
                 // successor->parent = current;
                 // successor->G = totalCost;
             // }
+            //
+        }
+        auto finish = std::chrono::high_resolution_clock::now();
+        if(finish-start > 0.09) {
+          Vec2i subPt = nodeQueue.top();
+          subOptimalPoint.x =  subPt.x;
+          subOptimalPoint.y =  subPt.y;
+          return false;
         }
     }
+    path.clear();
+    return true;
 
-    CoordinateList path;
-    while (current != nullptr) {
-        path.push_back(current->coordinates);
-        current = current->parent;
+    // CoordinateList path;
+    // while (current != nullptr) {
+    //     path.push_back(current->coordinates);
+    //     current = current->parent;
+    // }
+    // nodeQueue = std::priority_queue<prioritizedNode>();
+    // releaseNodes(openSet);
+    // releaseNodes(closedSet);
+    // return path;
+}
+
+bool AStar::Generator::getPath()
+{
+  while (current != nullptr) {
+    subOptimalPoint.x = current->coordinates.x;
+    subOptimalPoint.y = current->coordinates.y;
+    path.push_back(current->coordinates);
+    current = current->parent;
+    updateParentToMap(currentPt, parentPt);
+    return false;
+  }
+  nodeQueue = std::priority_queue<prioritizedNode>();
+  releaseNodes(openSet);
+  releaseNodes(closedSet);
+  return true;
+}
+
+AStar::Generator::updateParentToMap(currentPt, parentPt) {
+  Point ptCurr, ptPar;
+  ptCurr.x = currentPt.x;
+  ptCurr.y = currentPt.y;
+  ptPar.x = parentPt.x;
+  ptPar.y = parentPt.y;
+  index = mapObjPtr->find(ptCurr)
+  if(index != mapObjPtr->end()) {
+    if(index->second.grType() == EMPTY){
+      index->second.parent = ptParent;
     }
-    nodeQueue = std::priority_queue<prioritizedNode>();
-    releaseNodes(openSet);
-    releaseNodes(closedSet);
-
-    return path;
 }
 
 AStar::Node* AStar::Generator::findNodeOnList(NodeSet& nodes_, Vec2i coordinates_)
@@ -152,17 +200,31 @@ AStar::Node* AStar::Generator::findNodeOnList(NodeSet& nodes_, Vec2i coordinates
 
 bool AStar::Generator::rejectWithMap(Vec2i coordinates_)
 {
+  Point pt;
+  pt.x = coordinates_.x;
+  pt.y = coordinates_.y;
+  index = mapObjPtr->find(pt)
+  if(index != mapObjPtr->end()) {
+    if(index->second.grType() == EMPTY){
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  else {
+    return false;
+  }
+}
+
+bool AStar::Generator::inClosedMap(Vec2i coord)
+{
     Point pt;
-    pt.x = coordinates_.x;
-    pt.y = coordinates_.y;
-    index = mapObjPtr->find(pt)
-    if(index != mapObjPtr->end()) {
-      if(index->second.grType() == EMPTY){
-        return true;
-      }
-      else {
-        return false;
-      }
+    pt.x = coord.x;
+    pt.y = coord.y;
+    index = .find(pt)
+    if(index != closedMap->end()) {
+      return true;
     }
     else {
       return false;
@@ -208,4 +270,14 @@ AStar::uint AStar::Heuristic::octagonal(Vec2i source_, Vec2i target_)
 {
     auto delta = std::move(getDelta(source_, target_));
     return 10 * (delta.x + delta.y) + (-6) * std::min(delta.x, delta.y);
+}
+
+void AStar::Generator::init(Vec2i src, Vec2i targ, mapObj* ptr) {
+  source_ = src;
+  target_ = targ;
+  mapObjPtr = ptr
+
+  *current = nullptr;
+  nodeQueue = std::priority_queue<prioritizedNode>();
+  nodeQueue.push(prioritizedNode(new Node(source_)));
 }

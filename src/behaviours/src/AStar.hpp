@@ -11,7 +11,8 @@
 #include <set>
 #include <queue>
 #include <vector>
-#include<algorithm>
+#include <algorithm>
+#include <chrono>
 #include <map>
 #include "Point.h"
 #include "MapController.h"
@@ -53,6 +54,7 @@ namespace AStar
     };
 
     using NodeSet = std::set<Node*>;
+    using nodeMap = std::map<Point, Vec2i>;
     std::priority_queue<prioritizedNode> nodeQueue;
 
     class Generator
@@ -66,12 +68,23 @@ namespace AStar
         void setWorldSize(Vec2i worldSize_);
         void setDiagonalMovement(bool enable_);
         void setHeuristic(HeuristicFunction heuristic_);
-        CoordinateList findPath(Vec2i source_, Vec2i target_);
+        bool findPath();
         void addCollision(Vec2i coordinates_);
         void removeCollision(Vec2i coordinates_);
         void clearCollisions();
         bool rejectWithMap(Vec2i coordinates_);
+        bool inClosedMap(Vec2i coord);
+        void init(Vec2i src, Vec2i tar, mapObj* ptr);
+        CoordinateList getPath();
+        void updateParentToMap(Vec2i currentPt, Vec2i parentPt);
         std::map<Point, mapValue>* mapObjPtr;
+        Vec2i source_;
+        Vec2i target_;
+        Node *current;
+        nodeMap closedMap;
+        Point subOptimalPoint;
+        CoordinateList path;
+
 
     private:
         HeuristicFunction heuristic;
