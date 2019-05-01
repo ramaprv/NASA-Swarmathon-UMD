@@ -24,12 +24,12 @@ MapController::MapController() {
   result.wristAngle = M_PI/4;
 
   // Create a CV window to visualize generated Map
-  cv::namedWindow("MapWindow", CV_WINDOW_AUTOSIZE );
+  // cv::namedWindow("MapWindow", CV_WINDOW_AUTOSIZE );
 }
 
 void MapController::Reset() {
   result.reset = false;
-  cv::destroyAllWindows();
+  // cv::destroyAllWindows();
 }
 
 /**
