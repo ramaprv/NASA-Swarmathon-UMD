@@ -32,7 +32,7 @@ public:
   bool requestRejectPoint();
   void resetRejectRequest();
   bool getObstacleControllerStatus();
-  void initialYawCorrection();
+  Result initialYawCorrection(float errorAngle);
 
 protected:
 
@@ -108,6 +108,7 @@ private:
   bool moveAhead = false ;
   bool obstacleControllerFinished = false ;
   float init2GoalDist = 0;
+  bool hasTurnd2Mline = false ;
 };
 
 #endif // OBSTACLECONTOLLER_H

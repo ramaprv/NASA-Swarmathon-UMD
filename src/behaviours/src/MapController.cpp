@@ -127,7 +127,7 @@ Result MapController::DoWork() {
   gridType occType = EMPTY;
   addPointToMap(gridPoint, occType);
   GetObjectPos(currentLocation);
-  visualizeMap();
+  // visualizeMap();
   // visuvalization();
   result.b = wait;
   return (result);

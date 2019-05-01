@@ -9,6 +9,7 @@ ObstacleController::ObstacleController()
   result.PIDMode = FAST_PID; //use the const PID to turn at a constant speed
   goalPosSet = false ;
   rotDirection = 0;
+  hasTurnd2Mline = true;
 }
 
 //note, not a full reset as this could cause a bad state
@@ -21,6 +22,7 @@ void ObstacleController::Reset() {
   goalPosSet = false ;
   delay = current_time;
   rotDirection = 0;
+  hasTurnd2Mline = false;
 }
 
 // Avoid crashing into objects detected by the ultrasound or the tag bouundary
@@ -90,35 +92,59 @@ void ObstacleController::avoidCollectionZone() {
     result.pd.setPointYaw = 0;
 }
 
-void ObstacleController::initialYawCorrection() {
+Result ObstacleController::initialYawCorrection(float errorAngle) {
   result.type = precisionDriving;
 
   result.pd.cmdVel = 0.0;
 
   result.pd.setPointVel = 0.0;
   result.pd.cmdVel = 0.0;
-  result.pd.cmdAngularError = std::atan2(goalPosition.y - currentLocation.y, goalPosition.x - currentLocation.x);
+  result.pd.setPointYaw = 0;
+  result.pd.cmdAngularError = errorAngle *0.1 ;
+  return result;
 }
-
+// std::atan2(goalPosition.y - currentLocation.y, goalPosition.x - currentLocation.x)
 
 Result ObstacleController::DoWork() {
 
-  // std::cout << "ObstacleController: Do Work"<< std::endl;
+  std::cout << "ObstacleController: Do Work"<< std::endl;
   clearWaypoints = true;
   set_waypoint = true;
 
   result.PIDMode = CONST_PID;
+  result.type = waypoint;
+  result.wpts.waypoints.clear();
+  result.wpts.waypoints.push_back(currentLocation);
 
   // The obstacle is an april tag marking the collection zone
 
   // if(goalPosSet == true || collection_zone_seen == true || tag_boundary_seen == true)
+
+  if ((!hasTurnd2Mline) && goalPosSet){
+    float goalTheta = atan2(goalPosition.y - currentLocation.y, goalPosition.x - currentLocation.x);
+    float errorTheta = goalTheta - currentLocation.theta;
+    std::cout << "errorTheta: "<< errorTheta << std::endl;
+    if (fabs(errorTheta) < 0.15){
+      hasTurnd2Mline = true;
+      //result.type = waypoint;
+      return result;
+    }
+    else{
+      result = initialYawCorrection(errorTheta);
+      return result;
+    }
+
+  }
+
   if(false == goalPosSet)
   {
 		initialPosition = currentLocation ;
     goalPosSet = true ;
+    /*
     result.type = waypoint;
     result.wpts.waypoints.clear();
     result.wpts.waypoints.push_back(goalPosition);
+*/
     // initialYawCorrection();
     // return result;
   }
@@ -227,15 +253,15 @@ void ObstacleController::ProcessData() {
   //if any sonar is below the trigger distance set physical obstacle true
   float goalTheta = atan2(goalPosition.y - currentLocation.y, goalPosition.x - currentLocation.x);
   float goalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
-  std::cout << "Current Heading and Goal Heading:" << currentLocation.theta << "and" << goalTheta << std::endl;
-  if (center < 0.8 && fabs(goalTheta - currentLocation.theta) <= 1)
+  // std::cout << "Current Heading and Goal Heading:" << currentLocation.theta << "and" << goalTheta << std::endl;
+  if (center < 0.8)//&& fabs(goalTheta - currentLocation.theta) <= 1)
   {
-    std::cout << "I got triggered" << std::endl;
+    // std::cout << "I got triggered" << std::endl;
     phys = true;
     timeSinceTags = current_time;
 
     /* Define the rotation direction in the beginning */
-    if(false == followBugAlgorithm)
+    if(false == followBugAlgorithm && hasTurnd2Mline)
     {
 
       if (left <= right)
@@ -254,10 +280,12 @@ void ObstacleController::ProcessData() {
 
   if(true == followBugAlgorithm)
   {
-    if((center > 0.8) && (left > triggerDistance) && (right > triggerDistance))
+    if((center > 0.8) && (left > triggerDistance) && (right > triggerDistance)){
       phys = false ;
-    else
+      hasTurnd2Mline = false;
+    }else{
       phys = true ;
+    }
   }
 
   //if physical obstacle, tag boundary, or collection zone visible
@@ -271,6 +299,7 @@ void ObstacleController::ProcessData() {
   {
     followBugAlgorithm = false ;
     obstacleAvoided = true ;
+    // hasTurnd2Mline = false;
   }
 }
 
@@ -422,7 +451,7 @@ void ObstacleController::setTargetHeldClear()
   //adjust current state on transition from cube held to cube not held
   if (targetHeld)
   {
-    std::cout << "targetHeld" << '\n';
+    // std::cout << "targetHeld" << '\n';
     Reset();
     targetHeld = false;
     previousTargetState = false;
@@ -437,7 +466,7 @@ void ObstacleController::SetGoalPoint(Point goalPos)
   {
     goalPosition = goalPos;
     init2GoalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
-  	rotDirection =0;
+  	rotDirection = 0;
     // std::cout << "Obstacle controller goal point is :" << goalPosition.x << ", " << goalPosition.y << std::endl;
   }
 
