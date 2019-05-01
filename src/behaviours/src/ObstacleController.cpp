@@ -406,7 +406,7 @@ bool ObstacleController::ShouldInterrupt() {
     //if the obstacle has been avoided and we had previously detected one interrupt to change to waypoints
     if(obstacleAvoided && obstacleDetected)
     {
-      std::cout << "interrupt" << '\n';
+      // std::cout << "interrupt" << '\n';
       Reset();
       return true;
     } else {
@@ -421,7 +421,7 @@ bool ObstacleController::HasWork() {
   //there is work if a waypoint needs to be set or the obstacle hasnt been avoided
   if (can_set_waypoint && set_waypoint)
   {
-    std::cout << "Can set waypoint Reset - in has work" << std::endl;
+    // std::cout << "Can set waypoint Reset - in has work" << std::endl;
     return true;
   }
 
@@ -536,13 +536,13 @@ bool ObstacleController::checkRejectionCriterion()
 
   if(goalDist > init2GoalDist + 5)
   {
-    std::cout << "Going out of the threshold distance" << std::endl;
+    // std::cout << "Going out of the threshold distance" << std::endl;
     rejectFlag = true ;
   }
 
   if(false == checkMline())
   {
-    std::cout << "The point is within the obstacle space" << std::endl;
+    // std::cout << "The point is within the obstacle space" << std::endl;
     rejectFlag = true ;
   }
 

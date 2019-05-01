@@ -380,7 +380,7 @@ void LogicController::controllerInterconnect()
   {
     if(true == obstacleController.requestRejectPoint() )
     {
-      std::cout << "Request to reject a point" << std::endl;
+      // std::cout << "Request to reject a point" << std::endl;
       /* Reject the next point from the search controller */
 
       obstacleController.resetRejectRequest();

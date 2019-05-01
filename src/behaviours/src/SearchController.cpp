@@ -19,7 +19,7 @@ SearchController::SearchController() {
   result.fingerAngle = M_PI/2;
   result.wristAngle = M_PI/4;
 
-  std::cout << "Generating Hilbert Motion" << std::endl;
+  // std::cout << "Generating Hilbert Motion" << std::endl;
   generateHilbertPoints(5);
 
 }
@@ -30,7 +30,7 @@ void SearchController::Reset() {
 
 
 Result SearchController::DoWork() {
-	std::cout<< "SearchController Do work"<< std::endl;
+	// std::cout<< "SearchController Do work"<< std::endl;
   Point  searchLocation;
 	Point tmpLocation ;
 
@@ -65,7 +65,7 @@ Result SearchController::DoWork() {
 					}while(!isvalid);
 			int targetQuad =getQuadrant(searchLocation);
 			int roverQuad =getQuadrant(currentLocationGlobal);
-			std::cout<< "Initial Move- target quadrant: " << targetQuad <<"rover quadrant: "<< roverQuad <<std::endl;
+			// std::cout<< "Initial Move- target quadrant: " << targetQuad <<"rover quadrant: "<< roverQuad <<std::endl;
 			int adjBackQuad = targetQuad-1;
 			int adjNextQuad = targetQuad+1;
 			if(adjNextQuad == 4) adjNextQuad = 0;
@@ -81,7 +81,7 @@ Result SearchController::DoWork() {
 				// std::cout << "Next Waypoint" << std::endl ;
 				searchLocation.x += centerLocation.x;
 				searchLocation.y += centerLocation.y;
-				std::cout << "InitX" << searchLocation.x << ",InitY" << searchLocation.y << std::endl;
+				// std::cout << "InitX" << searchLocation.x << ",InitY" << searchLocation.y << std::endl;
 				// std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pathPointIndex <<"/"<<currentPathPoints.size() << std::endl;
 				std::cout << "Xc" << currentLocationGlobal.x << ",Yc" << currentLocationGlobal.y << std::endl;
 				result.wpts.waypoints.clear();
@@ -90,8 +90,8 @@ Result SearchController::DoWork() {
 			}
 		}
 
-    std::cout<< "PathPointIndex: "<< pathPointIndex << std::endl;
-    std::cout<< "ArenaLevel: "<< arenaLevel << std::endl;
+    // std::cout<< "PathPointIndex: "<< pathPointIndex << std::endl;
+    // std::cout<< "ArenaLevel: "<< arenaLevel << std::endl;
     /*
     if (pathPointIndex < currentPathPoints.size()-5 && arenaLevel == 1){
       pathPointIndex = currentPathPoints.size()-5;
@@ -162,9 +162,9 @@ Result SearchController::DoWork() {
 		searchLocation.x += centerLocation.x;
 		searchLocation.y += centerLocation.y;
 		// std::cout << "Next Waypoint" << std::endl ;
-		std::cout << "Xs" << searchLocation.x << ",Ys" << searchLocation.y << ",PointIndex" << pathPointIndex<<"/"<<currentPathPoints.size() << std::endl;
+		// std::cout << "Xs" << searchLocation.x << ",Ys" << searchLocation.y << ",PointIndex" << pathPointIndex<<"/"<<currentPathPoints.size() << std::endl;
         // std::cout << "X" << tmpLocation.x << ",Y" << tmpLocation.y << ",PointIndex" << pathPointIndex <<"/"<<currentPathPoints.size() << std::endl;
-		std::cout << "Xc" << currentLocationGlobal.x << ",Yc" << currentLocationGlobal.y << std::endl;
+		// std::cout << "Xc" << currentLocationGlobal.x << ",Yc" << currentLocationGlobal.y << std::endl;
 		result.wpts.waypoints.clear();
 		result.wpts.waypoints.insert(result.wpts.waypoints.begin(), searchLocation);
     }
@@ -261,22 +261,22 @@ void SearchController::generateHilbertPoints(unsigned int degree )
 	tmpPoint.x = x;
 	tmpPoint.y = y ;
 	hilbertWaypoints.push_back(tmpPoint);
-  //std::cout<< x << "," << y<< std::endl;
+  // std::cout<< x << "," << y<< std::endl;
   }
-  std::cout<< "Hilbert Size"<<hilbertWaypoints.size()<< std::endl;
+  // std::cout<< "Hilbert Size"<<hilbertWaypoints.size()<< std::endl;
 }
 
 void SearchController::updateCurrentPathPoints(string roverName){
-	std::cout<< "Updating CurrentPath"<< std::endl;
-	std::cout<< "Rank ="<<myRoverIndex <<", NumberRovers "<<totalRovers<< std::endl;
+	// std::cout<< "Updating CurrentPath"<< std::endl;
+	// std::cout<< "Rank ="<<myRoverIndex <<", NumberRovers "<<totalRovers<< std::endl;
 		int startFactor = myRoverIndex-1;
 		int totalPoints = hilbertWaypoints.size();
 		int startIndex = int(floor(startFactor*totalPoints/totalRovers));
 		int endIndex = int(ceil((startFactor+1)*totalPoints/totalRovers));
 		currentPathPoints.clear();
-		std::cout<< startIndex<<"," <<endIndex << std::endl;
+		// std::cout<< startIndex<<"," <<endIndex << std::endl;
 		currentPathPoints.insert(currentPathPoints.begin(),hilbertWaypoints.begin()+startIndex,hilbertWaypoints.begin()+endIndex);
-		std::cout<< currentPathPoints.size()<<std::endl;
+		// std::cout<< currentPathPoints.size()<<std::endl;
 		// Resetting the pathPoints every time a new rover is detected
 		pathPointIndex = 0;
 		pathUpdated = true;
@@ -296,9 +296,9 @@ void SearchController::updateCurrentPathPoints(string roverName){
 		if (arenaLevel%2 == 1){
 			// if (dist2final<dist2start){
 			std::reverse(currentPathPoints.begin(),currentPathPoints.end());
-			std::cout << "path Reversed" << std::endl;
+			// std::cout << "path Reversed" << std::endl;
 		}
-		std::cout<< "Finished Updating CurrentPath"<< std::endl;
+		// std::cout<< "Finished Updating CurrentPath"<< std::endl;
 }
 
 void SearchController::setRoverCount_Rank(int noOfRovers,int rank){
@@ -323,7 +323,7 @@ void SearchController::decrementPathIndex(int a){
 	searchLocation.y = lowerLeftHilbertPt + tmpLocation.y*hilbert2dScale;
 	// if in range when search state changes to picked up state then decrement
 	if (fabs(hypot(searchLocation.x-currentLocation.x, searchLocation.y-currentLocation.y))<2*hilbert2dScale){
-		std::cout << "Search Controller PathIndex decrement: " << a << std::endl;
+		// std::cout << "Search Controller PathIndex decrement: " << a << std::endl;
 		if (pathPointIndex-a >=0 && (pathPointIndex -a)<=currentPathPoints.size()){
 		  pathPointIndex = pathPointIndex-a;
 		}else {
@@ -345,7 +345,7 @@ int SearchController::getQuadrant(Point p){
 	}else if (xVal>0.0 && yVal<0.0){
 		quad = 3;
 	}else{
-		std::cout<<"getQuadrant function failed" << std::endl;
+		// std::cout<<"getQuadrant function failed" << std::endl;
 		quad = 0;
 	}
 	return quad;

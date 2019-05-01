@@ -657,7 +657,7 @@ int count =0;
  }
 
 logicController.setRoverCount_Rank(list.size(),rank);
-std::cout<< "RosAdapter:size = "<<list.size()<<", Rank="<<rank<< std::endl;
+// std::cout<< "RosAdapter:size = "<<list.size()<<", Rank="<<rank<< std::endl;
 visited = true;
 }
 
