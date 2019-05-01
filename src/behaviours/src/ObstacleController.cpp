@@ -90,6 +90,16 @@ void ObstacleController::avoidCollectionZone() {
     result.pd.setPointYaw = 0;
 }
 
+void ObstacleController::initialYawCorrection() {
+  result.type = precisionDriving;
+
+  result.pd.cmdVel = 0.0;
+
+  result.pd.setPointVel = 0.0;
+  result.pd.cmdVel = 0.0;
+  result.pd.cmdAngularError = std::atan2(goalPosition.y - currentLocation.y, goalPosition.x - currentLocation.x);
+}
+
 
 Result ObstacleController::DoWork() {
 
@@ -102,6 +112,17 @@ Result ObstacleController::DoWork() {
   // The obstacle is an april tag marking the collection zone
 
   // if(goalPosSet == true || collection_zone_seen == true || tag_boundary_seen == true)
+  if(false == goalPosSet)
+  {
+		initialPosition = currentLocation ;
+    goalPosSet = true ;
+    result.type = waypoint;
+    result.wpts.waypoints.clear();
+    result.wpts.waypoints.push_back(goalPosition);
+    // initialYawCorrection();
+    // return result;
+  }
+
   if(true)
   {
   	if(collection_zone_seen){
@@ -144,12 +165,6 @@ Result ObstacleController::DoWork() {
   }
 }
 
-  if(false == goalPosSet)
-  {
-		initialPosition = currentLocation ;
-    goalPosSet = true ;
-  }
-
   return result;
 }
 
@@ -191,7 +206,7 @@ void ObstacleController::ProcessData() {
     //If the center distance is longer than the reactivation threshold
     if(center > reactivate_center_sonar_threshold){
       //currently do not re-enable the center sonar instead ignore it till the block is dropped off
-      //ignore_center_sonar = false; //look at sonar again beacuse center ultrasound has gone long
+      ignore_center_sonar = false; //look at sonar again beacuse center ultrasound has gone long
     }
     else{
       //set the center distance to "max" to simulated no obstacle
@@ -210,8 +225,9 @@ void ObstacleController::ProcessData() {
   }
 
   //if any sonar is below the trigger distance set physical obstacle true
+  float goalTheta = atan2(goalPosition.y - currentLocation.y, goalPosition.x - currentLocation.x);
   float goalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
-  if ((center < 0.8 && goalDist > 0.5))
+  if (center < 0.8 && goalDist > 0.2)
   {
     phys = true;
     timeSinceTags = current_time;
@@ -268,10 +284,12 @@ void ObstacleController::setTagData(vector<Tag> tags){
   count_right_collection_zone_tags = 0;
 
   // Reset obstacle controller to pickup block when found
-  for (int i = 0; i < tags.size(); i++) {
-    if (tags[i].getID() == 0) {
-      Reset();
-      return;
+  if (!targetHeld) {
+    for (int i = 0; i < tags.size(); i++) {
+      if (tags[i].getID() == 0) {
+        Reset();
+        return;
+      }
     }
   }
 
@@ -288,6 +306,15 @@ void ObstacleController::setTagData(vector<Tag> tags){
   if (!targetHeld) {
     for (int i = 0; i < tags.size(); i++) {
       if (tags[i].getID() == 256) {
+        collection_zone_seen = checkForCollectionZoneTags( tags[i] );
+        timeSinceTags = current_time;
+      }
+    }
+  }
+
+  if (targetHeld) {
+    for (int i = 0; i < tags.size(); i++) {
+      if (tags[i].getID() == 0) {
         collection_zone_seen = checkForCollectionZoneTags( tags[i] );
         timeSinceTags = current_time;
       }

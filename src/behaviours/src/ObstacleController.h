@@ -32,6 +32,7 @@ public:
   bool requestRejectPoint();
   void resetRejectRequest();
   bool getObstacleControllerStatus();
+  void initialYawCorrection();
 
 protected:
 
