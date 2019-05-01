@@ -255,7 +255,7 @@ void MapController::visualizeMap() {
   cv::Mat mapCVMat(300, 300, CV_8UC3, cv::Scalar(0,0,0));
 
   for (auto p : mapObj) {
-    std::cout << "point x : " << p.first.x << " y : " << p.first.y << " type : " << p.second << endl;
+    // std::cout << "point x : " << p.first.x << " y : " << p.first.y << " type : " << p.second << endl;
 
     switch(p.second){
       case EMPTY:
