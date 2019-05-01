@@ -39,6 +39,7 @@ add_executable(
   src/PositionPublisher.cpp
   src/MapController.cpp
   src/hilbert_curve.cpp
+  src/AStar.cpp
 )
 
 add_dependencies(behaviours ${catkin_EXPORTED_TARGETS})

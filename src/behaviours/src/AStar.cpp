@@ -26,7 +26,7 @@ AStar::uint AStar::Node::getScore()
 
 AStar::Generator::Generator()
 {
-    setDiagonalMovement(True);
+    setDiagonalMovement(true);
     setHeuristic(&Heuristic::manhattan);
 
     direction = {
@@ -80,25 +80,15 @@ bool AStar::Generator::findPath()
     auto start = std::chrono::high_resolution_clock::now();
 
     while (nodeQueue.size()>0) {
-    // while (!openSet.empty()) {
         current = nodeQueue.top().qNode;
-        // current = *openSet.begin();
-        // for (auto node : openSet) {
-        //     if (node->getScore() <= current->getScore()) {
-        //         current = node;
-        //     }
-        // }
-
         if (current->coordinates == target_) {
             break;
         }
 
         Point pt;
-        pt.x = current->coordinates.x
-        pt.y = current->coordinates.y
-        closedMap.insert(std::make_pair (pt, current->coordinates);
-        // closedSet.insert(current);
-        // openSet.erase(std::find(openSet.begin(), openSet.end(), current));
+        pt.x = current->coordinates.x;
+        pt.y = current->coordinates.y;
+        closedMap.insert(std::make_pair (pt, current->coordinates));
         nodeQueue.pop();
 
         for (uint i = 0; i < directions; ++i) {
@@ -106,13 +96,6 @@ bool AStar::Generator::findPath()
             if( inClosedMap(newCoordinates) || rejectWithMap(current->coordinates)) {
               continue;
             }
-
-            // if (detectCollision(newCoordinates) ||
-            //     findNodeOnList(closedSet, newCoordinates)) {
-            //       if(rejectWithMap(current->coordinates)) {
-            //         continue;
-            //       }
-            // }
 
             uint totalCost = current->G + ((i < 4) ? 10 : 14);
 
@@ -122,41 +105,19 @@ bool AStar::Generator::findPath()
             successor->H = heuristic(successor->coordinates, target_);
             nodeQueue.push(prioritizedNode(successor));
 
-            // ************check if needed************
-            // Node *successor = findNodeOnList(openSet, newCoordinates);
-            // if (successor == nullptr) {
-                // successor = new Node(newCoordinates, current);
-                // successor->G = totalCost;
-                // successor->H = heuristic(successor->coordinates, target_);
-                // openSet.insert(successor);
-                // nodeQueue.push(prioritizedNode(successor));
-            // }
-            // else if (totalCost < successor->G) {
-                // successor->parent = current;
-                // successor->G = totalCost;
-            // }
-            //
         }
         auto finish = std::chrono::high_resolution_clock::now();
-        if(finish-start > 0.09) {
-          Vec2i subPt = nodeQueue.top();
+        std::chrono::duration<double> elapsed = finish - start;
+        std::chrono::duration<double> threshold = (std::chrono::duration<double>)0.09;
+        if(elapsed > threshold) {
+          Vec2i subPt = nodeQueue.top().qNode->coordinates;
           subOptimalPoint.x =  subPt.x;
           subOptimalPoint.y =  subPt.y;
           return false;
         }
-    }
+      }
     path.clear();
     return true;
-
-    // CoordinateList path;
-    // while (current != nullptr) {
-    //     path.push_back(current->coordinates);
-    //     current = current->parent;
-    // }
-    // nodeQueue = std::priority_queue<prioritizedNode>();
-    // releaseNodes(openSet);
-    // releaseNodes(closedSet);
-    // return path;
 }
 
 bool AStar::Generator::getPath()
@@ -164,38 +125,32 @@ bool AStar::Generator::getPath()
   while (current != nullptr) {
     subOptimalPoint.x = current->coordinates.x;
     subOptimalPoint.y = current->coordinates.y;
+    Vec2i currentPt, parentPt;
+    currentPt = current->coordinates;
     path.push_back(current->coordinates);
     current = current->parent;
+    parentPt = current->coordinates;
     updateParentToMap(currentPt, parentPt);
     return false;
   }
   nodeQueue = std::priority_queue<prioritizedNode>();
-  releaseNodes(openSet);
-  releaseNodes(closedSet);
+
   return true;
 }
 
-AStar::Generator::updateParentToMap(currentPt, parentPt) {
+void AStar::Generator::updateParentToMap(Vec2i currentPt, Vec2i parentPt) {
   Point ptCurr, ptPar;
   ptCurr.x = currentPt.x;
   ptCurr.y = currentPt.y;
   ptPar.x = parentPt.x;
   ptPar.y = parentPt.y;
-  index = mapObjPtr->find(ptCurr)
+  auto index = mapObjPtr->find(ptCurr);
   if(index != mapObjPtr->end()) {
-    if(index->second.grType() == EMPTY){
-      index->second.parent = ptParent;
+    if(index->second.grType == EMPTY){
+      index->second.parent = ptPar;
+      index->second.isOptimal = true;
     }
-}
-
-AStar::Node* AStar::Generator::findNodeOnList(NodeSet& nodes_, Vec2i coordinates_)
-{
-    for (auto node : nodes_) {
-        if (node->coordinates == coordinates_) {
-            return node;
-        }
-    }
-    return nullptr;
+  }
 }
 
 bool AStar::Generator::rejectWithMap(Vec2i coordinates_)
@@ -203,9 +158,9 @@ bool AStar::Generator::rejectWithMap(Vec2i coordinates_)
   Point pt;
   pt.x = coordinates_.x;
   pt.y = coordinates_.y;
-  index = mapObjPtr->find(pt)
+  auto index = mapObjPtr->find(pt);
   if(index != mapObjPtr->end()) {
-    if(index->second.grType() == EMPTY){
+    if(index->second.grType == EMPTY){
       return true;
     }
     else {
@@ -222,8 +177,8 @@ bool AStar::Generator::inClosedMap(Vec2i coord)
     Point pt;
     pt.x = coord.x;
     pt.y = coord.y;
-    index = .find(pt)
-    if(index != closedMap->end()) {
+    auto index = closedMap.find(pt);
+    if(index != closedMap.end()) {
       return true;
     }
     else {
@@ -272,12 +227,13 @@ AStar::uint AStar::Heuristic::octagonal(Vec2i source_, Vec2i target_)
     return 10 * (delta.x + delta.y) + (-6) * std::min(delta.x, delta.y);
 }
 
-void AStar::Generator::init(Vec2i src, Vec2i targ, mapObj* ptr) {
+void AStar::Generator::init(AStar::Vec2i src, Vec2i targ, std::map<Point, mapValue>* ptr) {
   source_ = src;
   target_ = targ;
-  mapObjPtr = ptr
+  mapObjPtr = ptr;
 
-  *current = nullptr;
+  current = nullptr;
+  closedMap.clear();
   nodeQueue = std::priority_queue<prioritizedNode>();
   nodeQueue.push(prioritizedNode(new Node(source_)));
 }

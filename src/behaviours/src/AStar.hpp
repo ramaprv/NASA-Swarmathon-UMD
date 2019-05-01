@@ -14,6 +14,8 @@
 #include <algorithm>
 #include <chrono>
 #include <map>
+#include <iterator>
+
 #include "Point.h"
 #include "MapController.h"
 
@@ -53,8 +55,8 @@ namespace AStar
       }
     };
 
-    using NodeSet = std::set<Node*>;
-    using nodeMap = std::map<Point, Vec2i>;
+    typedef std::set<Node*> NodeSet ;
+    typedef std::map<Point, Vec2i> nodeMap ;
     std::priority_queue<prioritizedNode> nodeQueue;
 
     class Generator
@@ -74,8 +76,8 @@ namespace AStar
         void clearCollisions();
         bool rejectWithMap(Vec2i coordinates_);
         bool inClosedMap(Vec2i coord);
-        void init(Vec2i src, Vec2i tar, mapObj* ptr);
-        CoordinateList getPath();
+        void init(Vec2i src, Vec2i tar, std::map<Point, mapValue>* ptr);
+        bool getPath();
         void updateParentToMap(Vec2i currentPt, Vec2i parentPt);
         std::map<Point, mapValue>* mapObjPtr;
         Vec2i source_;
