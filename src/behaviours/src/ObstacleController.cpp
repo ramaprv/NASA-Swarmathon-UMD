@@ -227,8 +227,10 @@ void ObstacleController::ProcessData() {
   //if any sonar is below the trigger distance set physical obstacle true
   float goalTheta = atan2(goalPosition.y - currentLocation.y, goalPosition.x - currentLocation.x);
   float goalDist = sqrt(pow((goalPosition.x - currentLocation.x),2) + pow((goalPosition.y - currentLocation.y),2));
-  if (center < 0.8 && goalDist > 0.2)
+  std::cout << "Current Heading and Goal Heading:" << currentLocation.theta << "and" << goalTheta << std::endl;
+  if (center < 0.8 && fabs(goalTheta - currentLocation.theta) <= 1)
   {
+    std::cout << "I got triggered" << std::endl;
     phys = true;
     timeSinceTags = current_time;
 
@@ -315,12 +317,23 @@ void ObstacleController::setTagData(vector<Tag> tags){
   if (targetHeld) {
     for (int i = 0; i < tags.size(); i++) {
       if (tags[i].getID() == 0) {
-        collection_zone_seen = checkForCollectionZoneTags( tags[i] );
+        collection_zone_seen = checkIfTagNotinHand( tags[i] );
         timeSinceTags = current_time;
       }
     }
   }
 }
+
+bool ObstacleController::checkIfTagNotinHand( Tag tag ) {
+  float posX = tag.getPositionX();
+  float posY = tag.getPositionY();
+  float posZ = tag.getPositionZ();
+
+  float blockDistanceFromCamera = std::hypot(std::hypot(posX, posY), posZ);
+
+  return (blockDistanceFromCamera*blockDistanceFromCamera - 0.180*0.180) > 0;
+}
+
 
 bool ObstacleController::checkForCollectionZoneTags( Tag tag ) {
 

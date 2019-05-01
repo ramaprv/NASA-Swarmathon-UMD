@@ -50,6 +50,9 @@ private:
   // and are those AprilTags oriented towards or away from the camera.
   bool checkForCollectionZoneTags( Tag tag );
 
+  // for checking if the tag that is seen is not in the hand
+  bool checkIfTagNotinHand( Tag tag );
+
   const float K_angular = 1.0; //radians a second turn rate to avoid obstacles
   const float reactivate_center_sonar_threshold = 0.8; //reactive center sonar if it goes back above this distance, assuming it is deactivated
   const int targetCountPivot = 6; ///unused variable
